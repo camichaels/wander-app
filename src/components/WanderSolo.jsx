@@ -1,0 +1,520 @@
+import React, { useState, useEffect } from 'react'
+import { PromptHistoryAPI } from '../services/promptHistoryAPI'
+
+const WanderSolo = ({ navigate, currentUser }) => {
+  const [currentStep, setCurrentStep] = useState('prompt')
+  const [currentPrompt, setCurrentPrompt] = useState('')
+  const [promptCategory, setPromptCategory] = useState('')
+  const [userResponse, setUserResponse] = useState('')
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [showAffirmation, setShowAffirmation] = useState(false)
+  const [promptTimer, setPromptTimer] = useState(30)
+  const [responseTimer, setResponseTimer] = useState(300)
+  const [showPromptTimer, setShowPromptTimer] = useState(true)
+  const [showResponseTimer, setShowResponseTimer] = useState(true)
+
+  const soloPrompts = {
+    reflective: [
+      "What's a belief you held as a child that you secretly still find comforting?",
+      "If you could have a conversation with your past self, what would you warn them about?",
+      "What's something you pretend to understand but actually find mysterious?",
+      "Describe a moment when you felt most like yourself.",
+      "What's a question you're afraid to know the answer to?"
+    ],
+    creative: [
+      "Invent a holiday that celebrates something completely ordinary.",
+      "What would happen if gravity worked differently on Tuesdays?",
+      "Design a job that doesn't exist but should.",
+      "What's a color that doesn't exist but you can almost imagine?",
+      "Create a new emotion and describe when you'd feel it."
+    ],
+    absurd: [
+      "What do you think trees gossip about?",
+      "If your socks could talk, what complaints would they have?",
+      "What's the most ridiculous superpower you'd actually want?",
+      "Invent a conspiracy theory about why we have eyebrows.",
+      "What would aliens find weird about human sleeping habits?"
+    ],
+    personal: [
+      "What's your current relationship status with mornings?",
+      "Describe your ideal day using only weather terms.",
+      "What's something you're surprisingly good at that no one knows?",
+      "If your energy had a flavor today, what would it taste like?",
+      "What's a tiny thing that made you feel human recently?"
+    ]
+  }
+
+  const affirmations = [
+    "Your mind just stretched in a beautiful way",
+    "That's the kind of thinking that changes things",
+    "You gave your brain exactly what it needed",
+    "Pure wandering magic right there",
+    "Your thoughts have their own unique gravity",
+    "That's some beautiful mental roaming",
+    "You just reclaimed a piece of your mind"
+  ]
+
+  const categories = ['reflective', 'creative', 'absurd', 'personal']
+
+  useEffect(() => {
+    loadRandomPrompt()
+  }, [])
+
+  useEffect(() => {
+    if (currentStep === 'prompt' && promptTimer <= 0) {
+      setCurrentStep('respond')
+    }
+  }, [promptTimer, currentStep])
+
+  useEffect(() => {
+    if (currentStep === 'prompt' && promptTimer > 0 && showPromptTimer) {
+      const timer = setTimeout(() => setPromptTimer(promptTimer - 1), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [promptTimer, currentStep, showPromptTimer])
+
+  useEffect(() => {
+    if (currentStep === 'respond' && responseTimer > 0 && showResponseTimer) {
+      const timer = setTimeout(() => setResponseTimer(responseTimer - 1), 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [responseTimer, currentStep, showResponseTimer])
+
+  const loadRandomPrompt = () => {
+    const randomCategory = categories[Math.floor(Math.random() * categories.length)]
+    const categoryPrompts = soloPrompts[randomCategory]
+    const randomPrompt = categoryPrompts[Math.floor(Math.random() * categoryPrompts.length)]
+    setCurrentPrompt(randomPrompt)
+    setPromptCategory(randomCategory)
+  }
+
+  const loadRelatedPrompt = () => {
+    const categoryPrompts = soloPrompts[promptCategory]
+    const otherPrompts = categoryPrompts.filter(p => p !== currentPrompt)
+    const relatedPrompt = otherPrompts[Math.floor(Math.random() * otherPrompts.length)]
+    setCurrentPrompt(relatedPrompt)
+  }
+
+  const skipTimer = () => {
+    setShowPromptTimer(false)
+    setCurrentStep('respond')
+  }
+
+  const resetTimers = () => {
+    setPromptTimer(30)
+    setResponseTimer(300)
+    setShowPromptTimer(true)
+    setShowResponseTimer(true)
+  }
+
+  const handleSubmit = async () => {
+    if (!userResponse.trim()) return
+    
+    setIsSubmitting(true)
+    
+    try {
+      if (currentUser?.id) {
+        await PromptHistoryAPI.createPromptHistory(currentUser.id, {
+          prompt_text: currentPrompt,
+          response_text: userResponse,
+          prompt_type: 'solo',
+          title: currentPrompt.substring(0, 50) + (currentPrompt.length > 50 ? '...' : '')
+        })
+      }
+      
+      setTimeout(() => {
+        setIsSubmitting(false)
+        setCurrentStep('complete')
+        setShowAffirmation(true)
+        setTimeout(() => setShowAffirmation(false), 4000)
+      }, 1000)
+    } catch (error) {
+      console.error('Error saving response:', error)
+      setIsSubmitting(false)
+      setCurrentStep('complete')
+      setShowAffirmation(true)
+      setTimeout(() => setShowAffirmation(false), 4000)
+    }
+  }
+
+  const startNewWander = (type) => {
+    setUserResponse('')
+    setCurrentStep('prompt')
+    setShowAffirmation(false)
+    resetTimers()
+    
+    if (type === 'related') {
+      loadRelatedPrompt()
+    } else {
+      loadRandomPrompt()
+    }
+  }
+
+  const formatTime = (seconds) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  return (
+    <div style={{ 
+      minHeight: '100vh', 
+      background: 'linear-gradient(135deg, #dbeafe, #bfdbfe, #a5b4fc)',
+      paddingBottom: '100px'
+    }}>
+      
+      <header style={{ padding: '24px', textAlign: 'center' }}>
+        <button 
+          onClick={() => navigate('home')}
+          style={{ 
+            position: 'absolute', 
+            left: '24px', 
+            top: '24px',
+            background: 'rgba(255,255,255,0.6)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: '12px',
+            padding: '8px',
+            cursor: 'pointer'
+          }}
+        >
+          ←
+        </button>
+        <h1 style={{ 
+          fontSize: '1.5rem', 
+          fontWeight: '300', 
+          color: '#1e40af',
+          marginBottom: '8px'
+        }}>
+          Solo Wanders
+        </h1>
+        <p style={{ color: '#2563eb', opacity: 0.75, fontSize: '14px' }}>
+          Your personal drift space
+        </p>
+      </header>
+
+      <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
+        
+        {currentStep === 'prompt' && (
+          <div>
+            <div style={{
+              backgroundColor: 'rgba(255,255,255,0.6)',
+              borderRadius: '24px',
+              padding: '24px 32px 24px 32px',
+              border: '1px solid rgba(255,255,255,0.2)',
+              marginBottom: '12px'
+            }}>
+              <p style={{ color: '#4b5563', fontSize: '18px', fontWeight: '300', lineHeight: '1.5', margin: 0 }}>
+                {currentPrompt}
+              </p>
+            </div>
+
+            {/* Timer info moved outside prompt box */}
+            {showPromptTimer && (
+              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+                <p style={{ 
+                  color: '#2563eb', 
+                  fontSize: '12px', 
+                  margin: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}>
+                  <span>Take a moment to let it settle</span>
+                  <span>•</span>
+                  <span style={{ opacity: Math.max(0.3, promptTimer / 30) }}>{promptTimer}s</span>
+                  <span>•</span>
+                  <button 
+                    onClick={skipTimer}
+                    style={{ 
+                      color: '#2563eb', 
+                      textDecoration: 'underline',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '12px'
+                    }}
+                  >
+                    Skip timer
+                  </button>
+                </p>
+              </div>
+            )}
+            
+            <div style={{ textAlign: 'center' }}>
+              <button 
+                onClick={() => startNewWander('random')}
+                style={{ 
+                  width: '100%',
+                  backgroundColor: 'rgba(255,255,255,0.6)',
+                  color: '#1e40af',
+                  padding: '12px 24px',
+                  borderRadius: '16px',
+                  border: '1px solid #3b82f6',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                Skip and generate a new one
+              </button>
+            </div>
+          </div>
+        )}
+
+        {currentStep === 'respond' && (
+          <div style={{
+            backgroundColor: 'rgba(255,255,255,0.6)',
+            borderRadius: '24px',
+            padding: '24px',
+            border: '1px solid rgba(255,255,255,0.2)'
+          }}>
+            <p style={{ color: '#4b5563', fontSize: '18px', fontWeight: '300', lineHeight: '1.5', marginBottom: '24px', marginTop: 0 }}>
+              {currentPrompt}
+            </p>
+
+            <textarea
+              value={userResponse}
+              onChange={(e) => setUserResponse(e.target.value)}
+              placeholder="Let your thoughts roam freely..."
+              style={{
+                width: '100%',
+                height: '128px',
+                padding: '16px',
+                backgroundColor: 'rgba(255,255,255,0.5)',
+                border: '1px solid #3b82f6',
+                borderRadius: '16px',
+                resize: 'none',
+                outline: 'none',
+                fontSize: '16px',
+                color: '#4b5563',
+                marginBottom: '16px',
+                boxSizing: 'border-box'
+              }}
+              autoFocus
+            />
+
+            {/* Timer info moved outside and condensed */}
+            {showResponseTimer && (
+              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                <p style={{ 
+                  color: '#2563eb', 
+                  fontSize: '12px', 
+                  margin: 0,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}>
+                  <span>No rush, just wander</span>
+                  <span>•</span>
+                  <span style={{ opacity: Math.max(0.3, responseTimer / 300) }}>{formatTime(responseTimer)}</span>
+                  <span>•</span>
+                  <button 
+                    onClick={() => setShowResponseTimer(false)}
+                    style={{ 
+                      color: '#2563eb', 
+                      textDecoration: 'underline',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      fontSize: '12px'
+                    }}
+                  >
+                    Hide timer
+                  </button>
+                </p>
+              </div>
+            )}
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <button
+                onClick={handleSubmit}
+                disabled={!userResponse.trim() || isSubmitting}
+                style={{
+                  width: '100%',
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  padding: '12px 24px',
+                  borderRadius: '16px',
+                  border: 'none',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  cursor: (!userResponse.trim() || isSubmitting) ? 'not-allowed' : 'pointer',
+                  opacity: (!userResponse.trim() || isSubmitting) ? 0.5 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                {isSubmitting ? (
+                  <div style={{ width: '16px', height: '16px', border: '2px solid white', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                ) : (
+                  "I'm done"
+                )}
+              </button>
+
+              <button
+                onClick={() => startNewWander('random')}
+                style={{
+                  width: '100%',
+                  backgroundColor: 'rgba(255,255,255,0.6)',
+                  color: '#1e40af',
+                  padding: '12px 24px',
+                  borderRadius: '16px',
+                  border: '1px solid #3b82f6',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  cursor: 'pointer'
+                }}
+              >
+                Skip and generate a new one
+              </button>
+            </div>
+          </div>
+        )}
+
+        {currentStep === 'complete' && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            
+            <div style={{
+              backgroundColor: 'rgba(255,255,255,0.6)',
+              borderRadius: '24px',
+              padding: '24px',
+              border: '1px solid rgba(255,255,255,0.2)'
+            }}>
+              <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '300', marginBottom: '16px' }}>{currentPrompt}</p>
+              <div style={{
+                backgroundColor: '#dbeafe',
+                borderRadius: '16px',
+                padding: '16px',
+                marginBottom: '16px'
+              }}>
+                <p style={{ color: '#4b5563', fontStyle: 'italic', margin: 0 }}>{userResponse}</p>
+              </div>
+              <p style={{ color: '#2563eb', fontSize: '12px', textAlign: 'center', margin: 0 }}>
+                Saved to your Lost & Found
+              </p>
+            </div>
+
+            {showAffirmation && (
+              <div style={{ textAlign: 'center', padding: '0' }}>
+                <div style={{
+                  backgroundColor: 'rgba(255,255,255,0.4)',
+                  borderRadius: '16px',
+                  padding: '24px',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  maxWidth: '100%'
+                }}>
+                  <p style={{ color: '#1e40af', fontWeight: '300', fontSize: '18px', margin: 0 }}>
+                    {affirmations[Math.floor(Math.random() * affirmations.length)]}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {!showAffirmation && (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                  <p style={{ color: '#2563eb', fontSize: '14px', opacity: 0.75, marginBottom: '16px' }}>
+                    Keep wandering?
+                  </p>
+                  
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                    <button
+                      onClick={() => startNewWander('related')}
+                      style={{
+                        width: '100%',
+                        backgroundColor: 'rgba(255,255,255,0.6)',
+                        color: '#1e40af',
+                        padding: '12px 24px',
+                        borderRadius: '16px',
+                        border: '1px solid #3b82f6',
+                        fontSize: '16px',
+                        fontWeight: '500',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Follow that thought
+                    </button>
+                    
+                    <button
+                      onClick={() => startNewWander('random')}
+                      style={{
+                        width: '100%',
+                        backgroundColor: 'rgba(255,255,255,0.6)',
+                        color: '#1e40af',
+                        padding: '12px 24px',
+                        borderRadius: '16px',
+                        border: '1px solid #3b82f6',
+                        fontSize: '16px',
+                        fontWeight: '500',
+                        cursor: 'pointer'
+                      }}
+                    >
+                      Surprise me
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </main>
+
+      {/* Bottom Navigation */}
+      <nav style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)' }}>
+        <div style={{
+          backgroundColor: 'rgba(255,255,255,0.7)',
+          borderRadius: '50px',
+          padding: '12px 24px',
+          border: '1px solid rgba(255,255,255,0.3)',
+          backdropFilter: 'blur(10px)'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', color: '#2563eb' }}>
+            <button 
+              onClick={() => navigate('home')}
+              style={{ fontSize: '12px', opacity: 0.5, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              Home
+            </button>
+            <button 
+              onClick={() => navigate('daily')}
+              style={{ fontSize: '12px', opacity: 0.5, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              Daily
+            </button>
+            <button 
+              onClick={() => navigate('solo')}
+              style={{ fontSize: '12px', fontWeight: 'bold', color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              Solos
+            </button>
+            <button 
+              onClick={() => navigate('mates')}
+              style={{ fontSize: '12px', opacity: 0.5, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              Mates
+            </button>
+            <button 
+              onClick={() => navigate('groups')}
+              style={{ fontSize: '12px', opacity: 0.5, color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer' }}
+            >
+              Groups
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <style>{`
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
+      `}</style>
+    </div>
+  )
+}
+
+export default WanderSolo
