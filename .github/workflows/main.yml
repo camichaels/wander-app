@@ -10,4 +10,5 @@ jobs:
     steps:
       - name: Call Supabase Function
         run: |
-          curl -X POST "https://farkcodunbcxdzhirjml.supabase.co/functions/v1/daily-reset"
+          curl -X POST "https://farkcodunbcxdzhirjml.supabase.co/functions/v1/daily-reset" \
+               -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}"
