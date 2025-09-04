@@ -101,17 +101,20 @@ const WanderMates = ({ navigate, currentUser }) => {
             .eq('shared_wander_id', wanderResult.data.shared_wander_id)
             .single()
           
-          if (fetchError) throw fetchError
+          if (fetchError) {
+            console.error('Error fetching shared wander details:', fetchError)
+            throw new Error('Failed to load prompt details')
+          }
           
           // Update mate with new prompt and shared wander ID
           setSelectedMate(prev => ({
             ...prev,
-            prompt: sharedWander.prompt?.prompt_text,
+            prompt: sharedWander.prompt?.prompt_text || 'Prompt not available',
             currentSharedWanderId: sharedWander.shared_wander_id
           }))
         } catch (err) {
           console.error('Error creating shared wander:', err)
-          setError('Failed to start new wander')
+          setError('Failed to start new wander: ' + err.message)
           return
         }
       }
@@ -130,6 +133,7 @@ const WanderMates = ({ navigate, currentUser }) => {
     if (!userResponse.trim() || !selectedMate?.currentSharedWanderId || !currentUser?.id) return
     
     setIsSubmitting(true)
+    setError(null) // Clear any previous errors
     
     try {
       // Submit response to shared wander
@@ -139,17 +143,23 @@ const WanderMates = ({ navigate, currentUser }) => {
         userResponse
       )
       
-      if (responseResult.error) throw responseResult.error
+      if (responseResult.error) {
+        throw new Error('Failed to submit response: ' + responseResult.error.message)
+      }
 
       // Save to prompt history for Lost & Found
-      await PromptHistoryAPI.createPromptHistory(currentUser.id, {
-        prompt_text: selectedMate.prompt,
-        response_text: userResponse,
-        prompt_type: 'mate',
-        title: selectedMate.prompt ? selectedMate.prompt.substring(0, 50) + (selectedMate.prompt.length > 50 ? '...' : '') : 'Mate Response'
-      })
+      try {
+        await PromptHistoryAPI.createPromptHistory(currentUser.id, {
+          prompt_text: selectedMate.prompt,
+          response_text: userResponse,
+          prompt_type: 'mate',
+          title: selectedMate.prompt ? selectedMate.prompt.substring(0, 50) + (selectedMate.prompt.length > 50 ? '...' : '') : 'Mate Response'
+        })
+      } catch (historyError) {
+        console.warn('Failed to save to prompt history:', historyError)
+        // Don't fail the whole operation for this
+      }
 
-      // Check current status to determine next view
       // Reload the mate data to get updated status
       const matesResult = await MatesAPI.getActiveMates(currentUser.id)
       if (!matesResult.error) {
@@ -175,7 +185,29 @@ const WanderMates = ({ navigate, currentUser }) => {
 
     } catch (error) {
       console.error('Error saving mate response:', error)
-      setError('Failed to save response')
+      
+      // Check if the response actually saved despite the error
+      try {
+        const matesResult = await MatesAPI.getActiveMates(currentUser.id)
+        if (!matesResult.error) {
+          const updatedMate = matesResult.data?.find(m => m.id === selectedMate.id)
+          if (updatedMate && updatedMate.yourResponse) {
+            // It actually saved, update the UI
+            setSelectedMate(updatedMate)
+            setCurrentView('waiting')
+            setUserResponse('')
+            setMates(prev => prev.map(m => 
+              m.id === selectedMate.id ? updatedMate : m
+            ))
+          } else {
+            setError('Failed to save response: ' + error.message)
+          }
+        } else {
+          setError('Failed to save response: ' + error.message)
+        }
+      } catch (checkError) {
+        setError('Failed to save response: ' + error.message)
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -320,7 +352,10 @@ const WanderMates = ({ navigate, currentUser }) => {
         <div style={{ textAlign: 'center' }}>
           <p style={{ color: '#dc2626', marginBottom: '16px' }}>{error}</p>
           <button 
-            onClick={loadInitialData}
+            onClick={() => {
+              setError(null)
+              loadInitialData()
+            }}
             style={{
               backgroundColor: '#059669',
               color: 'white',
@@ -616,7 +651,7 @@ const WanderMates = ({ navigate, currentUser }) => {
               border: '1px solid rgba(255,255,255,0.2)'
             }}>
               <p style={{ color: '#4b5563', fontSize: '18px', fontWeight: '300', lineHeight: '1.5', marginBottom: '24px' }}>
-                {selectedMate.prompt}
+                {selectedMate.prompt || 'Loading prompt...'}
               </p>
 
               <textarea
@@ -718,7 +753,7 @@ const WanderMates = ({ navigate, currentUser }) => {
               </div>
               
               <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '300', marginBottom: '16px', lineHeight: '1.4' }}>
-                {selectedMate.prompt}
+                {selectedMate.prompt || 'Loading prompt...'}
               </p>
               
               <div style={{
@@ -771,7 +806,7 @@ const WanderMates = ({ navigate, currentUser }) => {
               border: '1px solid rgba(255,255,255,0.2)'
             }}>
               <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '300', marginBottom: '16px' }}>
-                {selectedMate.prompt}
+                {selectedMate.prompt || 'Loading prompt...'}
               </p>
               
               {/* Your Response */}
