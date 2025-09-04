@@ -231,7 +231,7 @@ export const MatesAPI = {
                 reveal_date,
                 both_responded_at,
                 reset_scheduled_for,
-                prompt:mate_prompts!shared_wanders_prompt_id_fkey(prompt_text),
+                prompt_id,
                 responses:mate_responses(mate_response_id, user_id, response_text, created_at, is_revealed),
                 messages:mate_chat_messages(message_id, user_id, message_text, created_at)
               `)
@@ -253,7 +253,26 @@ export const MatesAPI = {
             let sharedReactions = []
 
             if (latestWander) {
-              prompt = latestWander.prompt?.prompt_text || null
+              // Get the prompt text separately with better error handling
+              if (latestWander.prompt_id) {
+                try {
+                  const { data: promptData, error: promptError } = await supabase
+                    .from('mate_prompts')
+                    .select('prompt_text')
+                    .eq('prompt_id', latestWander.prompt_id)
+                    .single()
+                  
+                  if (!promptError && promptData) {
+                    prompt = promptData.prompt_text
+                  } else {
+                    console.warn('Error fetching prompt:', promptError)
+                    prompt = 'Unable to load prompt'
+                  }
+                } catch (promptFetchError) {
+                  console.warn('Error in prompt fetch:', promptFetchError)
+                  prompt = 'Unable to load prompt'
+                }
+              }
               
               // Find responses
               const responses = latestWander.responses || []
