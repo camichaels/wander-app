@@ -89,26 +89,29 @@ const WanderMates = ({ navigate, currentUser }) => {
         try {
           const wanderResult = await SharedWandersAPI.createSharedWander(mate.id)
           
-          if (wanderResult.error) throw wanderResult.error
+          if (wanderResult.error) {
+            throw new Error('Failed to create shared wander: ' + wanderResult.error.message)
+          }
           
-          // Get the prompt from the created shared wander
+          // Get the prompt from the created shared wander using proper join
           const { data: sharedWander, error: fetchError } = await supabase
             .from('shared_wanders')
             .select(`
               shared_wander_id,
-              prompt:mate_prompts!shared_wanders_prompt_id_fkey(prompt_text)
+              prompt_id,
+              mate_prompts!inner(prompt_text)
             `)
             .eq('shared_wander_id', wanderResult.data.shared_wander_id)
             .single()
           
           if (fetchError) {
-            throw new Error('Failed to load prompt details')
+            throw new Error('Failed to load prompt details: ' + fetchError.message)
           }
           
           // Update mate with new prompt and shared wander ID
           const updatedMate = {
             ...mate,
-            prompt: sharedWander.prompt?.prompt_text || 'Prompt not available',
+            prompt: sharedWander.mate_prompts?.prompt_text || 'Prompt not available',
             currentSharedWanderId: sharedWander.shared_wander_id
           }
           
@@ -133,7 +136,7 @@ const WanderMates = ({ navigate, currentUser }) => {
     if (!userResponse.trim() || !selectedMate?.currentSharedWanderId || !currentUser?.id) return
     
     setIsSubmitting(true)
-    setError(null) // Clear any previous errors
+    setError(null)
     
     try {
       // Submit response to shared wander
@@ -147,16 +150,18 @@ const WanderMates = ({ navigate, currentUser }) => {
         throw new Error('Failed to submit response: ' + responseResult.error.message)
       }
 
-      // Save to prompt history for Lost & Found
-      try {
-        await PromptHistoryAPI.createPromptHistory(currentUser.id, {
-          prompt_text: selectedMate.prompt,
-          response_text: userResponse,
-          prompt_type: 'mate',
-          title: selectedMate.prompt ? selectedMate.prompt.substring(0, 50) + (selectedMate.prompt.length > 50 ? '...' : '') : 'Mate Response'
-        })
-      } catch (historyError) {
-        // Don't fail the whole operation for this
+      // Only save to prompt history if we have valid prompt text
+      if (selectedMate.prompt && selectedMate.prompt !== 'Prompt not available' && selectedMate.prompt !== 'Unable to load prompt') {
+        try {
+          await PromptHistoryAPI.createPromptHistory(currentUser.id, {
+            prompt_text: selectedMate.prompt,
+            response_text: userResponse,
+            prompt_type: 'mate',
+            title: selectedMate.prompt.substring(0, 50) + (selectedMate.prompt.length > 50 ? '...' : '')
+          })
+        } catch (historyError) {
+          // Don't fail the whole operation for this
+        }
       }
 
       // Reload the mate data to get updated status
@@ -548,7 +553,7 @@ const WanderMates = ({ navigate, currentUser }) => {
                           </div>
                         </div>
                         
-                        {mate.prompt && (
+                        {mate.prompt && mate.prompt !== 'Unable to load prompt' && mate.prompt !== 'Prompt not available' && (
                           <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '300', lineHeight: '1.4', marginBottom: '12px' }}>
                             {mate.prompt}
                           </p>
