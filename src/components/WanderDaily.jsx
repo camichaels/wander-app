@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { PromptHistoryAPI } from '../services/promptHistoryAPI'
-import { supabase } from '../services/supabase'
+import { DailyAPI } from '../services/dailyAPI'
 
 const WanderDaily = ({ navigate, currentUser }) => {
-  const [currentStep, setCurrentStep] = useState('prompt')
+  const [currentStep, setCurrentStep] = useState('loading')
   const [currentPrompt, setCurrentPrompt] = useState('')
+  const [promptId, setPromptId] = useState('')
   const [userResponse, setUserResponse] = useState('')
   const [responseType, setResponseType] = useState('')
   const [showOthers, setShowOthers] = useState(false)
@@ -15,16 +16,9 @@ const WanderDaily = ({ navigate, currentUser }) => {
   const [responseTimer, setResponseTimer] = useState(300)
   const [showPromptTimer, setShowPromptTimer] = useState(true)
   const [showResponseTimer, setShowResponseTimer] = useState(true)
-
-  const othersResponses = [
-    "Like burnt toast that's somehow still optimistic about being eaten",
-    "Cinnamon-curious with hints of Tuesday morning", 
-    "Soggy cereal vibes but make it cozy",
-    "Fresh orange juice energy but in a coffee mug",
-    "Leftover pizza confidence",
-    "Pancakes drowning in Monday syrup",
-    "Cold brew with weekend dreams"
-  ]
+  const [error, setError] = useState(null)
+  const [sharedResponses, setSharedResponses] = useState([])
+  const [existingResponse, setExistingResponse] = useState(null)
 
   const affirmations = [
     "Your thoughts have their own gravity",
@@ -36,7 +30,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
     "That's the kind of thinking the world needs"
   ]
 
-  // Yesterday's synthesis data
+  // Yesterday's synthesis data (hardcoded for now as requested)
   const yesterdaySynthesis = {
     prompt: "What's something only aliens would eat on Earth?",
     wordCloud: ["dreamy", "crunchy", "melted", "bitter", "sweet", "fuzzy", "warm"],
@@ -45,8 +39,8 @@ const WanderDaily = ({ navigate, currentUser }) => {
   }
 
   useEffect(() => {
-    loadTodaysPrompt()
-  }, [])
+    loadTodaysData()
+  }, [currentUser])
 
   useEffect(() => {
     if (currentStep === 'prompt' && promptTimer <= 0) {
@@ -68,41 +62,44 @@ const WanderDaily = ({ navigate, currentUser }) => {
     }
   }, [responseTimer, currentStep, showResponseTimer])
 
-  const loadTodaysPrompt = async () => {
+  const loadTodaysData = async () => {
     try {
-      const today = new Date().toISOString().split('T')[0]
-      
-      // Try to get today's prompt from Supabase daily_prompts table
-      const { data, error } = await supabase
-        .from('daily_prompts')
-        .select('prompt_text')
-        .eq('prompt_date', today)
-        .eq('is_active', true)
-        .single()
+      setError(null)
+      setCurrentStep('loading')
 
-      if (error || !data) {
-        // If no prompt found for today, check if there's a generic daily prompt
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('daily_prompts')
-          .select('prompt_text')
-          .eq('is_active', true)
-          .order('created_at', { ascending: false })
-          .limit(1)
-          .single()
-
-        if (fallbackError || !fallbackData) {
-          // Final fallback to hardcoded prompt
-          setCurrentPrompt("Describe your current mood using breakfast foods.")
-        } else {
-          setCurrentPrompt(fallbackData.prompt_text)
-        }
-      } else {
-        setCurrentPrompt(data.prompt_text)
+      // Get today's prompt
+      const promptResult = await DailyAPI.getTodaysPrompt()
+      if (promptResult.error) {
+        throw new Error('Failed to load today\'s prompt')
       }
-    } catch (error) {
-      console.error('Error loading daily prompt:', error)
-      // Fallback to hardcoded prompt
-      setCurrentPrompt("Describe your current mood using breakfast foods.")
+
+      if (!promptResult.data) {
+        setError('No more Daily prompts in database')
+        return
+      }
+
+      setCurrentPrompt(promptResult.data.prompt_text)
+      setPromptId(promptResult.data.prompt_id)
+
+      // Check if user has already responded today
+      if (currentUser?.id) {
+        const responseResult = await DailyAPI.getUserTodaysResponse(currentUser.id)
+        if (responseResult.data) {
+          // User has already responded - show completed state
+          setExistingResponse(responseResult.data)
+          setUserResponse(responseResult.data.response_text)
+          setResponseType(responseResult.data.is_shared_publicly ? 'shared' : 'private')
+          setCurrentStep('complete')
+          return
+        }
+      }
+
+      // User hasn't responded yet - show prompt
+      setCurrentStep('prompt')
+
+    } catch (err) {
+      console.error('Error loading today\'s data:', err)
+      setError(err.message)
     }
   }
 
@@ -117,8 +114,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
   }
 
   const skipForToday = () => {
-    setResponseType('skipped')
-    setCurrentStep('complete')
+    setCurrentStep('prompt') // Allow re-entry as per requirements
   }
 
   const handleSubmit = async (type) => {
@@ -129,6 +125,18 @@ const WanderDaily = ({ navigate, currentUser }) => {
     
     try {
       if (type !== 'skipped' && userResponse.trim() && currentUser?.id) {
+        // Submit to daily responses
+        const dailyResult = await DailyAPI.submitDailyResponse(
+          currentUser.id,
+          promptId,
+          userResponse,
+          type === 'shared'
+        )
+        
+        if (dailyResult.error) {
+          throw new Error('Failed to save daily response')
+        }
+
         // Save to prompt history for Lost & Found
         await PromptHistoryAPI.createPromptHistory(currentUser.id, {
           prompt_text: currentPrompt,
@@ -137,17 +145,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
           title: currentPrompt.substring(0, 50) + (currentPrompt.length > 50 ? '...' : '')
         })
         
-        // Also create user response record
-        await PromptHistoryAPI.createUserResponse(currentUser.id, {
-          prompt_id: 'daily-' + new Date().toISOString().split('T')[0],
-          prompt_type: 'daily',
-          response_text: userResponse,
-          response_type: type,
-          is_shared_publicly: type === 'shared',
-          is_saved: true,
-          timer_used: showResponseTimer,
-          response_time_seconds: 300 - responseTimer
-        })
+        setExistingResponse(dailyResult.data)
       }
       
       setTimeout(() => {
@@ -160,9 +158,29 @@ const WanderDaily = ({ navigate, currentUser }) => {
       }, 1000)
     } catch (error) {
       console.error('Error saving response:', error)
+      setError('Failed to save response')
       setIsSubmitting(false)
-      setCurrentStep('complete')
     }
+  }
+
+  const loadSharedResponses = async () => {
+    try {
+      const result = await DailyAPI.getTodaysSharedResponses()
+      if (result.error) {
+        throw new Error('Failed to load shared responses')
+      }
+      setSharedResponses(result.data || [])
+    } catch (err) {
+      console.error('Error loading shared responses:', err)
+      setError('Failed to load shared responses')
+    }
+  }
+
+  const handleShowOthers = async () => {
+    if (!showOthers) {
+      await loadSharedResponses()
+    }
+    setShowOthers(!showOthers)
   }
 
   const formatTime = (seconds) => {
@@ -172,12 +190,54 @@ const WanderDaily = ({ navigate, currentUser }) => {
   }
 
   const handleShowYesterdayResults = () => {
-    // Pause any active timers when showing yesterday's results
     setShowYesterdayResults(true)
   }
 
   const handleCloseYesterdayResults = () => {
     setShowYesterdayResults(false)
+  }
+
+  const canShowOthers = () => {
+    return existingResponse && existingResponse.is_shared_publicly
+  }
+
+  if (error === 'No more Daily prompts in database') {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, #fef3c7, #fed7aa, #fecaca)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ 
+          backgroundColor: 'rgba(255,255,255,0.6)',
+          borderRadius: '24px',
+          padding: '32px',
+          border: '1px solid rgba(255,255,255,0.2)',
+          textAlign: 'center',
+          maxWidth: '400px'
+        }}>
+          <h2 style={{ color: '#92400e', marginBottom: '16px' }}>No More Daily Prompts</h2>
+          <p style={{ color: '#a16207', marginBottom: '24px' }}>
+            No more Daily prompts in database. Please add more prompts to continue.
+          </p>
+          <button 
+            onClick={() => navigate('home')}
+            style={{
+              backgroundColor: '#d97706',
+              color: 'white',
+              padding: '12px 24px',
+              borderRadius: '16px',
+              border: 'none',
+              cursor: 'pointer'
+            }}
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -218,6 +278,35 @@ const WanderDaily = ({ navigate, currentUser }) => {
 
       <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
         
+        {error && error !== 'No more Daily prompts in database' && (
+          <div style={{
+            backgroundColor: '#fecaca',
+            border: '1px solid #f87171',
+            borderRadius: '16px',
+            padding: '16px',
+            marginBottom: '24px'
+          }}>
+            <p style={{ color: '#dc2626', fontSize: '14px' }}>{error}</p>
+          </div>
+        )}
+
+        {currentStep === 'loading' && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px' }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                border: '2px solid #d97706',
+                borderTop: '2px solid transparent',
+                borderRadius: '50%',
+                animation: 'spin 1s linear infinite',
+                margin: '0 auto 16px'
+              }}></div>
+              <p style={{ color: '#a16207' }}>Loading today's wander...</p>
+            </div>
+          </div>
+        )}
+        
         {currentStep === 'prompt' && (
           <div>
             <div style={{
@@ -232,7 +321,6 @@ const WanderDaily = ({ navigate, currentUser }) => {
               </p>
             </div>
 
-            {/* Timer info moved outside prompt box */}
             {showPromptTimer && (
               <div style={{ textAlign: 'center', marginBottom: '16px' }}>
                 <p style={{ 
@@ -280,7 +368,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
                   cursor: 'pointer'
                 }}
               >
-                Skip today's drift
+                Skip for now
               </button>
 
               <button 
@@ -354,7 +442,6 @@ const WanderDaily = ({ navigate, currentUser }) => {
               autoFocus
             />
 
-            {/* Timer info condensed to single line */}
             {showResponseTimer && (
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                 <p style={{ 
@@ -515,20 +602,10 @@ const WanderDaily = ({ navigate, currentUser }) => {
               </div>
             )}
 
-            {responseType === 'shared' && !showAffirmation && (
+            {canShowOthers() && !showAffirmation && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{
-                  backgroundColor: '#fef3c7',
-                  borderRadius: '16px',
-                  padding: '16px',
-                  textAlign: 'center'
-                }}>
-                  <p style={{ color: '#a16207', fontSize: '14px', marginBottom: '8px' }}>2,847 people have drifted today</p>
-                  <p style={{ color: '#d97706', fontSize: '12px' }}>That's 8,341 minutes of reclaimed thinking</p>
-                </div>
-
                 <button
-                  onClick={() => setShowOthers(!showOthers)}
+                  onClick={handleShowOthers}
                   style={{
                     width: '100%',
                     backgroundColor: 'rgba(255,255,255,0.6)',
@@ -545,28 +622,44 @@ const WanderDaily = ({ navigate, currentUser }) => {
               </div>
             )}
 
-            {showOthers && responseType === 'shared' && (
+            {showOthers && canShowOthers() && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '384px', overflowY: 'auto' }}>
-                {othersResponses.map((response, index) => (
-                  <div 
-                    key={index}
-                    style={{
-                      backgroundColor: 'rgba(255,255,255,0.4)',
-                      borderRadius: '16px',
-                      padding: '16px',
-                      border: '1px solid rgba(255,255,255,0.3)'
-                    }}
-                  >
-                    <p style={{ color: '#4b5563', fontSize: '14px', fontStyle: 'italic' }}>{response}</p>
+                {sharedResponses.length === 0 ? (
+                  <div style={{
+                    backgroundColor: 'rgba(255,255,255,0.4)',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    textAlign: 'center'
+                  }}>
+                    <p style={{ color: '#6b7280', fontSize: '14px' }}>No other shared responses yet today</p>
                   </div>
-                ))}
+                ) : (
+                  sharedResponses.map((response, index) => (
+                    <div 
+                      key={index}
+                      style={{
+                        backgroundColor: 'rgba(255,255,255,0.4)',
+                        borderRadius: '16px',
+                        padding: '16px',
+                        border: '1px solid rgba(255,255,255,0.3)'
+                      }}
+                    >
+                      <p style={{ color: '#4b5563', fontSize: '14px', fontStyle: 'italic', marginBottom: '8px' }}>
+                        {response.response_text}
+                      </p>
+                      <p style={{ color: '#a16207', fontSize: '12px', opacity: 0.75 }}>
+                        — {response.users?.display_name || response.users?.username || 'Anonymous'}
+                      </p>
+                    </div>
+                  ))
+                )}
               </div>
             )}
           </div>
         )}
       </main>
 
-      {/* Yesterday's Results Modal/Panel - Removed X button */}
+      {/* Yesterday's Results Modal */}
       {showYesterdayResults && (
         <div style={{
           position: 'fixed',
@@ -594,7 +687,6 @@ const WanderDaily = ({ navigate, currentUser }) => {
               </h2>
             </div>
 
-            {/* Yesterday's Prompt */}
             <div style={{
               backgroundColor: '#fef3c7',
               borderRadius: '16px',
@@ -606,7 +698,6 @@ const WanderDaily = ({ navigate, currentUser }) => {
               </p>
             </div>
 
-            {/* Word Cloud */}
             <div style={{ marginBottom: '24px' }}>
               <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#92400e', marginBottom: '12px' }}>
                 Words that wandered through minds:
@@ -635,7 +726,6 @@ const WanderDaily = ({ navigate, currentUser }) => {
               </div>
             </div>
 
-            {/* Mashup */}
             <div style={{
               backgroundColor: 'rgba(255,255,255,0.6)',
               borderRadius: '16px',
@@ -650,7 +740,6 @@ const WanderDaily = ({ navigate, currentUser }) => {
               </p>
             </div>
 
-            {/* Pulse Stats */}
             <div style={{
               backgroundColor: '#fecaca',
               borderRadius: '16px',
@@ -662,7 +751,6 @@ const WanderDaily = ({ navigate, currentUser }) => {
               </p>
             </div>
 
-            {/* Close Button */}
             <div style={{ textAlign: 'center', marginTop: '24px' }}>
               <button
                 onClick={handleCloseYesterdayResults}
