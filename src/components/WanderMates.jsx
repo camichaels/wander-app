@@ -146,7 +146,7 @@ const WanderMates = ({ navigate, currentUser }) => {
         prompt_text: selectedMate.prompt,
         response_text: userResponse,
         prompt_type: 'mate',
-        title: selectedMate.prompt.substring(0, 50) + (selectedMate.prompt.length > 50 ? '...' : '')
+        title: selectedMate.prompt ? selectedMate.prompt.substring(0, 50) + (selectedMate.prompt.length > 50 ? '...' : '') : 'Mate Response'
       })
 
       // Check current status to determine next view
