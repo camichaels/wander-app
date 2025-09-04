@@ -1,4 +1,4 @@
-// services/matesAPI.js - DEBUG VERSION with console logs
+// services/matesAPI.js - Enhanced version with comprehensive data purging and daily reset support
 import { supabase } from './supabase'
 
 export const MatesAPI = {
@@ -7,7 +7,7 @@ export const MatesAPI = {
     try {
       if (!userId) throw new Error('User ID required')
 
-      // Get users who aren't already mates (removed is_demo_user filter)
+      // Get users who aren't already mates
       const { data: allUsers, error: usersError } = await supabase
         .from('users')
         .select('user_id, username, display_name, email')
@@ -194,8 +194,6 @@ export const MatesAPI = {
     try {
       if (!userId) throw new Error('User ID required')
 
-      console.log('🔍 DEBUG: Getting active mates for user:', userId)
-
       const { data: relationships, error: relationshipsError } = await supabase
         .from('wander_mates')
         .select(`
@@ -216,16 +214,12 @@ export const MatesAPI = {
 
       if (relationshipsError) throw relationshipsError
 
-      console.log('🔍 DEBUG: Found relationships:', relationships?.length || 0)
-
       // For each relationship, get the current shared wander status
       const matesWithStatus = await Promise.all(
         (relationships || []).map(async (relationship) => {
           try {
             const isUser1 = relationship.user1_id === userId
             const mate = isUser1 ? { ...relationship.user2 } : { ...relationship.user1 }
-
-            console.log('🔍 DEBUG: Processing mate relationship:', relationship.relationship_id, 'with mate:', mate.username)
 
             // Get latest shared wander for this relationship (not reset)
             const { data: sharedWanders, error: wanderError } = await supabase
@@ -247,11 +241,9 @@ export const MatesAPI = {
               .limit(1)
 
             if (wanderError) {
-              console.warn('❌ DEBUG: Error fetching shared wanders:', wanderError)
+              console.warn('Error fetching shared wanders:', wanderError)
               return null
             }
-
-            console.log('🔍 DEBUG: Found shared wanders:', sharedWanders?.length || 0)
 
             const latestWander = sharedWanders?.[0]
             let status = 'ready' // Default status when no active wanders
@@ -261,35 +253,23 @@ export const MatesAPI = {
             let sharedReactions = []
 
             if (latestWander) {
-              console.log('🔍 DEBUG: Latest wander ID:', latestWander.shared_wander_id, 'Prompt ID:', latestWander.prompt_id)
-
-              // Get the prompt text separately with better error handling
+              // Get the prompt text with better error handling
               if (latestWander.prompt_id) {
                 try {
-                  console.log('🔍 DEBUG: Fetching prompt text for ID:', latestWander.prompt_id)
-                  
                   const { data: promptData, error: promptError } = await supabase
                     .from('mate_prompts')
                     .select('prompt_text')
                     .eq('prompt_id', latestWander.prompt_id)
                     .single()
                   
-                  console.log('🔍 DEBUG: Prompt fetch result:', { promptData, promptError })
-                  
                   if (!promptError && promptData) {
                     prompt = promptData.prompt_text
-                    console.log('✅ DEBUG: Successfully got prompt:', prompt)
                   } else {
-                    console.warn('❌ DEBUG: Error fetching prompt:', promptError)
                     prompt = 'Unable to load prompt'
                   }
                 } catch (promptFetchError) {
-                  console.warn('❌ DEBUG: Exception in prompt fetch:', promptFetchError)
                   prompt = 'Unable to load prompt'
                 }
-              } else {
-                console.warn('❌ DEBUG: No prompt_id found in shared wander')
-                prompt = 'No prompt ID available'
               }
               
               // Find responses
@@ -299,8 +279,6 @@ export const MatesAPI = {
               
               yourResponse = myResponse?.response_text || null
               theirResponse = theirResponseObj?.response_text || null
-
-              console.log('🔍 DEBUG: Response status - Mine:', !!myResponse, 'Theirs:', !!theirResponseObj)
 
               // Transform chat messages to reactions
               const messages = latestWander.messages || []
@@ -320,13 +298,9 @@ export const MatesAPI = {
               } else if (myResponse && theirResponseObj) {
                 status = 'reacting' // Both responded, can now react
               }
-
-              console.log('🔍 DEBUG: Final status:', status)
-            } else {
-              console.log('🔍 DEBUG: No shared wanders found - status will be "ready"')
             }
 
-            const mateResult = {
+            return {
               id: relationship.relationship_id,
               name: mate.display_name || mate.username,
               email: mate.email,
@@ -340,12 +314,8 @@ export const MatesAPI = {
               currentSharedWanderId: latestWander?.shared_wander_id || null,
               resetCount: relationship.reset_count || 0
             }
-
-            console.log('✅ DEBUG: Final mate object:', JSON.stringify(mateResult, null, 2))
-            return mateResult
-
           } catch (error) {
-            console.error('❌ DEBUG: Error processing mate relationship:', error)
+            console.error('Error processing mate relationship:', error)
             return null
           }
         })
@@ -354,10 +324,8 @@ export const MatesAPI = {
       // Filter out any null results from errors
       const validMates = matesWithStatus.filter(mate => mate !== null)
 
-      console.log('✅ DEBUG: Final valid mates count:', validMates.length)
       return { data: validMates, error: null }
     } catch (error) {
-      console.error('❌ DEBUG: Error in getActiveMates:', error)
       return { data: null, error }
     }
   },
@@ -366,8 +334,6 @@ export const MatesAPI = {
   endMateRelationship: async (userId, relationshipId) => {
     try {
       if (!userId) throw new Error('User ID required')
-
-      console.log('🧹 Starting comprehensive data purge for relationship:', relationshipId)
 
       // Step 1: Get all shared wanders for this relationship
       const { data: sharedWanders, error: wandersQueryError } = await supabase
@@ -380,7 +346,6 @@ export const MatesAPI = {
       }
 
       const sharedWanderIds = sharedWanders?.map(w => w.shared_wander_id) || []
-      console.log('🔍 Found shared wanders to delete:', sharedWanderIds.length)
 
       // Step 2: Delete all chat messages for these shared wanders
       if (sharedWanderIds.length > 0) {
@@ -391,8 +356,6 @@ export const MatesAPI = {
 
         if (messagesError) {
           console.warn('Error deleting chat messages:', messagesError)
-        } else {
-          console.log('💬 Deleted all chat messages')
         }
 
         // Step 3: Delete all responses for these shared wanders
@@ -403,8 +366,6 @@ export const MatesAPI = {
 
         if (responsesError) {
           console.warn('Error deleting responses:', responsesError)
-        } else {
-          console.log('📝 Deleted all responses')
         }
       }
 
@@ -416,8 +377,6 @@ export const MatesAPI = {
 
       if (promptTrackingError) {
         console.warn('Error deleting prompt tracking:', promptTrackingError)
-      } else {
-        console.log('📊 Deleted prompt usage tracking')
       }
 
       // Step 5: Delete all shared wanders
@@ -428,8 +387,6 @@ export const MatesAPI = {
 
       if (wandersError) {
         console.warn('Error deleting shared wanders:', wandersError)
-      } else {
-        console.log('🎯 Deleted all shared wanders')
       }
 
       // Step 6: Delete any notifications related to this relationship
@@ -440,8 +397,6 @@ export const MatesAPI = {
 
       if (notificationError) {
         console.warn('Error deleting notifications:', notificationError)
-      } else {
-        console.log('🔔 Deleted related notifications')
       }
 
       // Step 7: Finally, delete the mate relationship itself
@@ -452,14 +407,11 @@ export const MatesAPI = {
         .or(`user1_id.eq.${userId},user2_id.eq.${userId}`)
 
       if (error) {
-        console.error('❌ Error deleting mate relationship:', error)
         throw error
       }
 
-      console.log('✅ Complete data purge successful - clean slate for future reconnection')
       return { data, error: null }
     } catch (error) {
-      console.error('💥 Error in comprehensive data purge:', error)
       return { data: null, error }
     }
   }
@@ -469,19 +421,33 @@ export const SharedWandersAPI = {
   // Create a new shared wander (start a new prompt exchange)
   createSharedWander: async (mateRelationshipId, promptId = null) => {
     try {
-      console.log('🔍 DEBUG: Creating shared wander for relationship:', mateRelationshipId)
+      if (!mateRelationshipId) {
+        throw new Error('Mate relationship ID is required')
+      }
 
       // If no prompt provided, get an available one
       if (!promptId) {
-        console.log('🔍 DEBUG: No prompt ID provided, getting available prompt')
         const promptResult = await MatePromptsAPI.getAvailablePrompt(mateRelationshipId)
-        console.log('🔍 DEBUG: Available prompt result:', promptResult)
         
-        if (promptResult.error || !promptResult.data) {
-          throw new Error('No available prompts for this relationship')
+        // Enhanced error checking
+        if (promptResult.error) {
+          throw new Error(`Failed to get prompt: ${promptResult.error.message}`)
         }
-        promptId = promptResult.data.prompt_id
-        console.log('🔍 DEBUG: Got prompt ID:', promptId)
+        
+        if (!promptResult.data || !Array.isArray(promptResult.data) || promptResult.data.length === 0) {
+          throw new Error('No available prompts returned from database')
+        }
+
+        const promptData = promptResult.data[0]
+        if (!promptData || !promptData.prompt_id) {
+          throw new Error('Invalid prompt data structure')
+        }
+
+        promptId = promptData.prompt_id
+      }
+
+      if (!promptId) {
+        throw new Error('Could not determine prompt ID')
       }
 
       // Create the shared wander
@@ -495,16 +461,20 @@ export const SharedWandersAPI = {
         .select()
         .single()
 
-      console.log('🔍 DEBUG: Shared wander creation result:', { data, error })
-
-      if (error) throw error
+      if (error) {
+        throw new Error(`Failed to create shared wander: ${error.message}`)
+      }
 
       // Track prompt usage
-      await MatePromptsAPI.trackPromptUsage(mateRelationshipId, promptId)
+      try {
+        await MatePromptsAPI.trackPromptUsage(mateRelationshipId, promptId)
+      } catch (trackingError) {
+        console.warn('Failed to track prompt usage:', trackingError)
+        // Don't fail the whole operation for tracking
+      }
 
       return { data, error: null }
     } catch (error) {
-      console.error('❌ DEBUG: Error creating shared wander:', error)
       return { data: null, error }
     }
   },
@@ -513,13 +483,15 @@ export const SharedWandersAPI = {
   submitResponse: async (userId, sharedWanderId, responseText) => {
     try {
       if (!userId) throw new Error('User ID required')
+      if (!sharedWanderId) throw new Error('Shared wander ID required')
+      if (!responseText?.trim()) throw new Error('Response text required')
 
       const { data, error } = await supabase
         .from('mate_responses')
         .insert({
           shared_wander_id: sharedWanderId,
           user_id: userId,
-          response_text: responseText
+          response_text: responseText.trim()
         })
         .select()
         .single()
@@ -532,11 +504,15 @@ export const SharedWandersAPI = {
         .select('user_id')
         .eq('shared_wander_id', sharedWanderId)
 
-      if (checkError) throw checkError
-
-      // If we now have 2 responses (both users responded), mark the timestamp
-      if (responses && responses.length === 2) {
-        await SharedWandersAPI.markBothResponded(sharedWanderId)
+      if (checkError) {
+        console.warn('Failed to check response count:', checkError)
+      } else if (responses && responses.length === 2) {
+        // If we now have 2 responses (both users responded), mark the timestamp
+        try {
+          await SharedWandersAPI.markBothResponded(sharedWanderId)
+        } catch (markError) {
+          console.warn('Failed to mark both responded:', markError)
+        }
       }
 
       return { data, error: null }
@@ -568,13 +544,15 @@ export const SharedWandersAPI = {
   addReaction: async (userId, sharedWanderId, messageText) => {
     try {
       if (!userId) throw new Error('User ID required')
+      if (!sharedWanderId) throw new Error('Shared wander ID required')
+      if (!messageText?.trim()) throw new Error('Message text required')
 
       const { data, error } = await supabase
         .from('mate_chat_messages')
         .insert({
           shared_wander_id: sharedWanderId,
           user_id: userId,
-          message_text: messageText,
+          message_text: messageText.trim(),
           message_type: 'text'
         })
         .select()
@@ -591,14 +569,19 @@ export const MatePromptsAPI = {
   // Get available prompt for a relationship (respecting 30-day cooldown)
   getAvailablePrompt: async (relationshipId) => {
     try {
-      console.log('🔍 DEBUG: Getting available prompt for relationship:', relationshipId)
+      if (!relationshipId) {
+        throw new Error('Relationship ID is required')
+      }
+
       const { data, error } = await supabase
         .rpc('get_available_mate_prompt', { rel_id: relationshipId })
 
-      console.log('🔍 DEBUG: Available prompt RPC result:', { data, error })
-      return { data, error }
+      if (error) {
+        throw new Error(`RPC call failed: ${error.message}`)
+      }
+
+      return { data, error: null }
     } catch (error) {
-      console.error('❌ DEBUG: Error in getAvailablePrompt:', error)
       return { data: null, error }
     }
   },
@@ -606,6 +589,9 @@ export const MatePromptsAPI = {
   // Track that a prompt has been used by a relationship
   trackPromptUsage: async (relationshipId, promptId) => {
     try {
+      if (!relationshipId) throw new Error('Relationship ID required')
+      if (!promptId) throw new Error('Prompt ID required')
+
       const { data, error } = await supabase
         .from('mate_relationship_prompts')
         .insert({

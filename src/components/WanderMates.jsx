@@ -53,7 +53,6 @@ const WanderMates = ({ navigate, currentUser }) => {
 
     } catch (err) {
       setError(err.message)
-      console.error('Error loading initial data:', err)
     } finally {
       setLoading(false)
     }
@@ -89,6 +88,7 @@ const WanderMates = ({ navigate, currentUser }) => {
       if (!mate.currentSharedWanderId) {
         try {
           const wanderResult = await SharedWandersAPI.createSharedWander(mate.id)
+          
           if (wanderResult.error) throw wanderResult.error
           
           // Get the prompt from the created shared wander
@@ -102,18 +102,18 @@ const WanderMates = ({ navigate, currentUser }) => {
             .single()
           
           if (fetchError) {
-            console.error('Error fetching shared wander details:', fetchError)
             throw new Error('Failed to load prompt details')
           }
           
           // Update mate with new prompt and shared wander ID
-          setSelectedMate(prev => ({
-            ...prev,
+          const updatedMate = {
+            ...mate,
             prompt: sharedWander.prompt?.prompt_text || 'Prompt not available',
             currentSharedWanderId: sharedWander.shared_wander_id
-          }))
+          }
+          
+          setSelectedMate(updatedMate)
         } catch (err) {
-          console.error('Error creating shared wander:', err)
           setError('Failed to start new wander: ' + err.message)
           return
         }
@@ -156,7 +156,6 @@ const WanderMates = ({ navigate, currentUser }) => {
           title: selectedMate.prompt ? selectedMate.prompt.substring(0, 50) + (selectedMate.prompt.length > 50 ? '...' : '') : 'Mate Response'
         })
       } catch (historyError) {
-        console.warn('Failed to save to prompt history:', historyError)
         // Don't fail the whole operation for this
       }
 
@@ -184,7 +183,6 @@ const WanderMates = ({ navigate, currentUser }) => {
       setUserResponse('')
 
     } catch (error) {
-      console.error('Error saving mate response:', error)
       
       // Check if the response actually saved despite the error
       try {
@@ -246,7 +244,6 @@ const WanderMates = ({ navigate, currentUser }) => {
       setReactionText('')
 
     } catch (error) {
-      console.error('Error sending reaction:', error)
       setError('Failed to send reaction')
     }
   }
@@ -274,7 +271,6 @@ const WanderMates = ({ navigate, currentUser }) => {
       setSelectedExistingUser('')
 
     } catch (error) {
-      console.error('Error sending invitation:', error)
       setError('Failed to send invitation')
     } finally {
       setIsSubmitting(false)
@@ -297,7 +293,6 @@ const WanderMates = ({ navigate, currentUser }) => {
       await loadInitialData()
 
     } catch (error) {
-      console.error('Error responding to invitation:', error)
       setError('Failed to respond to invitation')
     }
   }
@@ -314,7 +309,6 @@ const WanderMates = ({ navigate, currentUser }) => {
       setShowStopConfirm(null)
 
     } catch (error) {
-      console.error('Error ending relationship:', error)
       setError('Failed to end relationship')
     }
   }
