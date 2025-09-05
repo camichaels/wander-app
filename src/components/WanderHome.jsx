@@ -119,7 +119,16 @@ const WanderHome = ({ navigate, currentUser }) => {
           display: 'flex',
           alignItems: 'flex-end',
           gap: '16px',
-          marginBottom: '24px'
+          marginBottom: '24px',
+          transition: 'all 0.2s ease'
+        }}
+        onMouseOver={(e) => {
+          e.currentTarget.style.transform = 'scale(1.02)'
+          e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.85)'
+        }}
+        onMouseOut={(e) => {
+          e.currentTarget.style.transform = 'scale(1)'
+          e.currentTarget.style.backgroundColor = 'rgba(255,255,255,0.7)'
         }}>
           <div style={{
             width: '56px',
