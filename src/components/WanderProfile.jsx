@@ -13,7 +13,7 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
   const [allUsers, setAllUsers] = useState([])
   
   // Form states
-  const [showEditForm, setShowEditForm] = useState(false)
+  const [isEditing, setIsEditing] = useState(false)
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false)
   const [selectedUserId, setSelectedUserId] = useState('')
@@ -166,7 +166,7 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
       if (result.error) throw result.error
 
       setUserProfile(result.data)
-      setShowEditForm(false)
+      setIsEditing(false)
       
     } catch (err) {
       setError('Failed to update profile: ' + err.message)
@@ -198,11 +198,16 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
   const handleSelectUser = async () => {
     if (!selectedUserId) return
     
-    const selectedUser = allUsers.find(u => u.user_id === selectedUserId)
-    if (selectedUser) {
-      setCurrentUser({ id: selectedUser.user_id, email: selectedUser.email })
-      setSelectedUserId('')
-      await loadInitialData()
+    try {
+      const selectedUser = allUsers.find(u => u.user_id === selectedUserId)
+      if (selectedUser) {
+        setCurrentUser({ id: selectedUser.user_id, email: selectedUser.email })
+        setSelectedUserId('') // Clear immediately
+        await loadInitialData()
+      }
+    } catch (err) {
+      setError('Failed to sign in: ' + err.message)
+      setSelectedUserId('') // Clear on error too
     }
   }
 
@@ -210,6 +215,7 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
     setCurrentUser(null)
     setUserProfile(null)
     setIsLoggedIn(false)
+    setIsEditing(false)
     resetForm()
   }
 
@@ -219,6 +225,17 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
       displayName: '',
       email: '',
       phone: ''
+    })
+    setValidationErrors({})
+  }
+
+  const cancelEdit = () => {
+    setIsEditing(false)
+    setFormData({
+      username: userProfile?.username || '',
+      displayName: userProfile?.display_name || '',
+      email: userProfile?.email || '',
+      phone: userProfile?.phone || ''
     })
     setValidationErrors({})
   }
@@ -307,58 +324,225 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
           /* LOGGED IN STATE */
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
-            {/* User Info Card - Fixed alignment */}
+            {/* Profile Card - Inline Editing */}
             <div style={{
               backgroundColor: 'rgba(255,255,255,0.6)',
               borderRadius: '24px',
               padding: '24px',
               border: '1px solid rgba(255,255,255,0.2)'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-                <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '0' }}>Username</p>
-                <button 
-                  onClick={() => setShowEditForm(true)}
-                  style={{
-                    fontSize: '14px',
-                    color: '#6b7280',
-                    background: 'none',
-                    border: 'none',
-                    cursor: 'pointer'
-                  }}
-                >
-                  Edit
-                </button>
-              </div>
-              
-              {userProfile && (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                  <div>
-                    <p style={{ color: '#374151', margin: 0 }}>@{userProfile.username}</p>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '2px' }}>Display Name</p>
-                    <p style={{ color: '#374151', fontWeight: '500' }}>{userProfile.display_name}</p>
-                  </div>
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '2px' }}>Email</p>
-                    <p style={{ color: '#374151' }}>{userProfile.email}</p>
-                  </div>
-                  {userProfile.phone && (
-                    <div>
-                      <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '2px' }}>Phone</p>
-                      <p style={{ color: '#374151' }}>{userProfile.phone}</p>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '24px' }}>
+                <h2 style={{ fontSize: '18px', fontWeight: '500', color: '#374151', margin: 0 }}>
+                  Your Profile
+                </h2>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  {!isEditing ? (
+                    <>
+                      <button 
+                        onClick={() => setIsEditing(true)}
+                        style={{
+                          fontSize: '14px',
+                          color: '#6b7280',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Edit
+                      </button>
+                      <button 
+                        onClick={() => setShowDeleteConfirm(true)}
+                        style={{
+                          fontSize: '12px',
+                          color: '#dc2626',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          opacity: 0.6
+                        }}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  ) : (
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                      <button
+                        onClick={handleUpdateProfile}
+                        disabled={isSubmitting}
+                        style={{
+                          backgroundColor: '#374151',
+                          color: 'white',
+                          padding: '8px 16px',
+                          borderRadius: '12px',
+                          border: 'none',
+                          fontSize: '14px',
+                          cursor: isSubmitting ? 'not-allowed' : 'pointer',
+                          opacity: isSubmitting ? 0.5 : 1
+                        }}
+                      >
+                        {isSubmitting ? 'Saving...' : 'Save'}
+                      </button>
+                      <button
+                        onClick={cancelEdit}
+                        style={{
+                          color: '#6b7280',
+                          background: 'none',
+                          border: 'none',
+                          cursor: 'pointer',
+                          fontSize: '14px'
+                        }}
+                      >
+                        Cancel
+                      </button>
                     </div>
                   )}
-                  <div>
-                    <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '2px' }}>Member Since</p>
-                    <p style={{ color: '#374151' }}>{new Date(userProfile.created_at).toLocaleDateString()}</p>
-                  </div>
                 </div>
-              )}
+              </div>
+              
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                {/* Username */}
+                <div>
+                  <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
+                    Username
+                  </label>
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="text"
+                        value={formData.username}
+                        onChange={(e) => handleInputChange('username', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          border: validationErrors.username ? '1px solid #dc2626' : '1px solid #d1d5db',
+                          borderRadius: '12px',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      {validationErrors.username && (
+                        <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
+                          {validationErrors.username}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <p style={{ color: '#374151', margin: 0, fontSize: '16px' }}>@{userProfile?.username}</p>
+                  )}
+                </div>
+
+                {/* Display Name */}
+                <div>
+                  <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
+                    Display Name
+                  </label>
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="text"
+                        value={formData.displayName}
+                        onChange={(e) => handleInputChange('displayName', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          border: validationErrors.displayName ? '1px solid #dc2626' : '1px solid #d1d5db',
+                          borderRadius: '12px',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      {validationErrors.displayName && (
+                        <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
+                          {validationErrors.displayName}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <p style={{ color: '#374151', fontWeight: '500', margin: 0, fontSize: '16px' }}>
+                      {userProfile?.display_name}
+                    </p>
+                  )}
+                </div>
+
+                {/* Email */}
+                <div>
+                  <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
+                    Email
+                  </label>
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) => handleInputChange('email', e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          border: validationErrors.email ? '1px solid #dc2626' : '1px solid #d1d5db',
+                          borderRadius: '12px',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      {validationErrors.email && (
+                        <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
+                          {validationErrors.email}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <p style={{ color: '#374151', margin: 0, fontSize: '16px' }}>{userProfile?.email}</p>
+                  )}
+                </div>
+
+                {/* Phone */}
+                <div>
+                  <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
+                    Phone (optional)
+                  </label>
+                  {isEditing ? (
+                    <>
+                      <input
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) => handleInputChange('phone', e.target.value)}
+                        placeholder="Add phone number"
+                        style={{
+                          width: '100%',
+                          padding: '12px',
+                          border: validationErrors.phone ? '1px solid #dc2626' : '1px solid #d1d5db',
+                          borderRadius: '12px',
+                          outline: 'none',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                      {validationErrors.phone && (
+                        <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
+                          {validationErrors.phone}
+                        </p>
+                      )}
+                    </>
+                  ) : (
+                    <p style={{ color: '#374151', margin: 0, fontSize: '16px' }}>
+                      {userProfile?.phone || 'Not provided'}
+                    </p>
+                  )}
+                </div>
+
+                {/* Member Since */}
+                <div>
+                  <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
+                    Member Since
+                  </label>
+                  <p style={{ color: '#374151', margin: 0, fontSize: '16px' }}>
+                    {new Date(userProfile?.created_at).toLocaleDateString()}
+                  </p>
+                </div>
+              </div>
             </div>
 
-            {/* Actions */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            {/* Sign Out Button */}
+            {!isEditing && (
               <button
                 onClick={handleLogout}
                 style={{
@@ -374,23 +558,7 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
               >
                 Sign Out
               </button>
-              
-              <button
-                onClick={() => setShowDeleteConfirm(true)}
-                style={{
-                  width: '100%',
-                  backgroundColor: 'transparent',
-                  color: '#dc2626',
-                  padding: '12px 24px',
-                  borderRadius: '16px',
-                  border: '1px solid #dc2626',
-                  fontSize: '16px',
-                  cursor: 'pointer'
-                }}
-              >
-                Delete Account
-              </button>
-            </div>
+            )}
           </div>
         ) : (
           /* NOT LOGGED IN STATE */
@@ -434,7 +602,7 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
                   disabled={!selectedUserId}
                   style={{
                     width: '100%',
-                    backgroundColor: '#6b7280',
+                    backgroundColor: selectedUserId ? '#374151' : '#6b7280',
                     color: 'white',
                     padding: '12px 24px',
                     borderRadius: '16px',
@@ -451,7 +619,7 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
 
             {/* Create New User */}
             <div style={{
-              backgroundColor: 'rgba(255,255,255,0.4)',
+              backgroundColor: 'rgba(255,255,255,0.6)',
               borderRadius: '24px',
               padding: '24px',
               border: '1px solid rgba(255,255,255,0.2)'
@@ -479,178 +647,6 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
           </div>
         )}
       </main>
-
-      {/* Edit Profile Modal */}
-      {showEditForm && (
-        <div style={{
-          position: 'fixed',
-          inset: '0',
-          backgroundColor: 'rgba(0,0,0,0.2)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          padding: '24px',
-          zIndex: 20
-        }}>
-          <div style={{
-            backgroundColor: 'rgba(255,255,255,0.95)',
-            borderRadius: '24px',
-            padding: '24px',
-            maxWidth: '400px',
-            width: '100%',
-            border: '1px solid rgba(255,255,255,0.3)',
-            maxHeight: '80vh',
-            overflowY: 'auto'
-          }}>
-            <h3 style={{ fontSize: '18px', fontWeight: '500', color: '#374151', marginBottom: '16px' }}>
-              Edit Profile
-            </h3>
-            
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-              <div>
-                <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
-                  Username
-                </label>
-                <input
-                  type="text"
-                  value={formData.username}
-                  onChange={(e) => handleInputChange('username', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: validationErrors.username ? '1px solid #dc2626' : '1px solid #d1d5db',
-                    borderRadius: '12px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-                {validationErrors.username && (
-                  <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
-                    {validationErrors.username}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
-                  Display Name
-                </label>
-                <input
-                  type="text"
-                  value={formData.displayName}
-                  onChange={(e) => handleInputChange('displayName', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: validationErrors.displayName ? '1px solid #dc2626' : '1px solid #d1d5db',
-                    borderRadius: '12px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-                {validationErrors.displayName && (
-                  <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
-                    {validationErrors.displayName}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
-                  Email
-                </label>
-                <input
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => handleInputChange('email', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: validationErrors.email ? '1px solid #dc2626' : '1px solid #d1d5db',
-                    borderRadius: '12px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-                {validationErrors.email && (
-                  <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
-                    {validationErrors.email}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px', display: 'block' }}>
-                  Phone (optional)
-                </label>
-                <input
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => handleInputChange('phone', e.target.value)}
-                  style={{
-                    width: '100%',
-                    padding: '12px',
-                    border: validationErrors.phone ? '1px solid #dc2626' : '1px solid #d1d5db',
-                    borderRadius: '12px',
-                    outline: 'none',
-                    boxSizing: 'border-box'
-                  }}
-                />
-                {validationErrors.phone && (
-                  <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>
-                    {validationErrors.phone}
-                  </p>
-                )}
-              </div>
-            </div>
-            
-            <div style={{ display: 'flex', gap: '12px', marginTop: '24px' }}>
-              <button
-                onClick={handleUpdateProfile}
-                disabled={isSubmitting}
-                style={{
-                  flex: 1,
-                  backgroundColor: '#374151',
-                  color: 'white',
-                  padding: '12px 16px',
-                  borderRadius: '16px',
-                  border: 'none',
-                  fontSize: '14px',
-                  cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                  opacity: isSubmitting ? 0.5 : 1,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '8px'
-                }}
-              >
-                {isSubmitting ? (
-                  <div style={{ width: '16px', height: '16px', border: '2px solid white', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                ) : (
-                  'Save Changes'
-                )}
-              </button>
-              <button
-                onClick={() => {
-                  setShowEditForm(false)
-                  resetForm()
-                  setValidationErrors({})
-                }}
-                style={{
-                  padding: '12px 16px',
-                  color: '#6b7280',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '14px'
-                }}
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Create User Modal */}
       {showCreateForm && (

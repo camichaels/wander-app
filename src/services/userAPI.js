@@ -79,8 +79,7 @@ export const UserAPI = {
           username: userData.username.trim(),
           display_name: userData.displayName.trim(),
           email: userData.email.trim().toLowerCase(),
-          phone: userData.phone?.trim() || null,
-          updated_at: new Date().toISOString()
+          phone: userData.phone?.trim() || null
         })
         .eq('user_id', userId)
         .select()
