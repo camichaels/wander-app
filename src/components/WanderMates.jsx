@@ -71,10 +71,11 @@ const WanderMates = ({ navigate, currentUser }) => {
       // Less frequent polling for dashboard status updates and invitation changes
       interval = setInterval(async () => {
         try {
-          // Load both mates and pending invitations to catch all changes
-          const [matesResult, invitesResult] = await Promise.all([
+          // Load mates, pending invitations, and available users to catch all changes
+          const [matesResult, invitesResult, usersResult] = await Promise.all([
             MatesAPI.getActiveMates(currentUser.id),
-            MatesAPI.getPendingInvitations(currentUser.id)
+            MatesAPI.getPendingInvitations(currentUser.id),
+            MatesAPI.getAvailableUsers(currentUser.id)
           ])
           
           if (!matesResult.error && matesResult.data) {
@@ -113,6 +114,20 @@ const WanderMates = ({ navigate, currentUser }) => {
             
             if (invitesChanged) {
               setPendingInvites(invitesResult.data.all || [])
+            }
+          }
+
+          if (!usersResult.error && usersResult.data) {
+            // Check for changes in available users (people becoming available to invite again)
+            const currentUserIds = new Set(availableUsers.map(u => u.user_id))
+            const newUserIds = new Set(usersResult.data.map(u => u.user_id))
+            
+            const usersChanged = currentUserIds.size !== newUserIds.size ||
+              [...currentUserIds].some(id => !newUserIds.has(id)) ||
+              [...newUserIds].some(id => !currentUserIds.has(id))
+            
+            if (usersChanged) {
+              setAvailableUsers(usersResult.data)
             }
           }
         } catch (error) {
