@@ -7,7 +7,7 @@ const WanderSolo = ({ navigate, currentUser }) => {
   const [promptCategory, setPromptCategory] = useState('')
   const [userResponse, setUserResponse] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showAffirmation, setShowAffirmation] = useState(false)
+  const [showCelebration, setShowCelebration] = useState(false)
   const [promptTimer, setPromptTimer] = useState(30)
   const [responseTimer, setResponseTimer] = useState(300)
   const [showPromptTimer, setShowPromptTimer] = useState(true)
@@ -125,22 +125,22 @@ const WanderSolo = ({ navigate, currentUser }) => {
       setTimeout(() => {
         setIsSubmitting(false)
         setCurrentStep('complete')
-        setShowAffirmation(true)
-        setTimeout(() => setShowAffirmation(false), 4000)
+        setShowCelebration(true)
+        setTimeout(() => setShowCelebration(false), 3000)
       }, 1000)
     } catch (error) {
       console.error('Error saving response:', error)
       setIsSubmitting(false)
       setCurrentStep('complete')
-      setShowAffirmation(true)
-      setTimeout(() => setShowAffirmation(false), 4000)
+      setShowCelebration(true)
+      setTimeout(() => setShowCelebration(false), 3000)
     }
   }
 
   const startNewWander = (type) => {
     setUserResponse('')
     setCurrentStep('prompt')
-    setShowAffirmation(false)
+    setShowCelebration(false)
     resetTimers()
     
     if (type === 'related') {
@@ -208,7 +208,7 @@ const WanderSolo = ({ navigate, currentUser }) => {
               </p>
             </div>
 
-            {/* Timer info moved outside prompt box */}
+            {/* Timer info - consistent visibility, no fading */}
             {showPromptTimer && (
               <div style={{ textAlign: 'center', marginBottom: '16px' }}>
                 <p style={{ 
@@ -222,7 +222,14 @@ const WanderSolo = ({ navigate, currentUser }) => {
                 }}>
                   <span>Take a moment to let it settle</span>
                   <span>•</span>
-                  <span style={{ opacity: Math.max(0.3, promptTimer / 30) }}>{promptTimer}s</span>
+                  <span style={{ 
+                    padding: '2px 6px', 
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)', 
+                    borderRadius: '8px',
+                    animation: promptTimer <= 10 ? 'gentlePulse 1s ease-in-out infinite' : 'none'
+                  }}>
+                    {promptTimer}s
+                  </span>
                   <span>•</span>
                   <button 
                     onClick={skipTimer}
@@ -245,18 +252,16 @@ const WanderSolo = ({ navigate, currentUser }) => {
               <button 
                 onClick={() => startNewWander('random')}
                 style={{ 
-                  width: '100%',
-                  backgroundColor: 'rgba(255,255,255,0.6)',
-                  color: '#1e40af',
-                  padding: '12px 24px',
-                  borderRadius: '16px',
-                  border: '1px solid #3b82f6',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
+                  backgroundColor: 'transparent',
+                  color: '#2563eb',
+                  border: 'none',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  opacity: 0.7
                 }}
               >
-                Skip and generate a new one
+                Try a different prompt
               </button>
             </div>
           </div>
@@ -294,7 +299,7 @@ const WanderSolo = ({ navigate, currentUser }) => {
               autoFocus
             />
 
-            {/* Timer info moved outside and condensed */}
+            {/* Timer info - consistent visibility, no fading */}
             {showResponseTimer && (
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                 <p style={{ 
@@ -308,7 +313,13 @@ const WanderSolo = ({ navigate, currentUser }) => {
                 }}>
                   <span>No rush, just wander</span>
                   <span>•</span>
-                  <span style={{ opacity: Math.max(0.3, responseTimer / 300) }}>{formatTime(responseTimer)}</span>
+                  <span style={{ 
+                    padding: '2px 6px', 
+                    backgroundColor: 'rgba(37, 99, 235, 0.1)', 
+                    borderRadius: '8px'
+                  }}>
+                    {formatTime(responseTimer)}
+                  </span>
                   <span>•</span>
                   <button 
                     onClick={() => setShowResponseTimer(false)}
@@ -351,25 +362,24 @@ const WanderSolo = ({ navigate, currentUser }) => {
                 {isSubmitting ? (
                   <div style={{ width: '16px', height: '16px', border: '2px solid white', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
                 ) : (
-                  "I'm done"
+                  "Capture this wander"
                 )}
               </button>
 
               <button
                 onClick={() => startNewWander('random')}
                 style={{
-                  width: '100%',
-                  backgroundColor: 'rgba(255,255,255,0.6)',
-                  color: '#1e40af',
-                  padding: '12px 24px',
-                  borderRadius: '16px',
-                  border: '1px solid #3b82f6',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
+                  backgroundColor: 'transparent',
+                  color: '#2563eb',
+                  border: 'none',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  textDecoration: 'underline',
+                  opacity: 0.7,
+                  padding: '8px'
                 }}
               >
-                Skip and generate a new one
+                Try a different prompt
               </button>
             </div>
           </div>
@@ -378,86 +388,106 @@ const WanderSolo = ({ navigate, currentUser }) => {
         {currentStep === 'complete' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
-            <div style={{
-              backgroundColor: 'rgba(255,255,255,0.6)',
-              borderRadius: '24px',
-              padding: '24px',
-              border: '1px solid rgba(255,255,255,0.2)'
-            }}>
-              <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '300', marginBottom: '16px' }}>{currentPrompt}</p>
-              <div style={{
-                backgroundColor: '#dbeafe',
-                borderRadius: '16px',
-                padding: '16px',
-                marginBottom: '16px'
+            {/* Celebration moment */}
+            {showCelebration && (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '32px 0',
+                animation: 'celebrationBounce 0.6s ease-out'
               }}>
-                <p style={{ color: '#4b5563', fontStyle: 'italic', margin: 0 }}>{userResponse}</p>
-              </div>
-              <p style={{ color: '#2563eb', fontSize: '12px', textAlign: 'center', margin: 0 }}>
-                Saved to your Lost & Found
-              </p>
-            </div>
-
-            {showAffirmation && (
-              <div style={{ textAlign: 'center', padding: '0' }}>
                 <div style={{
-                  backgroundColor: 'rgba(255,255,255,0.4)',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  maxWidth: '100%'
+                  fontSize: '48px',
+                  marginBottom: '16px',
+                  animation: 'confettiPop 0.8s ease-out'
                 }}>
-                  <p style={{ color: '#1e40af', fontWeight: '300', fontSize: '18px', margin: 0 }}>
+                  ✨
+                </div>
+                <div style={{
+                  backgroundColor: 'rgba(255,255,255,0.8)',
+                  borderRadius: '20px',
+                  padding: '24px',
+                  border: '1px solid rgba(255,255,255,0.4)',
+                  backdropFilter: 'blur(10px)'
+                }}>
+                  <p style={{ 
+                    color: '#1e40af', 
+                    fontWeight: '400', 
+                    fontSize: '18px', 
+                    margin: 0,
+                    lineHeight: '1.4'
+                  }}>
                     {affirmations[Math.floor(Math.random() * affirmations.length)]}
                   </p>
                 </div>
               </div>
             )}
 
-            {!showAffirmation && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-                  <p style={{ color: '#2563eb', fontSize: '14px', opacity: 0.75, marginBottom: '16px' }}>
-                    Keep wandering?
+            {/* Show content after celebration */}
+            {!showCelebration && (
+              <>
+                <div style={{
+                  backgroundColor: 'rgba(255,255,255,0.6)',
+                  borderRadius: '24px',
+                  padding: '24px',
+                  border: '1px solid rgba(255,255,255,0.2)'
+                }}>
+                  <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '300', marginBottom: '16px' }}>{currentPrompt}</p>
+                  <div style={{
+                    backgroundColor: '#dbeafe',
+                    borderRadius: '16px',
+                    padding: '16px',
+                    marginBottom: '16px'
+                  }}>
+                    <p style={{ color: '#4b5563', fontStyle: 'italic', margin: 0 }}>{userResponse}</p>
+                  </div>
+                  <p style={{ color: '#2563eb', fontSize: '12px', textAlign: 'center', margin: 0 }}>
+                    Saved to your Lost & Found
                   </p>
-                  
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    <button
-                      onClick={() => startNewWander('related')}
-                      style={{
-                        width: '100%',
-                        backgroundColor: 'rgba(255,255,255,0.6)',
-                        color: '#1e40af',
-                        padding: '12px 24px',
-                        borderRadius: '16px',
-                        border: '1px solid #3b82f6',
-                        fontSize: '16px',
-                        fontWeight: '500',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Follow that thought
-                    </button>
+                </div>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <div style={{ textAlign: 'center', marginBottom: '8px' }}>
+                    <p style={{ color: '#2563eb', fontSize: '14px', opacity: 0.75, marginBottom: '16px' }}>
+                      Keep wandering?
+                    </p>
                     
-                    <button
-                      onClick={() => startNewWander('random')}
-                      style={{
-                        width: '100%',
-                        backgroundColor: 'rgba(255,255,255,0.6)',
-                        color: '#1e40af',
-                        padding: '12px 24px',
-                        borderRadius: '16px',
-                        border: '1px solid #3b82f6',
-                        fontSize: '16px',
-                        fontWeight: '500',
-                        cursor: 'pointer'
-                      }}
-                    >
-                      Surprise me
-                    </button>
+                    {/* Two-column layout for follow-up actions */}
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                      <button
+                        onClick={() => startNewWander('related')}
+                        style={{
+                          backgroundColor: 'rgba(255,255,255,0.6)',
+                          color: '#1e40af',
+                          padding: '12px 16px',
+                          borderRadius: '16px',
+                          border: '1px solid #3b82f6',
+                          fontSize: '15px',
+                          fontWeight: '500',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Follow that thought
+                      </button>
+                      
+                      <button
+                        onClick={() => startNewWander('random')}
+                        style={{
+                          backgroundColor: 'rgba(255,255,255,0.6)',
+                          color: '#1e40af',
+                          padding: '12px 16px',
+                          borderRadius: '16px',
+                          border: '1px solid #3b82f6',
+                          fontSize: '15px',
+                          fontWeight: '500',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Surprise me
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
+              </>
             )}
           </div>
         )}
@@ -511,6 +541,23 @@ const WanderSolo = ({ navigate, currentUser }) => {
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes gentlePulse {
+          0%, 100% { transform: scale(1); opacity: 1; }
+          50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        
+        @keyframes celebrationBounce {
+          0% { transform: translateY(-20px); opacity: 0; }
+          50% { transform: translateY(-5px); opacity: 1; }
+          100% { transform: translateY(0); opacity: 1; }
+        }
+        
+        @keyframes confettiPop {
+          0% { transform: scale(0) rotate(0deg); opacity: 0; }
+          50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+          100% { transform: scale(1) rotate(360deg); opacity: 1; }
         }
       `}</style>
     </div>

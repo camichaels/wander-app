@@ -1,53 +1,59 @@
 import React, { useState, useEffect } from 'react'
+import { GroupPromptsAPI } from '../services/groupPromptsAPI'
 
 const WanderGroups = ({ navigate }) => {
   const [currentPrompt, setCurrentPrompt] = useState('')
+  const [currentPromptId, setCurrentPromptId] = useState(null)
   const [mode, setMode] = useState('party')
   const [isGenerating, setIsGenerating] = useState(false)
-
-  const groupPrompts = {
-    party: [
-      "What's the best fake rumor you could start about someone in this room?",
-      "If everyone here was a snack food, who would be what and why?",
-      "What's the most unexpected thing that could happen right now?",
-      "Invent a drinking game based on something everyone here does.",
-      "What's a conspiracy theory about this party that would actually be believable?",
-      "If this group formed a band, what would we be called and what's our hit song?",
-      "What's something everyone here is probably thinking but not saying?",
-      "Describe the energy of this room using only weather terms.",
-      "What's a superpower everyone here secretly wishes they had tonight?",
-      "If we had to elect a king/queen of this gathering, who and why?"
-    ],
-    work: [
-      "What's a fake job title that best describes what you really do?",
-      "Invent an office holiday we should celebrate every year. What's it for?",
-      "If our team was a kitchen, who would be which appliance?",
-      "What's the most ridiculous meeting we could schedule right now?",
-      "Describe our project using only movie genres.",
-      "What's a skill everyone here has that's not on their resume?",
-      "If we started a food truck, what would we serve and what's our slogan?",
-      "What's something that would make Mondays actually exciting?",
-      "Invent a new department our company desperately needs.",
-      "What's the weirdest thing about our industry that outsiders wouldn't understand?"
-    ]
-  }
+  const [sessionExcludeIds, setSessionExcludeIds] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     loadRandomPrompt()
   }, [mode])
 
-  const loadRandomPrompt = () => {
-    const prompts = groupPrompts[mode]
-    const randomPrompt = prompts[Math.floor(Math.random() * prompts.length)]
-    setCurrentPrompt(randomPrompt)
+  const loadRandomPrompt = async () => {
+    try {
+      setIsGenerating(true)
+      
+      const { data: prompt, error } = await GroupPromptsAPI.getRandomPrompt(
+        mode, 
+        sessionExcludeIds
+      )
+      
+      if (error) {
+        console.error('Error loading prompt:', error)
+        setCurrentPrompt('Unable to load prompt. Please try again.')
+        return
+      }
+      
+      if (prompt) {
+        setCurrentPrompt(prompt.prompt_text)
+        setCurrentPromptId(prompt.prompt_id)
+        
+        // Add to session exclude list to avoid immediate repeats
+        setSessionExcludeIds(prev => [...prev, prompt.prompt_id])
+        
+        // Increment usage count
+        await GroupPromptsAPI.incrementUsageCount(prompt.prompt_id)
+      }
+    } catch (error) {
+      console.error('Error in loadRandomPrompt:', error)
+      setCurrentPrompt('Unable to load prompt. Please try again.')
+    } finally {
+      setIsGenerating(false)
+      setLoading(false)
+    }
   }
 
-  const generateNewPrompt = () => {
-    setIsGenerating(true)
-    setTimeout(() => {
-      loadRandomPrompt()
-      setIsGenerating(false)
-    }, 500)
+  const generateNewPrompt = async () => {
+    await loadRandomPrompt()
+  }
+
+  const handleModeChange = (newMode) => {
+    setMode(newMode)
+    setSessionExcludeIds([]) // Clear session history when switching modes
   }
 
   const sharePrompt = () => {
@@ -60,6 +66,20 @@ const WanderGroups = ({ navigate }) => {
     } else {
       navigator.clipboard.writeText(currentPrompt + '\n\nTry Wander for more group fun!')
     }
+  }
+
+  if (loading) {
+    return (
+      <div style={{ 
+        minHeight: '100vh', 
+        background: 'linear-gradient(135deg, #fed7aa, #fdba74, #fb923c)',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center'
+      }}>
+        <div style={{ color: '#c2410c', fontSize: '18px' }}>Loading prompts...</div>
+      </div>
+    )
   }
 
   return (
@@ -100,54 +120,56 @@ const WanderGroups = ({ navigate }) => {
 
       <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
         
-        {/* Mode Toggle */}
+        {/* Mode Toggle - softened styling */}
         <div style={{
           display: 'flex',
-          backgroundColor: 'rgba(255,255,255,0.6)',
+          backgroundColor: 'rgba(255,255,255,0.3)',
           borderRadius: '16px',
           padding: '4px',
           marginBottom: '16px',
           border: '1px solid rgba(255,255,255,0.2)'
         }}>
           <button
-            onClick={() => setMode('party')}
+            onClick={() => handleModeChange('party')}
             style={{
               flex: 1,
               padding: '12px 16px',
               borderRadius: '12px',
               border: 'none',
               fontSize: '14px',
-              fontWeight: '500',
+              fontWeight: '400',
               cursor: 'pointer',
-              backgroundColor: mode === 'party' ? '#ea580c' : 'transparent',
-              color: mode === 'party' ? 'white' : '#ea580c'
+              backgroundColor: mode === 'party' ? 'rgba(255,255,255,0.4)' : 'transparent',
+              color: mode === 'party' ? '#d97706' : '#92400e',
+              border: mode === 'party' ? '1px solid rgba(217,119,6,0.3)' : '1px solid transparent'
             }}
           >
             Party Mode
           </button>
           <button
-            onClick={() => setMode('work')}
+            onClick={() => handleModeChange('work')}
             style={{
               flex: 1,
               padding: '12px 16px',
               borderRadius: '12px',
               border: 'none',
               fontSize: '14px',
-              fontWeight: '500',
+              fontWeight: '400',
               cursor: 'pointer',
-              backgroundColor: mode === 'work' ? '#ea580c' : 'transparent',
-              color: mode === 'work' ? 'white' : '#ea580c'
+              backgroundColor: mode === 'work' ? 'rgba(255,255,255,0.4)' : 'transparent',
+              color: mode === 'work' ? '#d97706' : '#92400e',
+              border: mode === 'work' ? '1px solid rgba(217,119,6,0.3)' : '1px solid transparent'
             }}
           >
             Work Mode
           </button>
         </div>
 
-        {/* Usage Tips - Moved between toggle and prompt box */}
+        {/* Usage Tips */}
         <div style={{
           backgroundColor: 'transparent',
           padding: '16px 0',
-          marginBottom: '16px'
+          marginBottom: '24px'
         }}>
           <p style={{
             color: '#ea580c',
@@ -164,19 +186,20 @@ const WanderGroups = ({ navigate }) => {
           </p>
         </div>
 
-        {/* Prompt Display */}
+        {/* Prompt Display - enhanced to be the hero */}
         <div style={{
-          backgroundColor: 'rgba(255,255,255,0.6)',
+          backgroundColor: 'rgba(255,255,255,0.9)',
           borderRadius: '24px',
-          padding: '32px',
-          border: '1px solid rgba(255,255,255,0.2)',
-          marginBottom: '16px'
+          padding: '36px',
+          border: '2px solid rgba(255,255,255,0.6)',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+          marginBottom: '24px'
         }}>
           <p style={{
             color: '#4b5563',
-            fontSize: '20px',
-            fontWeight: '300',
-            lineHeight: '1.5',
+            fontSize: '22px',
+            fontWeight: '400',
+            lineHeight: '1.4',
             textAlign: 'center',
             margin: 0
           }}>
@@ -184,33 +207,38 @@ const WanderGroups = ({ navigate }) => {
           </p>
         </div>
 
-        {/* Generate Button - Moved below prompt box */}
-        <button
-          onClick={generateNewPrompt}
-          disabled={isGenerating}
-          style={{
-            width: '100%',
-            backgroundColor: '#ea580c',
-            color: 'white',
-            padding: '12px 24px',
-            borderRadius: '16px',
-            border: 'none',
-            fontSize: '16px',
-            fontWeight: '500',
-            cursor: isGenerating ? 'not-allowed' : 'pointer',
-            opacity: isGenerating ? 0.5 : 1,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '8px'
-          }}
-        >
-          {isGenerating ? (
-            <div style={{ width: '16px', height: '16px', border: '2px solid white', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-          ) : (
-            'Generate new prompt'
-          )}
-        </button>
+        {/* Generate Button - de-emphasized */}
+        <div style={{ textAlign: 'center' }}>
+          <button
+            onClick={generateNewPrompt}
+            disabled={isGenerating}
+            style={{
+              backgroundColor: 'transparent',
+              color: '#d97706',
+              border: 'none',
+              fontSize: '14px',
+              textDecoration: 'underline',
+              opacity: 0.7,
+              fontWeight: '400',
+              cursor: isGenerating ? 'not-allowed' : 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px',
+              margin: '0 auto',
+              padding: '8px'
+            }}
+          >
+            {isGenerating ? (
+              <>
+                <div style={{ width: '12px', height: '12px', border: '2px solid #d97706', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                Loading...
+              </>
+            ) : (
+              'Try a different prompt'
+            )}
+          </button>
+        </div>
       </main>
 
       {/* Bottom Navigation */}
