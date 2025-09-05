@@ -5,9 +5,14 @@ export const DailyAPI = {
   // Get today's prompt - consistent daily prompt for all users
   getTodaysPrompt: async (userId = null) => {
     try {
-      // Get today's date as seed for consistent daily selection
+      // Get today's date and create a more robust daily seed
       const today = new Date()
-      const dateString = today.toISOString().split('T')[0] // YYYY-MM-DD format
+      const year = today.getFullYear()
+      const month = today.getMonth() + 1 // getMonth() returns 0-11
+      const day = today.getDate()
+      
+      // Create a more varied seed using year + month + day
+      const dateSeed = year * 10000 + month * 100 + day // e.g., 20250905
       
       // Get all active prompts
       const { data: allPrompts, error } = await supabase
@@ -22,13 +27,8 @@ export const DailyAPI = {
         return { data: null, error: new Error('No daily prompts available in database') }
       }
 
-      // Use date as seed to pick the same prompt for everyone today
-      // Simple hash function to convert date string to consistent index
-      let hash = 0
-      for (let i = 0; i < dateString.length; i++) {
-        hash = ((hash << 5) - hash + dateString.charCodeAt(i)) & 0xffffffff
-      }
-      const todayIndex = Math.abs(hash) % allPrompts.length
+      // Use date seed to pick the same prompt for everyone today
+      const todayIndex = dateSeed % allPrompts.length
       
       return { data: allPrompts[todayIndex], error: null }
 
