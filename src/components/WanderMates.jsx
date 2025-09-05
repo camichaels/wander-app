@@ -70,12 +70,18 @@ const WanderMates = ({ navigate, currentUser }) => {
     } else if (currentView === 'dashboard') {
       // Less frequent polling for dashboard status updates and invitation changes
       interval = setInterval(async () => {
+        console.log('Dashboard polling running...', new Date().toLocaleTimeString())
         try {
           // Load both mates and pending invitations to catch all changes
           const [matesResult, invitesResult] = await Promise.all([
             MatesAPI.getActiveMates(currentUser.id),
             MatesAPI.getPendingInvitations(currentUser.id)
           ])
+          
+          console.log('Poll results:', { 
+            mates: matesResult.data?.length || 0, 
+            invites: invitesResult.data?.all?.length || 0 
+          })
           
           if (!matesResult.error && matesResult.data) {
             // Check for status changes in existing mates
@@ -92,7 +98,9 @@ const WanderMates = ({ navigate, currentUser }) => {
             const newMateIds = new Set(matesResult.data.map(m => m.id))
             const hasNewMates = matesResult.data.some(m => !currentMateIds.has(m.id))
             
-            if (hasStatusChanges || hasNewMates) {
+            if (hasStatusChanges || hasNewMates || matesResult.data.length !== mates.length) {
+              console.log('Updating mates:', { hasStatusChanges, hasNewMates, 
+                oldCount: mates.length, newCount: matesResult.data.length })
               setMates(matesResult.data)
             }
           }
@@ -109,13 +117,17 @@ const WanderMates = ({ navigate, currentUser }) => {
               [...newInviteIds].some(id => !currentInviteIds.has(id))
             
             if (invitesChanged) {
+              console.log('Updating invites:', { 
+                oldCount: pendingInvites.length, 
+                newCount: invitesResult.data.all?.length || 0 
+              })
               setPendingInvites(invitesResult.data.all || [])
             }
           }
         } catch (error) {
           console.warn('Dashboard polling error:', error)
         }
-      }, 45000) // Poll every 45 seconds for dashboard updates
+      }, 15000) // Reduced to 15 seconds for testing
     }
     
     return () => {
