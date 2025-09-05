@@ -92,7 +92,10 @@ const WanderMates = ({ navigate, currentUser }) => {
             const newMateIds = new Set(matesResult.data.map(m => m.id))
             const hasNewMates = matesResult.data.some(m => !currentMateIds.has(m.id))
             
-            if (hasStatusChanges || hasNewMates || matesResult.data.length !== mates.length) {
+            // Check for removed mates (stopped wandering)
+            const hasRemovedMates = mates.some(m => !newMateIds.has(m.id))
+            
+            if (hasStatusChanges || hasNewMates || hasRemovedMates || matesResult.data.length !== mates.length) {
               setMates(matesResult.data)
             }
           }
