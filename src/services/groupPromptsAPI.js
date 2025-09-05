@@ -1,7 +1,7 @@
 // src/services/groupPromptsAPI.js
 import { supabase } from './supabase'
 
-export class GroupPromptsAPI {
+export class groupPromptsAPI {
   // Get random group prompt with weighted selection to avoid overused prompts
   static async getRandomPrompt(mode = null, excludeIds = []) {
     try {

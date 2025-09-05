@@ -37,7 +37,7 @@ const WanderAbout = ({ navigate, currentUser }) => {
         </p>
       </header>
 
-      <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
+      <main style={{ maxWidth: '600px', margin: '0 auto', padding: '0 24px' }}>
         
         {/* Hero Section */}
         <div style={{
@@ -45,170 +45,175 @@ const WanderAbout = ({ navigate, currentUser }) => {
           borderRadius: '24px',
           padding: '32px',
           border: '1px solid rgba(255,255,255,0.2)',
-          marginBottom: '24px',
-          textAlign: 'center'
+          marginBottom: '32px'
         }}>
-          <div style={{
-            width: '64px',
-            height: '64px',
-            backgroundColor: '#6366f1',
-            borderRadius: '16px',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 24px'
+          <h2 style={{ 
+            color: '#374151', 
+            fontSize: '24px', 
+            fontWeight: '500', 
+            marginBottom: '24px',
+            textAlign: 'center'
           }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
-            </svg>
-          </div>
-          <h2 style={{ color: '#374151', fontSize: '20px', fontWeight: '500', marginBottom: '16px' }}>
             Get lost, find focus
           </h2>
-          <p style={{ color: '#6b7280', lineHeight: '1.6', fontSize: '16px' }}>
-            Your brain is constantly generating ideas, connections, and insights. 
-            Most of them get lost in the noise of notifications, meetings, and endless tasks. 
-            Wander gives your thoughts space to breathe and develop into something meaningful.
-          </p>
-        </div>
-
-        {/* Why Your Brain Needs This */}
-        <div style={{
-          backgroundColor: 'rgba(255,255,255,0.6)',
-          borderRadius: '24px',
-          padding: '24px',
-          border: '1px solid rgba(255,255,255,0.2)',
-          marginBottom: '24px'
-        }}>
-          <h3 style={{ color: '#374151', fontSize: '18px', fontWeight: '500', marginBottom: '16px' }}>
-            Why your brain needs this
-          </h3>
           
-          <p style={{ color: '#6b7280', lineHeight: '1.6', marginBottom: '20px' }}>
-            We spend our days in reactive mode—responding to emails, jumping between tasks, 
-            consuming endless content. But your best ideas don't come from grinding harder. 
-            They emerge when you give your mind permission to wander.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <div style={{
-                width: '6px',
-                height: '6px',
-                backgroundColor: '#6366f1',
-                borderRadius: '50%',
-                marginTop: '10px',
-                flexShrink: 0
-              }}></div>
-              <p style={{ color: '#6b7280', lineHeight: '1.6' }}>
-                <strong style={{ color: '#374151' }}>Unlock creative connections:</strong> Your brain makes its best 
-                links when it's not trying to solve specific problems
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <div style={{
-                width: '6px',
-                height: '6px',
-                backgroundColor: '#6366f1',
-                borderRadius: '50%',
-                marginTop: '10px',
-                flexShrink: 0
-              }}></div>
-              <p style={{ color: '#6b7280', lineHeight: '1.6' }}>
-                <strong style={{ color: '#374151' }}>Process emotions and experiences:</strong> Mental wandering 
-                helps you make sense of what's happened and what's coming
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <div style={{
-                width: '6px',
-                height: '6px',
-                backgroundColor: '#6366f1',
-                borderRadius: '50%',
-                marginTop: '10px',
-                flexShrink: 0
-              }}></div>
-              <p style={{ color: '#6b7280', lineHeight: '1.6' }}>
-                <strong style={{ color: '#374151' }}>Reduce mental clutter:</strong> Getting thoughts out of your head 
-                creates space for clearer thinking
-              </p>
-            </div>
+          <div style={{ color: '#4b5563', lineHeight: '1.7', fontSize: '16px' }}>
+            <p style={{ marginBottom: '20px' }}>
+              We spend our days in reactive mode—responding to emails, jumping between tasks, consuming endless content. But your best ideas don't come from grinding harder. They emerge when you give your mind permission to wander.
+            </p>
+            
+            <p style={{ marginBottom: '20px' }}>
+              Not every thought needs to be productive. Not every moment needs to be optimized. Some of the most important work your brain does happens when you're not trying to work at all.
+            </p>
+            
+            <p style={{ margin: 0 }}>
+              Wander celebrates the value of mental meandering, creative confusion, and thoughts that lead nowhere except to other interesting thoughts. Because the same brain that can solve complex problems all day deserves a few minutes to get wonderfully, productively weird.
+            </p>
           </div>
         </div>
 
-        {/* How It Works */}
-        <div style={{
-          backgroundColor: 'rgba(255,255,255,0.6)',
-          borderRadius: '24px',
-          padding: '24px',
-          border: '1px solid rgba(255,255,255,0.2)',
-          marginBottom: '24px'
-        }}>
-          <h3 style={{ color: '#374151', fontSize: '18px', fontWeight: '500', marginBottom: '16px' }}>
-            How it works
-          </h3>
-          
-          <p style={{ color: '#6b7280', lineHeight: '1.6', marginBottom: '20px' }}>
-            Wander isn't another productivity tool trying to optimize your life. 
-            It's a space for the kind of thinking that happens naturally when you're walking, 
-            showering, or staring out the window—but captured and given room to grow.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <h4 style={{ color: '#374151', fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
-                Daily Wander
-              </h4>
-              <p style={{ color: '#6b7280', lineHeight: '1.6', fontSize: '15px' }}>
-                One surprising prompt each day. Let your mind drift for a few minutes, 
-                then capture what emerges.
-              </p>
-            </div>
-
-            <div>
-              <h4 style={{ color: '#374151', fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
-                Solo Wander
-              </h4>
-              <p style={{ color: '#6b7280', lineHeight: '1.6', fontSize: '15px' }}>
-                Your personal drift space. Explore thoughts without judgment or pressure.
-              </p>
-            </div>
-
-            <div>
-              <h4 style={{ color: '#374151', fontSize: '16px', fontWeight: '500', marginBottom: '8px' }}>
-                Wander Mates
-              </h4>
-              <p style={{ color: '#6b7280', lineHeight: '1.6', fontSize: '15px' }}>
-                Share prompts with friends and see how different minds approach the same starting point.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        {/* Philosophy */}
+        {/* When you let your mind drift */}
         <div style={{
           backgroundColor: 'rgba(255,255,255,0.4)',
           borderRadius: '24px',
-          padding: '24px',
-          border: '1px solid rgba(255,255,255,0.2)'
+          padding: '32px',
+          border: '1px solid rgba(255,255,255,0.2)',
+          marginBottom: '32px',
+          textAlign: 'center'
         }}>
-          <h3 style={{ color: '#374151', fontSize: '18px', fontWeight: '500', marginBottom: '16px' }}>
-            Our philosophy
+          <h3 style={{ 
+            color: '#374151', 
+            fontSize: '20px', 
+            fontWeight: '500', 
+            marginBottom: '24px' 
+          }}>
+            So when you let your mind drift
           </h3>
           
-          <p style={{ color: '#6b7280', lineHeight: '1.6', marginBottom: '16px' }}>
-            Not every thought needs to be productive. Not every moment needs to be optimized. 
-            Some of the most important work your brain does happens when you're not trying to work at all.
+          <div style={{ 
+            display: 'grid', 
+            gridTemplateColumns: 'repeat(2, 1fr)', 
+            gap: '16px',
+            maxWidth: '400px',
+            margin: '0 auto'
+          }}>
+            <p style={{ color: '#6366f1', fontSize: '16px', fontWeight: '400', margin: 0 }}>
+              Ideas surface naturally
+            </p>
+            <p style={{ color: '#6366f1', fontSize: '16px', fontWeight: '400', margin: 0 }}>
+              Breakthroughs emerge
+            </p>
+            <p style={{ color: '#6366f1', fontSize: '16px', fontWeight: '400', margin: 0 }}>
+              Patterns click into place
+            </p>
+            <p style={{ color: '#6366f1', fontSize: '16px', fontWeight: '400', margin: 0 }}>
+              Distant thoughts connect
+            </p>
+          </div>
+        </div>
+
+        {/* Ways to wander */}
+        <div style={{
+          backgroundColor: 'rgba(255,255,255,0.6)',
+          borderRadius: '24px',
+          padding: '32px',
+          border: '1px solid rgba(255,255,255,0.2)'
+        }}>
+          <h3 style={{ 
+            color: '#374151', 
+            fontSize: '20px', 
+            fontWeight: '500', 
+            marginBottom: '20px' 
+          }}>
+            Ways to wander
+          </h3>
+          
+          <p style={{ 
+            color: '#4b5563', 
+            lineHeight: '1.7', 
+            fontSize: '16px', 
+            marginBottom: '32px' 
+          }}>
+            Wander isn't another productivity tool trying to optimize your life. It's a space for the kind of thinking that happens naturally when you're walking, showering, or staring out the window—but captured and given room to grow.
           </p>
 
-          <p style={{ color: '#6b7280', lineHeight: '1.6' }}>
-            Wander celebrates the value of mental meandering, creative confusion, and thoughts 
-            that lead nowhere except to other interesting thoughts. 
-            Because the same brain that can solve complex problems all day deserves 
-            a few minutes to get wonderfully, productively weird.
-          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <div>
+              <h4 style={{ 
+                color: '#374151', 
+                fontSize: '18px', 
+                fontWeight: '500', 
+                marginBottom: '8px' 
+              }}>
+                Daily Wander
+              </h4>
+              <p style={{ 
+                color: '#6b7280', 
+                lineHeight: '1.6', 
+                fontSize: '15px',
+                margin: 0
+              }}>
+                One surprising prompt each day. Let your mind drift for a few minutes, then capture what emerges. Perfect for building a habit of reflective thinking. And post to the world to see how others interpreted the same starting point.
+              </p>
+            </div>
+
+            <div>
+              <h4 style={{ 
+                color: '#374151', 
+                fontSize: '18px', 
+                fontWeight: '500', 
+                marginBottom: '8px' 
+              }}>
+                Solo Wander
+              </h4>
+              <p style={{ 
+                color: '#6b7280', 
+                lineHeight: '1.6', 
+                fontSize: '15px',
+                margin: 0
+              }}>
+                Your personal drift space. A mix of reflective, creative, absurd, and personal prompts. Take advantage of these moments to explore thoughts without judgment or pressure.
+              </p>
+            </div>
+
+            <div>
+              <h4 style={{ 
+                color: '#374151', 
+                fontSize: '18px', 
+                fontWeight: '500', 
+                marginBottom: '8px' 
+              }}>
+                Wander Mates
+              </h4>
+              <p style={{ 
+                color: '#6b7280', 
+                lineHeight: '1.6', 
+                fontSize: '15px',
+                margin: 0
+              }}>
+                Share prompts with a friend and see how different minds approach them. Plus you get space to react to each other's wanderings, discover new perspectives, or just have a laugh.
+              </p>
+            </div>
+
+            <div>
+              <h4 style={{ 
+                color: '#374151', 
+                fontSize: '18px', 
+                fontWeight: '500', 
+                marginBottom: '8px' 
+              }}>
+                Group Wanders
+              </h4>
+              <p style={{ 
+                color: '#6b7280', 
+                lineHeight: '1.6', 
+                fontSize: '15px',
+                margin: 0
+              }}>
+                Conversation starters for parties, meetings, or any gathering. Read prompts aloud and let everyone respond spontaneously.
+              </p>
+            </div>
+          </div>
         </div>
 
       </main>

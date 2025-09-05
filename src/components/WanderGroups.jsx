@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { GroupPromptsAPI } from '../services/groupPromptsAPI'
+import { groupPromptsAPI } from '../services/groupPromptsAPI'
 
 const WanderGroups = ({ navigate }) => {
   const [currentPrompt, setCurrentPrompt] = useState('')
@@ -17,7 +17,7 @@ const WanderGroups = ({ navigate }) => {
     try {
       setIsGenerating(true)
       
-      const { data: prompt, error } = await GroupPromptsAPI.getRandomPrompt(
+      const { data: prompt, error } = await groupPromptsAPI.getRandomPrompt(
         mode, 
         sessionExcludeIds
       )
@@ -36,7 +36,7 @@ const WanderGroups = ({ navigate }) => {
         setSessionExcludeIds(prev => [...prev, prompt.prompt_id])
         
         // Increment usage count
-        await GroupPromptsAPI.incrementUsageCount(prompt.prompt_id)
+        await groupPromptsAPI.incrementUsageCount(prompt.prompt_id)
       }
     } catch (error) {
       console.error('Error in loadRandomPrompt:', error)
