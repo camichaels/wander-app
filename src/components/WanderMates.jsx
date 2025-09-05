@@ -25,6 +25,78 @@ const WanderMates = ({ navigate, currentUser }) => {
     loadInitialData()
   }, [currentUser])
 
+  // Real-time polling for active mate interactions and dashboard updates
+  useEffect(() => {
+    if (!currentUser?.id) return
+
+    let interval
+    
+    if ((currentView === 'reveal' || currentView === 'waiting') && selectedMate) {
+      // Frequent polling for active conversations
+      interval = setInterval(async () => {
+        try {
+          const matesResult = await MatesAPI.getActiveMates(currentUser.id)
+          if (!matesResult.error && matesResult.data) {
+            const updatedMate = matesResult.data.find(m => m.id === selectedMate.id)
+            if (updatedMate) {
+              // Check if there are meaningful changes before updating
+              const hasNewReactions = updatedMate.sharedReactions?.length !== selectedMate.sharedReactions?.length
+              const statusChanged = updatedMate.status !== selectedMate.status
+              const newTheirResponse = updatedMate.theirResponse !== selectedMate.theirResponse
+              
+              if (hasNewReactions || statusChanged || newTheirResponse) {
+                setSelectedMate(updatedMate)
+                
+                // Update the mate in the local list too
+                setMates(prev => prev.map(m => 
+                  m.id === selectedMate.id ? updatedMate : m
+                ))
+                
+                // If status changed significantly, update the view
+                if (statusChanged && updatedMate.status === 'reacting' && currentView === 'waiting') {
+                  setCurrentView('reveal')
+                }
+              }
+            }
+            
+            // Always update the full mates list for dashboard consistency
+            setMates(matesResult.data)
+          }
+        } catch (error) {
+          console.warn('Background polling error:', error)
+        }
+      }, 20000) // Poll every 20 seconds for active conversations
+      
+    } else if (currentView === 'dashboard') {
+      // Less frequent polling for dashboard status updates
+      interval = setInterval(async () => {
+        try {
+          const matesResult = await MatesAPI.getActiveMates(currentUser.id)
+          if (!matesResult.error && matesResult.data) {
+            // Only update if there are actual status changes
+            const currentStatuses = mates.map(m => ({id: m.id, status: m.status}))
+            const newStatuses = matesResult.data.map(m => ({id: m.id, status: m.status}))
+            
+            const hasStatusChanges = currentStatuses.some(current => {
+              const updated = newStatuses.find(n => n.id === current.id)
+              return updated && updated.status !== current.status
+            })
+            
+            if (hasStatusChanges) {
+              setMates(matesResult.data)
+            }
+          }
+        } catch (error) {
+          console.warn('Dashboard polling error:', error)
+        }
+      }, 45000) // Poll every 45 seconds for dashboard updates (less aggressive)
+    }
+    
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [currentView, selectedMate, currentUser, mates])
+
   const loadInitialData = async () => {
     try {
       setLoading(true)
