@@ -253,50 +253,78 @@ export const MatesAPI = {
             let sharedReactions = []
 
             if (latestWander) {
-              // Get the prompt text with better error handling
-              if (latestWander.prompt_id) {
-                try {
-                  const { data: promptData, error: promptError } = await supabase
-                    .from('mate_prompts')
-                    .select('prompt_text')
-                    .eq('prompt_id', latestWander.prompt_id)
-                    .single()
-                  
-                  if (!promptError && promptData) {
-                    prompt = promptData.prompt_text
-                  } else {
+              // Check if this wander has been reset or is scheduled for reset
+              if (latestWander.reset_scheduled_for) {
+                // This conversation was reset - show ready status for new cycle
+                status = 'ready'
+                prompt = null
+                yourResponse = null
+                theirResponse = null
+                sharedReactions = []
+              } else {
+                // Active conversation - process normally
+                // Get the prompt text with better error handling
+                if (latestWander.prompt_id) {
+                  try {
+                    const { data: promptData, error: promptError } = await supabase
+                      .from('mate_prompts')
+                      .select('prompt_text')
+                      .eq('prompt_id', latestWander.prompt_id)
+                      .single()
+                    
+                    if (!promptError && promptData) {
+                      prompt = promptData.prompt_text
+                    } else {
+                      prompt = 'Unable to load prompt'
+                    }
+                  } catch (promptFetchError) {
                     prompt = 'Unable to load prompt'
                   }
-                } catch (promptFetchError) {
-                  prompt = 'Unable to load prompt'
                 }
-              }
-              
-              // Find responses
-              const responses = latestWander.responses || []
-              const myResponse = responses.find(r => r.user_id === userId)
-              const theirResponseObj = responses.find(r => r.user_id !== userId)
-              
-              yourResponse = myResponse?.response_text || null
-              theirResponse = theirResponseObj?.response_text || null
+                
+                // Find responses
+                const responses = latestWander.responses || []
+                const myResponse = responses.find(r => r.user_id === userId)
+                const theirResponseObj = responses.find(r => r.user_id !== userId)
+                
+                yourResponse = myResponse?.response_text || null
+                theirResponse = theirResponseObj?.response_text || null
 
-              // Transform chat messages to reactions
-              const messages = latestWander.messages || []
-              sharedReactions = messages.map(msg => ({
-                author: msg.user_id === userId ? 'You' : (mate.display_name || mate.username),
-                content: msg.message_text,
-                timestamp: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-              }))
+                // Transform chat messages to reactions
+                const messages = latestWander.messages || []
+                sharedReactions = messages.map(msg => ({
+                  author: msg.user_id === userId ? 'You' : (mate.display_name || mate.username),
+                  content: msg.message_text,
+                  timestamp: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                }))
 
-              // Determine status based on responses
-              if (!myResponse && !theirResponseObj) {
-                status = 'waiting_for_you' // New prompt, waiting for first response
-              } else if (myResponse && !theirResponseObj) {
-                status = 'waiting_for_them' // I responded, waiting for them
-              } else if (!myResponse && theirResponseObj) {
-                status = 'waiting_for_you' // They responded, waiting for me
-              } else if (myResponse && theirResponseObj) {
-                status = 'reacting' // Both responded, can now react
+                // Determine status based on responses
+                if (!myResponse && !theirResponseObj) {
+                  status = 'waiting_for_you' // New prompt, waiting for first response
+                } else if (myResponse && !theirResponseObj) {
+                  status = 'waiting_for_them' // I responded, waiting for them
+                } else if (!myResponse && theirResponseObj) {
+                  status = 'waiting_for_you' // They responded, waiting for me
+                } else if (myResponse && theirResponseObj) {
+                  // Both responded - check if enough time has passed for potential reset
+                  if (latestWander.both_responded_at) {
+                    const bothRespondedTime = new Date(latestWander.both_responded_at)
+                    const now = new Date()
+                    const hoursElapsed = (now - bothRespondedTime) / (1000 * 60 * 60)
+                    
+                    // If more than 24 hours have passed since both responded, 
+                    // this conversation might be ready for reset
+                    if (hoursElapsed > 24) {
+                      // The scheduled function should have reset this already
+                      // If it's still here, it's in the reacting phase
+                      status = 'reacting'
+                    } else {
+                      status = 'reacting' // Both responded, can now react
+                    }
+                  } else {
+                    status = 'reacting' // Both responded, can now react
+                  }
+                }
               }
             }
 
