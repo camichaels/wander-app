@@ -68,12 +68,17 @@ const WanderMates = ({ navigate, currentUser }) => {
       }, 20000) // Poll every 20 seconds for active conversations
       
     } else if (currentView === 'dashboard') {
-      // Less frequent polling for dashboard status updates
+      // Less frequent polling for dashboard status updates and invitation changes
       interval = setInterval(async () => {
         try {
-          const matesResult = await MatesAPI.getActiveMates(currentUser.id)
+          // Load both mates and pending invitations to catch all changes
+          const [matesResult, invitesResult] = await Promise.all([
+            MatesAPI.getActiveMates(currentUser.id),
+            MatesAPI.getPendingInvitations(currentUser.id)
+          ])
+          
           if (!matesResult.error && matesResult.data) {
-            // Only update if there are actual status changes
+            // Check for status changes in existing mates
             const currentStatuses = mates.map(m => ({id: m.id, status: m.status}))
             const newStatuses = matesResult.data.map(m => ({id: m.id, status: m.status}))
             
@@ -82,14 +87,35 @@ const WanderMates = ({ navigate, currentUser }) => {
               return updated && updated.status !== current.status
             })
             
-            if (hasStatusChanges) {
+            // Check for new mates (accepted invitations)
+            const currentMateIds = new Set(mates.map(m => m.id))
+            const newMateIds = new Set(matesResult.data.map(m => m.id))
+            const hasNewMates = matesResult.data.some(m => !currentMateIds.has(m.id))
+            
+            if (hasStatusChanges || hasNewMates) {
               setMates(matesResult.data)
+            }
+          }
+          
+          if (!invitesResult.error && invitesResult.data) {
+            // Check for changes in pending invitations
+            const currentInviteIds = new Set(pendingInvites.map(i => i.id))
+            const newInviteIds = new Set(invitesResult.data.all?.map(i => i.id) || [])
+            
+            // Detect if invitations were accepted/rejected (removed from pending)
+            // or new invitations received
+            const invitesChanged = currentInviteIds.size !== newInviteIds.size ||
+              [...currentInviteIds].some(id => !newInviteIds.has(id)) ||
+              [...newInviteIds].some(id => !currentInviteIds.has(id))
+            
+            if (invitesChanged) {
+              setPendingInvites(invitesResult.data.all || [])
             }
           }
         } catch (error) {
           console.warn('Dashboard polling error:', error)
         }
-      }, 45000) // Poll every 45 seconds for dashboard updates (less aggressive)
+      }, 45000) // Poll every 45 seconds for dashboard updates
     }
     
     return () => {
