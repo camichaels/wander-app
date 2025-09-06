@@ -29,6 +29,33 @@ const WanderHome = ({ navigate, currentUser }) => {
     return currentUser.display_name || currentUser.username || currentUser.email?.split('@')[0] || "You"
   }
 
+  const handleShareWander = () => {
+    const message = "Hey. I've been giving my brain a break with Wander, and think you should try it. https://wander-app-jet.vercel.app"
+    
+    // Try SMS first (works on most mobile devices)
+    const smsUrl = `sms:?body=${encodeURIComponent(message)}`
+    
+    try {
+      // Check if we can open SMS
+      window.open(smsUrl, '_self')
+    } catch (error) {
+      // Fallback: copy to clipboard
+      if (navigator.clipboard) {
+        navigator.clipboard.writeText(message).then(() => {
+          alert('Share message copied to clipboard!')
+        }).catch(() => {
+          // Final fallback: show message for manual copy
+          prompt('Copy this message to share Wander:', message)
+        })
+      } else {
+        // Very old browsers fallback
+        prompt('Copy this message to share Wander:', message)
+      }
+    }
+    
+    setShowAdminMenu(false)
+  }
+
   return (
     <div style={{ 
       minHeight: '100vh', 
@@ -84,7 +111,7 @@ const WanderHome = ({ navigate, currentUser }) => {
                 onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}>
                 Profile
               </button>
-              <button onClick={() => { navigate('share'); setShowAdminMenu(false) }}
+              <button onClick={handleShareWander}
                 style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#4b5563', borderRadius: '6px' }}
                 onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(0,0,0,0.05)'}
                 onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}>
