@@ -19,17 +19,44 @@ export const DailyAPI = {
     return ptTime.toISOString().split('T')[0]
   },
 
-  // Get today's prompt - consistent daily prompt for all users
+  // Get today's prompt - now checks assignments table first
   getTodaysPrompt: async (userId = null) => {
     try {
-      // Get the current daily date (changes at 3 AM PT)
       const dailyDate = DailyAPI.getCurrentDailyDate()
+      
+      // FIRST: Check if there's an assigned prompt for today
+      const { data: assignment, error: assignError } = await supabase
+        .from('daily_prompt_assignments')
+        .select(`
+          prompt_id,
+          daily_prompts!inner(
+            prompt_id,
+            prompt_text,
+            created_at
+          )
+        `)
+        .eq('assignment_date', dailyDate)
+        .maybeSingle()
+
+      if (assignment && !assignError) {
+        console.log('Using assigned prompt for', dailyDate, ':', assignment.daily_prompts.prompt_text)
+        return { data: assignment.daily_prompts, error: null }
+      }
+
+      // Log why assignment lookup failed
+      if (assignError) {
+        console.error('Assignment lookup failed:', assignError)
+      } else {
+        console.warn('No assignment found for', dailyDate, '- using deterministic fallback')
+      }
+
+      // FALLBACK: Use deterministic selection if no assignment exists
+      console.log('No assignment found, using deterministic selection for', dailyDate)
+      
       const [year, month, day] = dailyDate.split('-').map(Number)
+      const dateSeed = year * 10000 + month * 100 + day
       
-      // Create a more varied seed using year + month + day
-      const dateSeed = year * 10000 + month * 100 + day // e.g., 20250905
-      
-      // Get all active prompts
+      // Get all active prompts for fallback
       const { data: allPrompts, error } = await supabase
         .from('daily_prompts')
         .select('prompt_id, prompt_text, created_at')
@@ -48,6 +75,7 @@ export const DailyAPI = {
       return { data: allPrompts[todayIndex], error: null }
 
     } catch (error) {
+      console.error('Error in getTodaysPrompt:', error)
       return { data: null, error }
     }
   },

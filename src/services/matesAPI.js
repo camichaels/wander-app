@@ -1,13 +1,12 @@
-// services/matesAPI.js - Enhanced version with comprehensive data purging and daily reset support
+// services/matesAPI.js - Fixed version with robust completion detection and cleanup
 import { supabase } from './supabase'
 
 export const MatesAPI = {
-  // Helper function to get the current "daily date" based on 3 AM PT boundary (same as DailyAPI)
+  // Helper function to get the current "daily date" based on 3 AM PT boundary
   getCurrentDailyDate: () => {
     const now = new Date()
     
     // Create a date in PT (Pacific Time)
-    // PT is UTC-8 in standard time, UTC-7 in daylight time
     const ptTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}))
     
     // If it's before 3 AM PT, use yesterday's date
@@ -24,35 +23,20 @@ export const MatesAPI = {
     try {
       const currentDailyDate = MatesAPI.getCurrentDailyDate()
       
-      // Find all shared wanders where both users responded and it's time to reset
-      const { data: completedWanders, error: wandersError } = await supabase
-        .from('shared_wanders')
-        .select(`
-          shared_wander_id,
-          mate_relationship_id,
-          both_responded_at,
-          status
-        `)
-        .eq('status', 'both_responded')
-        .not('both_responded_at', 'is', null)
-        .is('reset_scheduled_for', null)
+      // IMPROVED: Find relationships that need resetting by checking response count
+      // This handles both properly marked relationships AND broken ones
+      const { data: wandersNeedingReset, error: wandersError } = await supabase
+        .rpc('find_mates_needing_reset', { current_date: currentDailyDate })
 
-      if (wandersError) throw wandersError
-
-      const wandersToReset = []
-      
-      // Check each completed wander to see if it should be reset
-      for (const wander of completedWanders || []) {
-        const bothRespondedDate = new Date(wander.both_responded_at).toISOString().split('T')[0]
-        
-        // If they both responded on a previous daily date, it's time to reset
-        if (bothRespondedDate < currentDailyDate) {
-          wandersToReset.push(wander)
-        }
+      if (wandersError) {
+        console.error('Error finding mates needing reset:', wandersError)
+        return { data: { resetCount: 0 }, error: wandersError }
       }
 
+      const resetCount = wandersNeedingReset?.length || 0
+      
       // Reset each qualifying relationship
-      for (const wander of wandersToReset) {
+      for (const wander of wandersNeedingReset || []) {
         try {
           await MatesAPI.resetMateRelationship(wander.mate_relationship_id, wander.shared_wander_id)
         } catch (resetError) {
@@ -60,7 +44,7 @@ export const MatesAPI = {
         }
       }
 
-      return { data: { resetCount: wandersToReset.length }, error: null }
+      return { data: { resetCount }, error: null }
     } catch (error) {
       console.error('Error in checkAndResetCompletedMates:', error)
       return { data: null, error }
@@ -70,6 +54,8 @@ export const MatesAPI = {
   // Reset a specific mate relationship (create new shared wander, clear old data)
   resetMateRelationship: async (relationshipId, oldSharedWanderId) => {
     try {
+      console.log(`Resetting mate relationship ${relationshipId}, old wander: ${oldSharedWanderId}`)
+      
       // Step 1: Mark the old shared wander as reset
       const { error: markResetError } = await supabase
         .from('shared_wanders')
@@ -116,8 +102,10 @@ export const MatesAPI = {
 
       if (updateRelationshipError) console.warn('Error updating relationship:', updateRelationshipError)
 
+      console.log(`Successfully reset relationship ${relationshipId}, new wander: ${newWanderResult.data.shared_wander_id}`)
       return { data: { newSharedWanderId: newWanderResult.data.shared_wander_id }, error: null }
     } catch (error) {
+      console.error('Error in resetMateRelationship:', error)
       return { data: null, error }
     }
   },
@@ -412,7 +400,7 @@ export const MatesAPI = {
                 timestamp: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
               }))
 
-              // Determine status based on responses
+              // IMPROVED: More robust status determination that matches UI logic
               if (!myResponse && !theirResponseObj) {
                 status = 'waiting_for_you' // New prompt, waiting for first response
               } else if (myResponse && !theirResponseObj) {
@@ -420,7 +408,17 @@ export const MatesAPI = {
               } else if (!myResponse && theirResponseObj) {
                 status = 'waiting_for_you' // They responded, waiting for me
               } else if (myResponse && theirResponseObj) {
+                // Both responded - should check if they can react
                 status = 'reacting' // Both responded, can now react
+                
+                // IMPORTANT: Also trigger the markBothResponded if it wasn't called
+                if (!latestWander.both_responded_at) {
+                  try {
+                    await SharedWandersAPI.markBothResponded(latestWander.shared_wander_id)
+                  } catch (markError) {
+                    console.warn('Failed to mark both responded during status check:', markError)
+                  }
+                }
               }
             }
 
@@ -603,14 +601,15 @@ export const SharedWandersAPI = {
     }
   },
 
-  // Submit response to a shared wander
+  // IMPROVED: Submit response to a shared wander with robust completion detection
   submitResponse: async (userId, sharedWanderId, responseText) => {
     try {
       if (!userId) throw new Error('User ID required')
       if (!sharedWanderId) throw new Error('Shared wander ID required')
       if (!responseText?.trim()) throw new Error('Response text required')
 
-      const { data, error } = await supabase
+      // Insert the response
+      const { data: responseData, error: insertError } = await supabase
         .from('mate_responses')
         .insert({
           shared_wander_id: sharedWanderId,
@@ -620,34 +619,49 @@ export const SharedWandersAPI = {
         .select()
         .single()
 
-      if (error) throw error
+      if (insertError) throw insertError
 
-      // Check if both users have now responded
-      const { data: responses, error: checkError } = await supabase
+      // IMPROVED: More robust check for both users responding
+      const { data: allResponses, error: checkError } = await supabase
         .from('mate_responses')
-        .select('user_id')
+        .select('user_id, mate_response_id')
         .eq('shared_wander_id', sharedWanderId)
 
       if (checkError) {
         console.warn('Failed to check response count:', checkError)
-      } else if (responses && responses.length === 2) {
-        // If we now have 2 responses (both users responded), mark the timestamp
-        try {
-          await SharedWandersAPI.markBothResponded(sharedWanderId)
-        } catch (markError) {
-          console.warn('Failed to mark both responded:', markError)
+      } else if (allResponses && allResponses.length >= 2) {
+        // Verify we have responses from 2 different users
+        const uniqueUsers = new Set(allResponses.map(r => r.user_id))
+        
+        if (uniqueUsers.size >= 2) {
+          console.log(`Both users have responded to shared wander ${sharedWanderId}, marking as complete`)
+          
+          // Mark as both responded
+          try {
+            const markResult = await SharedWandersAPI.markBothResponded(sharedWanderId)
+            if (markResult.error) {
+              console.error('Failed to mark both responded:', markResult.error)
+            } else {
+              console.log(`Successfully marked shared wander ${sharedWanderId} as both responded`)
+            }
+          } catch (markError) {
+            console.error('Error calling markBothResponded:', markError)
+          }
         }
       }
 
-      return { data, error: null }
+      return { data: responseData, error: null }
     } catch (error) {
+      console.error('Error in submitResponse:', error)
       return { data: null, error }
     }
   },
 
-  // Mark when both users have responded (triggers reset countdown)
+  // IMPROVED: Mark when both users have responded (triggers reset countdown)
   markBothResponded: async (sharedWanderId) => {
     try {
+      console.log(`Marking shared wander ${sharedWanderId} as both responded`)
+      
       const { data, error } = await supabase
         .from('shared_wanders')
         .update({ 
@@ -658,8 +672,15 @@ export const SharedWandersAPI = {
         .select()
         .single()
 
-      return { data, error }
+      if (error) {
+        console.error(`Failed to mark ${sharedWanderId} as both responded:`, error)
+        return { data: null, error }
+      }
+
+      console.log(`Successfully marked ${sharedWanderId} as both responded at ${data.both_responded_at}`)
+      return { data, error: null }
     } catch (error) {
+      console.error('Error in markBothResponded:', error)
       return { data: null, error }
     }
   },

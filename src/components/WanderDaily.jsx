@@ -41,6 +41,32 @@ const WanderDaily = ({ navigate, currentUser }) => {
     loadTodaysData()
   }, [currentUser])
 
+  // Check for day changes to handle users who leave the app open overnight
+  useEffect(() => {
+    const checkForNewDay = () => {
+      const currentDailyDate = DailyAPI.getCurrentDailyDate()
+      const lastCheckedDate = localStorage.getItem('lastDailyCheck')
+      
+      if (lastCheckedDate !== currentDailyDate) {
+        localStorage.setItem('lastDailyCheck', currentDailyDate)
+        console.log('New day detected, refreshing data:', currentDailyDate)
+        setCurrentStep('loading')
+        setExistingResponse(null)
+        setUserResponse('')
+        setResponseType('')
+        setError(null)
+        loadTodaysData()
+      }
+    }
+    
+    // Check immediately
+    checkForNewDay()
+    
+    // Check every minute in case user leaves app open overnight
+    const interval = setInterval(checkForNewDay, 60000)
+    return () => clearInterval(interval)
+  }, [currentUser])
+
   useEffect(() => {
     if (currentStep === 'prompt' && promptTimer <= 0) {
       startWander()
