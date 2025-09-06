@@ -29,9 +29,10 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
   // Validation states
   const [validationErrors, setValidationErrors] = useState({})
 
+  // Updated useEffect to properly handle currentUser changes
   useEffect(() => {
     loadInitialData()
-  }, [currentUser])
+  }, [currentUser?.id]) // Only trigger when the actual user ID changes
 
   const loadInitialData = async () => {
     try {
@@ -61,6 +62,13 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
       } else {
         setIsLoggedIn(false)
         setUserProfile(null)
+        // Clear form data when no user
+        setFormData({
+          username: '',
+          displayName: '',
+          email: '',
+          phone: ''
+        })
       }
     } catch (err) {
       setError(err.message)
@@ -195,19 +203,41 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
     }
   }
 
+  // FIXED: handleSelectUser function with proper state clearing
   const handleSelectUser = async () => {
     if (!selectedUserId) return
     
     try {
+      // First, clear all user-related state to prevent showing stale data
+      setUserProfile(null)
+      setFormData({
+        username: '',
+        displayName: '',
+        email: '',
+        phone: ''
+      })
+      setError(null)
+      setIsEditing(false)
+      setValidationErrors({})
+      
+      // Set loading state
+      setLoading(true)
+      
       const selectedUser = allUsers.find(u => u.user_id === selectedUserId)
       if (selectedUser) {
+        // Update current user
         setCurrentUser({ id: selectedUser.user_id, email: selectedUser.email })
-        setSelectedUserId('') // Clear immediately
-        await loadInitialData()
+        
+        // Clear the dropdown
+        setSelectedUserId('')
+        
+        // loadInitialData will be called automatically by useEffect when currentUser.id changes
       }
     } catch (err) {
+      console.error('Error during user switch:', err)
       setError('Failed to sign in: ' + err.message)
       setSelectedUserId('') // Clear on error too
+      setLoading(false)
     }
   }
 
@@ -216,6 +246,7 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
     setUserProfile(null)
     setIsLoggedIn(false)
     setIsEditing(false)
+    setSelectedUserId('')
     resetForm()
   }
 

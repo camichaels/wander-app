@@ -2,14 +2,29 @@
 import { supabase } from './supabase'
 
 export const DailyAPI = {
+  // Helper function to get the current "daily date" based on 3 AM PT boundary
+  getCurrentDailyDate: () => {
+    const now = new Date()
+    
+    // Create a date in PT (Pacific Time)
+    // PT is UTC-8 in standard time, UTC-7 in daylight time
+    const ptTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}))
+    
+    // If it's before 3 AM PT, use yesterday's date
+    if (ptTime.getHours() < 3) {
+      ptTime.setDate(ptTime.getDate() - 1)
+    }
+    
+    // Return YYYY-MM-DD format
+    return ptTime.toISOString().split('T')[0]
+  },
+
   // Get today's prompt - consistent daily prompt for all users
   getTodaysPrompt: async (userId = null) => {
     try {
-      // Get today's date and create a more robust daily seed
-      const today = new Date()
-      const year = today.getFullYear()
-      const month = today.getMonth() + 1 // getMonth() returns 0-11
-      const day = today.getDate()
+      // Get the current daily date (changes at 3 AM PT)
+      const dailyDate = DailyAPI.getCurrentDailyDate()
+      const [year, month, day] = dailyDate.split('-').map(Number)
       
       // Create a more varied seed using year + month + day
       const dateSeed = year * 10000 + month * 100 + day // e.g., 20250905
@@ -44,7 +59,7 @@ export const DailyAPI = {
         throw new Error('User ID is required')
       }
 
-      const today = new Date().toISOString().split('T')[0]
+      const today = DailyAPI.getCurrentDailyDate()
       
       const { data, error } = await supabase
         .from('user_daily_responses')
@@ -66,7 +81,7 @@ export const DailyAPI = {
         throw new Error('User ID, prompt ID, and response text are required')
       }
 
-      const today = new Date().toISOString().split('T')[0]
+      const today = DailyAPI.getCurrentDailyDate()
 
       const { data, error } = await supabase
         .from('user_daily_responses')
@@ -89,7 +104,7 @@ export const DailyAPI = {
   // Get shared responses for today
   getTodaysSharedResponses: async () => {
     try {
-      const today = new Date().toISOString().split('T')[0]
+      const today = DailyAPI.getCurrentDailyDate()
 
       const { data, error } = await supabase
         .from('user_daily_responses')

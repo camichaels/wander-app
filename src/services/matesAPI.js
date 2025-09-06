@@ -2,6 +2,126 @@
 import { supabase } from './supabase'
 
 export const MatesAPI = {
+  // Helper function to get the current "daily date" based on 3 AM PT boundary (same as DailyAPI)
+  getCurrentDailyDate: () => {
+    const now = new Date()
+    
+    // Create a date in PT (Pacific Time)
+    // PT is UTC-8 in standard time, UTC-7 in daylight time
+    const ptTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}))
+    
+    // If it's before 3 AM PT, use yesterday's date
+    if (ptTime.getHours() < 3) {
+      ptTime.setDate(ptTime.getDate() - 1)
+    }
+    
+    // Return YYYY-MM-DD format
+    return ptTime.toISOString().split('T')[0]
+  },
+
+  // Auto-reset mate relationships that completed yesterday (should be called on app load)
+  checkAndResetCompletedMates: async () => {
+    try {
+      const currentDailyDate = MatesAPI.getCurrentDailyDate()
+      
+      // Find all shared wanders where both users responded and it's time to reset
+      const { data: completedWanders, error: wandersError } = await supabase
+        .from('shared_wanders')
+        .select(`
+          shared_wander_id,
+          mate_relationship_id,
+          both_responded_at,
+          status
+        `)
+        .eq('status', 'both_responded')
+        .not('both_responded_at', 'is', null)
+        .is('reset_scheduled_for', null)
+
+      if (wandersError) throw wandersError
+
+      const wandersToReset = []
+      
+      // Check each completed wander to see if it should be reset
+      for (const wander of completedWanders || []) {
+        const bothRespondedDate = new Date(wander.both_responded_at).toISOString().split('T')[0]
+        
+        // If they both responded on a previous daily date, it's time to reset
+        if (bothRespondedDate < currentDailyDate) {
+          wandersToReset.push(wander)
+        }
+      }
+
+      // Reset each qualifying relationship
+      for (const wander of wandersToReset) {
+        try {
+          await MatesAPI.resetMateRelationship(wander.mate_relationship_id, wander.shared_wander_id)
+        } catch (resetError) {
+          console.error(`Failed to reset mate relationship ${wander.mate_relationship_id}:`, resetError)
+        }
+      }
+
+      return { data: { resetCount: wandersToReset.length }, error: null }
+    } catch (error) {
+      console.error('Error in checkAndResetCompletedMates:', error)
+      return { data: null, error }
+    }
+  },
+
+  // Reset a specific mate relationship (create new shared wander, clear old data)
+  resetMateRelationship: async (relationshipId, oldSharedWanderId) => {
+    try {
+      // Step 1: Mark the old shared wander as reset
+      const { error: markResetError } = await supabase
+        .from('shared_wanders')
+        .update({ 
+          reset_scheduled_for: new Date().toISOString(),
+          status: 'reset'
+        })
+        .eq('shared_wander_id', oldSharedWanderId)
+
+      if (markResetError) throw markResetError
+
+      // Step 2: Clear chat messages for the old wander
+      const { error: messagesError } = await supabase
+        .from('mate_chat_messages')
+        .delete()
+        .eq('shared_wander_id', oldSharedWanderId)
+
+      if (messagesError) console.warn('Error clearing chat messages:', messagesError)
+
+      // Step 3: Clear responses for the old wander  
+      const { error: responsesError } = await supabase
+        .from('mate_responses')
+        .delete()
+        .eq('shared_wander_id', oldSharedWanderId)
+
+      if (responsesError) console.warn('Error clearing responses:', responsesError)
+
+      // Step 4: Create a new shared wander with a fresh prompt
+      const newWanderResult = await SharedWandersAPI.createSharedWander(relationshipId)
+      
+      if (newWanderResult.error) {
+        throw new Error(`Failed to create new shared wander: ${newWanderResult.error.message}`)
+      }
+
+      // Step 5: Update the mate relationship's activity timestamp and increment reset count
+      const { error: updateRelationshipError } = await supabase
+        .from('wander_mates')
+        .update({
+          last_activity_at: new Date().toISOString(),
+          current_cycle_started_at: new Date().toISOString(),
+          reset_count: supabase.raw('reset_count + 1')
+        })
+        .eq('relationship_id', relationshipId)
+
+      if (updateRelationshipError) console.warn('Error updating relationship:', updateRelationshipError)
+
+      return { data: { newSharedWanderId: newWanderResult.data.shared_wander_id }, error: null }
+    } catch (error) {
+      return { data: null, error }
+    }
+  },
+
   // Get all users for invitations (excluding current mates)
   getAvailableUsers: async (userId) => {
     try {
@@ -194,6 +314,9 @@ export const MatesAPI = {
     try {
       if (!userId) throw new Error('User ID required')
 
+      // First, check for any relationships that need to be reset
+      await MatesAPI.checkAndResetCompletedMates()
+
       const { data: relationships, error: relationshipsError } = await supabase
         .from('wander_mates')
         .select(`
@@ -221,7 +344,7 @@ export const MatesAPI = {
             const isUser1 = relationship.user1_id === userId
             const mate = isUser1 ? { ...relationship.user2 } : { ...relationship.user1 }
 
-            // Get latest shared wander for this relationship (not reset)
+            // Get latest active shared wander for this relationship (not reset)
             const { data: sharedWanders, error: wanderError } = await supabase
               .from('shared_wanders')
               .select(`
@@ -236,6 +359,7 @@ export const MatesAPI = {
                 messages:mate_chat_messages(message_id, user_id, message_text, created_at)
               `)
               .eq('mate_relationship_id', relationship.relationship_id)
+              .neq('status', 'reset') // Exclude reset wanders
               .is('reset_scheduled_for', null) // Only get active (non-reset) wanders
               .order('created_at', { ascending: false })
               .limit(1)
@@ -253,78 +377,50 @@ export const MatesAPI = {
             let sharedReactions = []
 
             if (latestWander) {
-              // Check if this wander has been reset or is scheduled for reset
-              if (latestWander.reset_scheduled_for) {
-                // This conversation was reset - show ready status for new cycle
-                status = 'ready'
-                prompt = null
-                yourResponse = null
-                theirResponse = null
-                sharedReactions = []
-              } else {
-                // Active conversation - process normally
-                // Get the prompt text with better error handling
-                if (latestWander.prompt_id) {
-                  try {
-                    const { data: promptData, error: promptError } = await supabase
-                      .from('mate_prompts')
-                      .select('prompt_text')
-                      .eq('prompt_id', latestWander.prompt_id)
-                      .single()
-                    
-                    if (!promptError && promptData) {
-                      prompt = promptData.prompt_text
-                    } else {
-                      prompt = 'Unable to load prompt'
-                    }
-                  } catch (promptFetchError) {
+              // Get the prompt text with better error handling
+              if (latestWander.prompt_id) {
+                try {
+                  const { data: promptData, error: promptError } = await supabase
+                    .from('mate_prompts')
+                    .select('prompt_text')
+                    .eq('prompt_id', latestWander.prompt_id)
+                    .single()
+                  
+                  if (!promptError && promptData) {
+                    prompt = promptData.prompt_text
+                  } else {
                     prompt = 'Unable to load prompt'
                   }
+                } catch (promptFetchError) {
+                  prompt = 'Unable to load prompt'
                 }
-                
-                // Find responses
-                const responses = latestWander.responses || []
-                const myResponse = responses.find(r => r.user_id === userId)
-                const theirResponseObj = responses.find(r => r.user_id !== userId)
-                
-                yourResponse = myResponse?.response_text || null
-                theirResponse = theirResponseObj?.response_text || null
+              }
+              
+              // Find responses
+              const responses = latestWander.responses || []
+              const myResponse = responses.find(r => r.user_id === userId)
+              const theirResponseObj = responses.find(r => r.user_id !== userId)
+              
+              yourResponse = myResponse?.response_text || null
+              theirResponse = theirResponseObj?.response_text || null
 
-                // Transform chat messages to reactions
-                const messages = latestWander.messages || []
-                sharedReactions = messages.map(msg => ({
-                  author: msg.user_id === userId ? 'You' : (mate.display_name || mate.username),
-                  content: msg.message_text,
-                  timestamp: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
-                }))
+              // Transform chat messages to reactions
+              const messages = latestWander.messages || []
+              sharedReactions = messages.map(msg => ({
+                author: msg.user_id === userId ? 'You' : (mate.display_name || mate.username),
+                content: msg.message_text,
+                timestamp: new Date(msg.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+              }))
 
-                // Determine status based on responses
-                if (!myResponse && !theirResponseObj) {
-                  status = 'waiting_for_you' // New prompt, waiting for first response
-                } else if (myResponse && !theirResponseObj) {
-                  status = 'waiting_for_them' // I responded, waiting for them
-                } else if (!myResponse && theirResponseObj) {
-                  status = 'waiting_for_you' // They responded, waiting for me
-                } else if (myResponse && theirResponseObj) {
-                  // Both responded - check if enough time has passed for potential reset
-                  if (latestWander.both_responded_at) {
-                    const bothRespondedTime = new Date(latestWander.both_responded_at)
-                    const now = new Date()
-                    const hoursElapsed = (now - bothRespondedTime) / (1000 * 60 * 60)
-                    
-                    // If more than 24 hours have passed since both responded, 
-                    // this conversation might be ready for reset
-                    if (hoursElapsed > 24) {
-                      // The scheduled function should have reset this already
-                      // If it's still here, it's in the reacting phase
-                      status = 'reacting'
-                    } else {
-                      status = 'reacting' // Both responded, can now react
-                    }
-                  } else {
-                    status = 'reacting' // Both responded, can now react
-                  }
-                }
+              // Determine status based on responses
+              if (!myResponse && !theirResponseObj) {
+                status = 'waiting_for_you' // New prompt, waiting for first response
+              } else if (myResponse && !theirResponseObj) {
+                status = 'waiting_for_them' // I responded, waiting for them
+              } else if (!myResponse && theirResponseObj) {
+                status = 'waiting_for_you' // They responded, waiting for me
+              } else if (myResponse && theirResponseObj) {
+                status = 'reacting' // Both responded, can now react
               }
             }
 
