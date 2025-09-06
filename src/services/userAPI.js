@@ -91,15 +91,14 @@ export const UserAPI = {
     }
   },
 
-  // Delete user and all related data
+  // Delete user and all related data (CASCADE handles related records)
   deleteUser: async (userId) => {
     try {
       if (!userId) {
         throw new Error('User ID is required')
       }
 
-      // Note: This will cascade delete related data due to foreign key constraints
-      // We don't expect data back from a delete operation, just success/failure
+      // CASCADE delete will handle related records, so don't expect single row back
       const { error } = await supabase
         .from('users')
         .delete()

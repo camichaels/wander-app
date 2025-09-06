@@ -191,14 +191,19 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
       const result = await UserAPI.deleteUser(currentUser.id)
       if (result.error) throw result.error
 
-      // Log out
+      // Immediately log out and clear all user state
       setCurrentUser(null)
+      setUserProfile(null)
+      setIsLoggedIn(false)
+      setIsEditing(false)
+      setSelectedUserId('')
       setShowDeleteConfirm(false)
-      await loadInitialData()
+      resetForm()
+      
+      // Don't call loadInitialData() - user is deleted and logged out
       
     } catch (err) {
       setError('Failed to delete user: ' + err.message)
-    } finally {
       setIsSubmitting(false)
     }
   }

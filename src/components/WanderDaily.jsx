@@ -11,7 +11,6 @@ const WanderDaily = ({ navigate, currentUser }) => {
   const [showOthers, setShowOthers] = useState(false)
   const [showYesterdayResults, setShowYesterdayResults] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [showAffirmation, setShowAffirmation] = useState(false)
   const [promptTimer, setPromptTimer] = useState(30)
   const [responseTimer, setResponseTimer] = useState(300)
   const [showPromptTimer, setShowPromptTimer] = useState(true)
@@ -59,6 +58,13 @@ const WanderDaily = ({ navigate, currentUser }) => {
     if (currentStep === 'respond' && responseTimer > 0 && showResponseTimer) {
       const timer = setTimeout(() => setResponseTimer(responseTimer - 1), 1000)
       return () => clearTimeout(timer)
+    }
+  }, [responseTimer, currentStep, showResponseTimer])
+
+  // Auto-hide response timer after it reaches 0
+  useEffect(() => {
+    if (currentStep === 'respond' && responseTimer <= 0 && showResponseTimer) {
+      setShowResponseTimer(false)
     }
   }, [responseTimer, currentStep, showResponseTimer])
 
@@ -113,8 +119,9 @@ const WanderDaily = ({ navigate, currentUser }) => {
     setTimeout(() => setCurrentStep('respond'), 3000)
   }
 
-  const skipForToday = () => {
-    setCurrentStep('prompt') // Allow re-entry as per requirements
+  const skipForNow = () => {
+    // Skip directly to complete state showing the "see you tomorrow" message
+    handleSubmit('skipped')
   }
 
   const handleSubmit = async (type) => {
@@ -150,10 +157,11 @@ const WanderDaily = ({ navigate, currentUser }) => {
       
       setTimeout(() => {
         setIsSubmitting(false)
-        setCurrentStep('complete')
         if (type !== 'skipped') {
-          setShowAffirmation(true)
-          setTimeout(() => setShowAffirmation(false), 4000)
+          setCurrentStep('celebration')
+          setTimeout(() => setCurrentStep('complete'), 3000)
+        } else {
+          setCurrentStep('complete')
         }
       }, 1000)
     } catch (error) {
@@ -314,7 +322,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
               borderRadius: '24px',
               padding: '24px 32px 24px 32px',
               border: '1px solid rgba(255,255,255,0.2)',
-              marginBottom: '12px'
+              marginBottom: '16px'
             }}>
               <p style={{ color: '#4b5563', fontSize: '18px', fontWeight: '300', lineHeight: '1.5', margin: 0 }}>
                 {currentPrompt}
@@ -322,7 +330,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
             </div>
 
             {showPromptTimer && (
-              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                 <p style={{ 
                   color: '#d97706', 
                   fontSize: '12px', 
@@ -334,7 +342,15 @@ const WanderDaily = ({ navigate, currentUser }) => {
                 }}>
                   <span>Take a moment to let it settle</span>
                   <span>•</span>
-                  <span style={{ opacity: Math.max(0.3, promptTimer / 30) }}>{promptTimer}s</span>
+                  <span style={{ 
+                    backgroundColor: 'rgba(161,98,7,0.15)',
+                    borderRadius: '8px',
+                    padding: '4px 8px',
+                    fontWeight: '500',
+                    opacity: Math.max(0.3, promptTimer / 30)
+                  }}>
+                    {promptTimer}s
+                  </span>
                   <span>•</span>
                   <button 
                     onClick={skipTimer}
@@ -353,19 +369,16 @@ const WanderDaily = ({ navigate, currentUser }) => {
               </div>
             )}
             
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', textAlign: 'center' }}>
               <button 
-                onClick={skipForToday}
+                onClick={skipForNow}
                 style={{ 
-                  width: '100%',
-                  backgroundColor: 'rgba(255,255,255,0.6)',
-                  color: '#a16207',
-                  padding: '12px 24px',
-                  borderRadius: '16px',
-                  border: '1px solid #f59e0b',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
+                  color: '#d97706', 
+                  textDecoration: 'underline',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px'
                 }}
               >
                 Skip for now
@@ -374,15 +387,12 @@ const WanderDaily = ({ navigate, currentUser }) => {
               <button 
                 onClick={handleShowYesterdayResults}
                 style={{ 
-                  width: '100%',
-                  backgroundColor: 'rgba(255,255,255,0.4)',
-                  color: '#a16207',
-                  padding: '12px 24px',
-                  borderRadius: '16px',
-                  border: '1px solid rgba(249,115,22,0.3)',
-                  fontSize: '16px',
-                  fontWeight: '500',
-                  cursor: 'pointer'
+                  color: '#d97706', 
+                  textDecoration: 'underline',
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px'
                 }}
               >
                 See yesterday's results
@@ -406,6 +416,41 @@ const WanderDaily = ({ navigate, currentUser }) => {
               <p style={{ color: '#a16207', fontWeight: '300' }}>
                 Let other thoughts drift away...
               </p>
+            </div>
+          </div>
+        )}
+
+        {currentStep === 'celebration' && (
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '400px' }}>
+            <div style={{ 
+              textAlign: 'center', 
+              animation: 'celebrationBounce 0.6s ease-out'
+            }}>
+              <div style={{
+                fontSize: '48px',
+                marginBottom: '24px',
+                animation: 'confettiPop 0.8s ease-out'
+              }}>
+                ✨
+              </div>
+              <div style={{
+                backgroundColor: 'rgba(255,255,255,0.8)',
+                borderRadius: '20px',
+                padding: '24px',
+                border: '1px solid rgba(255,255,255,0.4)',
+                backdropFilter: 'blur(10px)',
+                maxWidth: '400px'
+              }}>
+                <p style={{ 
+                  color: '#92400e', 
+                  fontWeight: '400', 
+                  fontSize: '18px', 
+                  margin: 0,
+                  lineHeight: '1.4'
+                }}>
+                  {affirmations[Math.floor(Math.random() * affirmations.length)]}
+                </p>
+              </div>
             </div>
           </div>
         )}
@@ -455,7 +500,15 @@ const WanderDaily = ({ navigate, currentUser }) => {
                 }}>
                   <span>No rush, just wander</span>
                   <span>•</span>
-                  <span style={{ opacity: Math.max(0.3, responseTimer / 300) }}>{formatTime(responseTimer)}</span>
+                  <span style={{ 
+                    backgroundColor: 'rgba(161,98,7,0.15)',
+                    borderRadius: '8px',
+                    padding: '4px 8px',
+                    fontWeight: '500',
+                    opacity: Math.max(0.3, responseTimer / 300)
+                  }}>
+                    {formatTime(responseTimer)}
+                  </span>
                   <span>•</span>
                   <button 
                     onClick={() => setShowResponseTimer(false)}
@@ -474,7 +527,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
               </div>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <button
                 onClick={() => handleSubmit('shared')}
                 disabled={!userResponse.trim() || isSubmitting}
@@ -502,46 +555,46 @@ const WanderDaily = ({ navigate, currentUser }) => {
                 )}
               </button>
 
-              <div style={{ display: 'flex', gap: '12px' }}>
-                <button
-                  onClick={() => handleSubmit('private')}
-                  disabled={!userResponse.trim() || isSubmitting}
-                  style={{
-                    flex: 1,
-                    backgroundColor: 'rgba(255,255,255,0.6)',
-                    color: '#a16207',
-                    padding: '12px 24px',
-                    borderRadius: '16px',
-                    border: '1px solid #f59e0b',
-                    fontSize: '16px',
-                    fontWeight: '500',
-                    cursor: (!userResponse.trim() || isSubmitting) ? 'not-allowed' : 'pointer',
-                    opacity: (!userResponse.trim() || isSubmitting) ? 0.5 : 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '8px'
-                  }}
-                >
-                  {isSubmitting && responseType === 'private' ? (
-                    <div style={{ width: '16px', height: '16px', border: '2px solid #a16207', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-                  ) : (
-                    'Keep private'
-                  )}
-                </button>
-                
+              <button
+                onClick={() => handleSubmit('private')}
+                disabled={!userResponse.trim() || isSubmitting}
+                style={{
+                  width: '100%',
+                  backgroundColor: 'rgba(255,255,255,0.6)',
+                  color: '#a16207',
+                  padding: '12px 24px',
+                  borderRadius: '16px',
+                  border: '1px solid #f59e0b',
+                  fontSize: '16px',
+                  fontWeight: '500',
+                  cursor: (!userResponse.trim() || isSubmitting) ? 'not-allowed' : 'pointer',
+                  opacity: (!userResponse.trim() || isSubmitting) ? 0.5 : 1,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '8px'
+                }}
+              >
+                {isSubmitting && responseType === 'private' ? (
+                  <div style={{ width: '16px', height: '16px', border: '2px solid #a16207', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                ) : (
+                  'Keep private'
+                )}
+              </button>
+              
+              <div style={{ textAlign: 'center' }}>
                 <button
                   onClick={() => handleSubmit('skipped')}
                   style={{ 
-                    padding: '12px 24px', 
-                    color: '#a16207', 
-                    background: 'none', 
-                    border: 'none', 
+                    color: '#d97706', 
+                    textDecoration: 'underline',
+                    background: 'none',
+                    border: 'none',
                     cursor: 'pointer',
-                    fontSize: '16px'
+                    fontSize: '14px'
                   }}
                 >
-                  Skip for today
+                  Skip for now
                 </button>
               </div>
             </div>
@@ -585,24 +638,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
               </div>
             )}
 
-            {showAffirmation && responseType !== 'skipped' && (
-              <div style={{ textAlign: 'center', padding: '0' }}>
-                <div style={{
-                  backgroundColor: 'rgba(255,255,255,0.4)',
-                  borderRadius: '16px',
-                  padding: '24px',
-                  border: '1px solid rgba(255,255,255,0.3)',
-                  width: '100%',
-                  boxSizing: 'border-box'
-                }}>
-                  <p style={{ color: '#a16207', fontWeight: '300', fontSize: '18px', margin: 0 }}>
-                    {affirmations[Math.floor(Math.random() * affirmations.length)]}
-                  </p>
-                </div>
-              </div>
-            )}
-
-            {canShowOthers() && !showAffirmation && (
+            {canShowOthers() && (
               <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                 <button
                   onClick={handleShowOthers}
@@ -823,6 +859,16 @@ const WanderDaily = ({ navigate, currentUser }) => {
         @keyframes spin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
+        }
+        @keyframes celebrationBounce {
+          0% { transform: translateY(-20px); opacity: 0; }
+          50% { transform: translateY(-5px); opacity: 1; }
+          100% { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes confettiPop {
+          0% { transform: scale(0) rotate(0deg); opacity: 0; }
+          50% { transform: scale(1.2) rotate(180deg); opacity: 1; }
+          100% { transform: scale(1) rotate(360deg); opacity: 1; }
         }
       `}</style>
     </div>
