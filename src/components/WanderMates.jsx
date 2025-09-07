@@ -8,6 +8,7 @@ const WanderMates = ({ navigate, currentUser }) => {
   const [selectedMate, setSelectedMate] = useState(null)
   const [userResponse, setUserResponse] = useState('')
   const [showInviteModal, setShowInviteModal] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
   const [selectedExistingUser, setSelectedExistingUser] = useState('')
   const [showMateMenu, setShowMateMenu] = useState(null)
   const [showStopConfirm, setShowStopConfirm] = useState(null)
@@ -523,7 +524,7 @@ const WanderMates = ({ navigate, currentUser }) => {
       paddingBottom: '100px'
     }}>
       
-      <header style={{ padding: '24px', textAlign: 'center' }}>
+      <header style={{ padding: '24px', textAlign: 'center', position: 'relative' }}>
         <button 
           onClick={() => navigate('home')}
           style={{ 
@@ -539,18 +540,119 @@ const WanderMates = ({ navigate, currentUser }) => {
         >
           ←
         </button>
-        <h1 style={{ 
-          fontSize: '1.5rem', 
-          fontWeight: '300', 
-          color: '#047857',
-          marginBottom: '8px'
-        }}>
-          Wander Mates
-        </h1>
-        <p style={{ color: '#059669', opacity: 0.75, fontSize: '14px' }}>
-          Shared wandering with friends
-        </p>
+        
+        {/* Info button */}
+        <button 
+          onClick={() => setShowInfo(true)}
+          style={{ 
+            position: 'absolute', 
+            right: '24px', 
+            top: '24px',
+            background: 'rgba(255,255,255,0.6)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: '20px',
+            width: '40px',
+            height: '40px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            color: '#6B7280',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold'
+          }}
+        >
+          ⓘ
+        </button>
+
+        {/* Logo replacing text title */}
+        <img 
+          src="/mates-logo.png" 
+          alt="Wander Mates" 
+          style={{ 
+            height: '55px',
+            width: 'auto',
+            maxWidth: '250px',
+            display: 'block',
+            margin: '0 auto',
+            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)'
+          }}
+          onError={(e) => {
+            console.log('Mates logo failed to load from:', e.target.src);
+            // Fallback to text if image fails
+            e.target.outerHTML = '<h1 style="font-size: 24px; font-weight: 300; color: #047857; margin: 0; font-family: SF Pro Display, -apple-system, sans-serif;">Wander Mates</h1>';
+          }}
+          onLoad={(e) => {
+            console.log('Mates logo loaded successfully from:', e.target.src);
+          }}
+        />
       </header>
+
+      {/* Info Modal */}
+      {showInfo && (
+        <div style={{
+          position: 'fixed',
+          inset: '0',
+          backgroundColor: 'rgba(0,0,0,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          zIndex: 40
+        }}>
+          <div style={{
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            borderRadius: '24px',
+            padding: '32px',
+            maxWidth: '500px',
+            width: '100%',
+            border: '1px solid rgba(255,255,255,0.3)',
+            maxHeight: '80vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#047857', margin: '0 0 16px 0' }}>
+                Wander Mates
+              </h2>
+            </div>
+
+            <div style={{ color: '#4b5563', fontSize: '16px', lineHeight: '1.6', marginBottom: '24px' }}>
+              <p style={{ marginBottom: '16px' }}>
+                Some things are better shared. Mates are your paired space to drift with a friend—no audience, no pressure. Just two minds reacting to the same prompt, side by side, in your own time. It's part inside joke, part thoughtful check-in, part surprise reveal.
+              </p>
+              
+              <p style={{ marginBottom: '16px' }}>
+                Here's how it works: you invite a friend to be your Wander Mate. Once you're paired, you'll both get the same prompt. You each answer privately, at your own pace. Your response is saved for you, but it stays hidden until your Mate replies. Then—ta da!—you both get to see what the other came up with, revealed together.
+              </p>
+              
+              <p style={{ marginBottom: '16px' }}>
+                From there, you can add a quick reaction—an emoji, a short note, a laugh. The moment resets when the next day begins. No backlog, no pressure to keep up—just a rhythm of small, shared detours.
+              </p>
+              
+              <p style={{ margin: 0, fontWeight: '500', color: '#047857' }}>
+                Mates are your space to drift with friends and loved ones—closer, sillier, and more connected. A safe place to be weird, thoughtful, playful, or all of the above—knowing your friend will meet you on the other side.
+              </p>
+            </div>
+
+            <div style={{ textAlign: 'center' }}>
+              <button
+                onClick={() => setShowInfo(false)}
+                style={{
+                  backgroundColor: '#059669',
+                  color: 'white',
+                  padding: '12px 24px',
+                  borderRadius: '16px',
+                  border: 'none',
+                  fontSize: '16px',
+                  cursor: 'pointer'
+                }}
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
         

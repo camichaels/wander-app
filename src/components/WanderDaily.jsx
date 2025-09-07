@@ -10,6 +10,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
   const [responseType, setResponseType] = useState('')
   const [showOthers, setShowOthers] = useState(false)
   const [showYesterdayResults, setShowYesterdayResults] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [promptTimer, setPromptTimer] = useState(30)
   const [responseTimer, setResponseTimer] = useState(300)
@@ -281,7 +282,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
       paddingBottom: '100px'
     }}>
       
-      <header style={{ padding: '24px', textAlign: 'center' }}>
+      <header style={{ padding: '24px', textAlign: 'center', position: 'relative' }}>
         <button 
           onClick={() => navigate('home')}
           style={{ 
@@ -297,24 +298,129 @@ const WanderDaily = ({ navigate, currentUser }) => {
         >
           ←
         </button>
-        <h1 style={{ 
-          fontSize: '28px', 
-          fontWeight: '600', 
-          color: '#92400E',
-          marginBottom: '8px',
-          fontFamily: 'SF Pro Display, -apple-system, sans-serif'
-        }}>
-          Daily Wander
-        </h1>
+        
+        {/* Info button */}
+        <button 
+          onClick={() => setShowInfo(true)}
+          style={{ 
+            position: 'absolute', 
+            right: '24px', 
+            top: '24px',
+            background: 'rgba(255,255,255,0.6)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: '20px',
+            width: '40px',
+            height: '40px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            color: '#6B7280',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold'
+          }}
+        >
+          ⓘ
+        </button>
+
+        {/* Logo replacing text title */}
+        <img 
+          src="/daily-logo.png" 
+          alt="The Daily" 
+          style={{ 
+            height: '55px',
+            width: 'auto',
+            maxWidth: '250px',
+            display: 'block',
+            margin: '0 auto',
+            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)'
+          }}
+          onError={(e) => {
+            console.log('Daily logo failed to load from:', e.target.src);
+            // Fallback to text if image fails
+            e.target.outerHTML = '<h1 style="font-size: 28px; font-weight: 600; color: #92400E; margin: 0; font-family: SF Pro Display, -apple-system, sans-serif;">The Daily</h1>';
+          }}
+          onLoad={(e) => {
+            console.log('Daily logo loaded successfully from:', e.target.src);
+          }}
+        />
+        
         <p style={{ 
           color: '#D97706', 
           opacity: 0.7, 
           fontSize: '14px',
-          fontFamily: 'SF Pro Text, -apple-system, sans-serif'
+          fontFamily: 'SF Pro Text, -apple-system, sans-serif',
+          marginTop: '8px'
         }}>
           Today's drift • {new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}
         </p>
       </header>
+
+      {/* Info Modal */}
+      {showInfo && (
+        <div style={{
+          position: 'fixed',
+          inset: '0',
+          backgroundColor: 'rgba(0,0,0,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          zIndex: 40
+        }}>
+          <div style={{
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            borderRadius: '24px',
+            padding: '32px',
+            maxWidth: '500px',
+            width: '100%',
+            border: '1px solid rgba(255,255,255,0.3)',
+            maxHeight: '80vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#92400e', margin: '0 0 16px 0' }}>
+                The Daily
+              </h2>
+            </div>
+
+            <div style={{ color: '#4b5563', fontSize: '16px', lineHeight: '1.6', marginBottom: '24px' }}>
+              <p style={{ marginBottom: '16px' }}>
+                Each day, Wander drops one curious question into the world—strange, playful, or unexpectedly personal. You pause, let your mind drift, and jot down whatever comes. A gentle timer reminds you this is meant to stay light, never perfect.
+              </p>
+              
+              <p style={{ marginBottom: '16px' }}>
+                For some, The Daily is a spark of creative inspiration; for others, it's a quick mental refresh, a playful way to notice what's on your mind. However you use it, a few minutes of wandering can leave you more inspired, more energized, and more you.
+              </p>
+              
+              <p style={{ marginBottom: '16px' }}>
+                You can keep your answer private or share it with the world. If you share, you'll see how others drifted too. No likes, no comments. Just glimpses of connection. And the next day, everyone's replies transform into something new: a word cloud, a collective poem, or maybe a curious map of how infinite minds twisted the same spark.
+              </p>
+              
+              <p style={{ margin: 0, fontWeight: '500', color: '#92400e' }}>
+                The Daily isn't about winning—it's about belonging.
+              </p>
+            </div>
+
+            <div style={{ textAlign: 'center' }}>
+              <button
+                onClick={() => setShowInfo(false)}
+                style={{
+                  backgroundColor: '#d97706',
+                  color: 'white',
+                  padding: '12px 24px',
+                  borderRadius: '16px',
+                  border: 'none',
+                  fontSize: '16px',
+                  cursor: 'pointer'
+                }}
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
         

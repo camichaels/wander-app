@@ -127,7 +127,7 @@ const WanderHome = ({ navigate, currentUser }) => {
 
       <main style={{ maxWidth: '400px', margin: '0 auto', padding: '0 24px' }}>
         
-        {/* Daily Wander - Hero card */}
+        {/* The Daily - Hero card */}
         <div onClick={() => navigate('daily')} style={{
           background: 'linear-gradient(135deg, #FED7AA, #FDBA74)',
           borderRadius: '20px',
@@ -174,7 +174,7 @@ const WanderHome = ({ navigate, currentUser }) => {
               fontFamily: 'SF Pro Display, -apple-system, sans-serif',
               margin: 0
             }}>
-              Daily Wander
+              The Daily
             </h2>
             <p style={{ 
               color: '#92400E', 

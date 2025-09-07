@@ -6,6 +6,7 @@ const WanderSolo = ({ navigate, currentUser }) => {
   const [currentPrompt, setCurrentPrompt] = useState('')
   const [promptCategory, setPromptCategory] = useState('')
   const [userResponse, setUserResponse] = useState('')
+  const [showInfo, setShowInfo] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showCelebration, setShowCelebration] = useState(false)
   const [promptTimer, setPromptTimer] = useState(30)
@@ -163,7 +164,7 @@ const WanderSolo = ({ navigate, currentUser }) => {
       paddingBottom: '100px'
     }}>
       
-      <header style={{ padding: '24px', textAlign: 'center' }}>
+      <header style={{ padding: '24px', textAlign: 'center', position: 'relative' }}>
         <button 
           onClick={() => navigate('home')}
           style={{ 
@@ -179,18 +180,119 @@ const WanderSolo = ({ navigate, currentUser }) => {
         >
           ←
         </button>
-        <h1 style={{ 
-          fontSize: '1.5rem', 
-          fontWeight: '300', 
-          color: '#1e40af',
-          marginBottom: '8px'
-        }}>
-          Solo Wanders
-        </h1>
-        <p style={{ color: '#2563eb', opacity: 0.75, fontSize: '14px' }}>
-          Your personal drift space
-        </p>
+        
+        {/* Info button */}
+        <button 
+          onClick={() => setShowInfo(true)}
+          style={{ 
+            position: 'absolute', 
+            right: '24px', 
+            top: '24px',
+            background: 'rgba(255,255,255,0.6)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: '20px',
+            width: '40px',
+            height: '40px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            color: '#6B7280',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold'
+          }}
+        >
+          ⓘ
+        </button>
+
+        {/* Logo replacing text title */}
+        <img 
+          src="/solo-logo.png" 
+          alt="Solo Wanders" 
+          style={{ 
+            height: '55px',
+            width: 'auto',
+            maxWidth: '250px',
+            display: 'block',
+            margin: '0 auto',
+            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)'
+          }}
+          onError={(e) => {
+            console.log('Solo logo failed to load from:', e.target.src);
+            // Fallback to text if image fails
+            e.target.outerHTML = '<h1 style="font-size: 24px; font-weight: 300; color: #1e40af; margin: 0; font-family: SF Pro Display, -apple-system, sans-serif;">Solo Wanders</h1>';
+          }}
+          onLoad={(e) => {
+            console.log('Solo logo loaded successfully from:', e.target.src);
+          }}
+        />
       </header>
+
+      {/* Info Modal */}
+      {showInfo && (
+        <div style={{
+          position: 'fixed',
+          inset: '0',
+          backgroundColor: 'rgba(0,0,0,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          zIndex: 40
+        }}>
+          <div style={{
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            borderRadius: '24px',
+            padding: '32px',
+            maxWidth: '500px',
+            width: '100%',
+            border: '1px solid rgba(255,255,255,0.3)',
+            maxHeight: '80vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#1e40af', margin: '0 0 16px 0' }}>
+                Solo Wanders
+              </h2>
+            </div>
+
+            <div style={{ color: '#4b5563', fontSize: '16px', lineHeight: '1.6', marginBottom: '24px' }}>
+              <p style={{ marginBottom: '16px' }}>
+                These are your personal spaces to drift—no audience, no pressure. You take a prompt, let it sink in, and respond however you like. A few words, a sketch, a ramble… whatever feels right in the moment. A soft timer floats in the background, but it's only a gentle nudge.
+              </p>
+              
+              <p style={{ marginBottom: '16px' }}>
+                Solo Wanders can be reflective or imaginative, quiet or wild. They're a place to be as weird, deep, or playful as you want—because they're just for you. Every response is saved to your Lost & Found, so you can revisit ideas later or notice patterns in your wandering.
+              </p>
+              
+              <p style={{ marginBottom: '16px' }}>
+                Sometimes you'll uncover something personal. Other times, a prompt may spark a completely unexpected idea—something new to follow or carry into the rest of your day. When you finish, you can start another: either drift into a new prompt that loosely follows the last, or leap to one that takes you somewhere entirely different.
+              </p>
+              
+              <p style={{ margin: 0, fontWeight: '500', color: '#1e40af' }}>
+                Solo Wanders aren't about performance. They're about giving your mind space to explore—and discovering where they might take you.
+              </p>
+            </div>
+
+            <div style={{ textAlign: 'center' }}>
+              <button
+                onClick={() => setShowInfo(false)}
+                style={{
+                  backgroundColor: '#2563eb',
+                  color: 'white',
+                  padding: '12px 24px',
+                  borderRadius: '16px',
+                  border: 'none',
+                  fontSize: '16px',
+                  cursor: 'pointer'
+                }}
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
         

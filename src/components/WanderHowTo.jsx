@@ -24,23 +24,27 @@ const WanderHowTo = ({ navigate, currentUser }) => {
         >
           ←
         </button>
-        <h1 style={{ 
-          fontSize: '28px', 
-          fontWeight: '600', 
-          color: '#0f172a',
-          marginBottom: '8px',
-          fontFamily: 'SF Pro Display, -apple-system, sans-serif'
-        }}>
-          How to Wander
-        </h1>
-        <p style={{ 
-          color: '#475569', 
-          opacity: 0.7, 
-          fontSize: '14px',
-          fontFamily: 'SF Pro Text, -apple-system, sans-serif'
-        }}>
-          It's easier than you think
-        </p>
+        
+        <img 
+          src="/how-logo.png" 
+          alt="How to Wander" 
+          style={{ 
+            height: '55px',
+            width: 'auto',
+            maxWidth: '250px',
+            display: 'block',
+            margin: '0 auto',
+            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)'
+          }}
+          onError={(e) => {
+            console.log('How-to logo failed to load from:', e.target.src);
+            // Fallback to text if image fails
+            e.target.outerHTML = '<h1 style="font-size: 28px; font-weight: 600; color: #0f172a; margin: 0; font-family: SF Pro Display, -apple-system, sans-serif;">How to Wander</h1>';
+          }}
+          onLoad={(e) => {
+            console.log('How-to logo loaded successfully from:', e.target.src);
+          }}
+        />
       </header>
 
       <main style={{ maxWidth: '600px', margin: '0 auto', padding: '0 24px' }}>

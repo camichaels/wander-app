@@ -300,7 +300,7 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
       paddingBottom: '100px'
     }}>
       
-      <header style={{ padding: '24px', textAlign: 'center' }}>
+      <header style={{ padding: '24px', textAlign: 'center', position: 'relative' }}>
         <button 
           onClick={() => navigate('home')}
           style={{ 
@@ -316,23 +316,28 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
         >
           ←
         </button>
-        <h1 style={{ 
-          fontSize: '28px', 
-          fontWeight: '600', 
-          color: '#374151',
-          marginBottom: '8px',
-          fontFamily: 'SF Pro Display, -apple-system, sans-serif'
-        }}>
-          {isLoggedIn ? 'Profile & Settings' : 'Welcome to Wander'}
-        </h1>
-        <p style={{ 
-          color: '#6b7280', 
-          opacity: 0.7, 
-          fontSize: '14px',
-          fontFamily: 'SF Pro Text, -apple-system, sans-serif'
-        }}>
-          {isLoggedIn ? 'Manage your account' : 'Sign in or create an account'}
-        </p>
+
+        {/* Logo replacing text title */}
+        <img 
+          src="/profile-logo.png" 
+          alt="Profile & Settings" 
+          style={{ 
+            height: '55px',
+            width: 'auto',
+            maxWidth: '250px',
+            display: 'block',
+            margin: '0 auto',
+            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)'
+          }}
+          onError={(e) => {
+            console.log('Profile logo failed to load from:', e.target.src);
+            // Fallback to text if image fails
+            e.target.outerHTML = '<h1 style="font-size: 28px; font-weight: 600; color: #374151; margin: 0; font-family: SF Pro Display, -apple-system, sans-serif;">' + (isLoggedIn ? 'Profile & Settings' : 'Welcome to Wander') + '</h1>';
+          }}
+          onLoad={(e) => {
+            console.log('Profile logo loaded successfully from:', e.target.src);
+          }}
+        />
       </header>
 
       <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>

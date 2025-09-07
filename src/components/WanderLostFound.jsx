@@ -4,6 +4,7 @@ import { PromptHistoryAPI } from '../services/promptHistoryAPI'
 const WanderLostFound = ({ navigate, currentUser }) => {
   const [searchTerm, setSearchTerm] = useState('')
   const [showFilters, setShowFilters] = useState(false)
+  const [showInfo, setShowInfo] = useState(false)
   const [currentFilter, setCurrentFilter] = useState('shuffled')
   const [expandingId, setExpandingId] = useState(null)
   const [editText, setEditText] = useState('')
@@ -374,7 +375,7 @@ const WanderLostFound = ({ navigate, currentUser }) => {
       paddingBottom: '100px'
     }}>
       
-      <header style={{ padding: '24px', textAlign: 'center' }}>
+      <header style={{ padding: '24px', textAlign: 'center', position: 'relative' }}>
         <button 
           onClick={() => navigate('home')}
           style={{ 
@@ -390,18 +391,131 @@ const WanderLostFound = ({ navigate, currentUser }) => {
         >
           ←
         </button>
-        <h1 style={{ 
-          fontSize: '1.5rem', 
-          fontWeight: '300', 
-          color: '#6b21a8',
-          marginBottom: '8px'
-        }}>
-          Lost & Found
-        </h1>
-        <p style={{ color: '#7c3aed', opacity: 0.75, fontSize: '14px' }}>
-          Your wandering thoughts, rediscovered
-        </p>
+        
+        {/* Info button */}
+        <button 
+          onClick={() => setShowInfo(true)}
+          style={{ 
+            position: 'absolute', 
+            right: '24px', 
+            top: '24px',
+            background: 'rgba(255,255,255,0.6)',
+            border: '1px solid rgba(255,255,255,0.3)',
+            borderRadius: '20px',
+            width: '40px',
+            height: '40px',
+            cursor: 'pointer',
+            fontSize: '16px',
+            color: '#6B7280',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontWeight: 'bold'
+          }}
+        >
+          ⓘ
+        </button>
+
+        {/* Logo replacing text title */}
+        <img 
+          src="/lostfound-logo.png" 
+          alt="Lost & Found" 
+          style={{ 
+            height: '55px',
+            width: 'auto',
+            maxWidth: '250px',
+            display: 'block',
+            margin: '0 auto',
+            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)'
+          }}
+          onError={(e) => {
+            console.log('Lost & Found logo failed to load from:', e.target.src);
+            // Fallback to text if image fails
+            e.target.outerHTML = '<h1 style="font-size: 24px; font-weight: 300; color: #6b21a8; margin: 0; font-family: SF Pro Display, -apple-system, sans-serif;">Lost & Found</h1>';
+          }}
+          onLoad={(e) => {
+            console.log('Lost & Found logo loaded successfully from:', e.target.src);
+          }}
+        />
       </header>
+
+      {/* Info Modal */}
+      {showInfo && (
+        <div style={{
+          position: 'fixed',
+          inset: '0',
+          backgroundColor: 'rgba(0,0,0,0.3)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          zIndex: 40
+        }}>
+          <div style={{
+            backgroundColor: 'rgba(255,255,255,0.95)',
+            borderRadius: '24px',
+            padding: '32px',
+            maxWidth: '500px',
+            width: '100%',
+            border: '1px solid rgba(255,255,255,0.3)',
+            maxHeight: '80vh',
+            overflowY: 'auto'
+          }}>
+            <div style={{ marginBottom: '24px' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#6b21a8', margin: '0 0 16px 0' }}>
+                Lost & Found
+              </h2>
+            </div>
+
+            <div style={{ color: '#4b5563', fontSize: '16px', lineHeight: '1.6', marginBottom: '24px' }}>
+              <p style={{ marginBottom: '16px' }}>
+                Every wander leaves something behind. Lost & Found is where your responses live—a playful archive of thoughts, ideas, and odd sparks you can rediscover anytime. Everything you create is saved here automatically, like a pile of postcards from your own mind.
+              </p>
+              
+              <p style={{ marginBottom: '16px' }}>
+                You can scroll, search, or favorite the ones that stand out, but it's never about organization. Lost & Found is purposefully a little scrambled, so the fun is in stumbling on something unexpected.
+              </p>
+              
+              <p style={{ marginBottom: '16px' }}>
+                When you want to, you can add more to a past wander. An Expand button opens up three lighthearted paths for you to go deeper, capture more of your thinking, and unlock even more inspiration and ideas:
+              </p>
+              
+              <ul style={{ marginBottom: '16px', paddingLeft: '20px' }}>
+                <li style={{ marginBottom: '8px' }}>
+                  <strong>Connect It</strong> — link the thought to your own world, memories, or people.
+                </li>
+                <li style={{ marginBottom: '8px' }}>
+                  <strong>Stretch It</strong> — push the idea further, making it bigger, weirder, more unexpected.
+                </li>
+                <li style={{ marginBottom: '8px' }}>
+                  <strong>Use It</strong> — turn it into something real with simple next steps.
+                </li>
+              </ul>
+              
+              <p style={{ margin: 0, fontWeight: '500', color: '#6b21a8' }}>
+                This deeper layer is always optional—a way to catch extra sparks of insight without ever losing the playful spirit. At its core, Lost & Found isn't a journal or a to-do list. It's your whimsical notebook of wandering—waiting to be found again when you need a boost.
+              </p>
+            </div>
+
+            <div style={{ textAlign: 'center' }}>
+              <button
+                onClick={() => setShowInfo(false)}
+                style={{
+                  backgroundColor: '#7c3aed',
+                  color: 'white',
+                  padding: '12px 24px',
+                  borderRadius: '16px',
+                  border: 'none',
+                  fontSize: '16px',
+                  cursor: 'pointer'
+                }}
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Search and Filter Bar */}
       <div style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px', marginBottom: '24px' }}>
