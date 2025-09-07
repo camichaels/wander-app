@@ -56,18 +56,6 @@ const WanderGroups = ({ navigate }) => {
     setSessionExcludeIds([]) // Clear session history when switching modes
   }
 
-  const sharePrompt = () => {
-    if (navigator.share) {
-      navigator.share({
-        title: 'Wander Group Prompt',
-        text: currentPrompt + '\n\nTry Wander for more group fun!',
-        url: window.location.origin
-      })
-    } else {
-      navigator.clipboard.writeText(currentPrompt + '\n\nTry Wander for more group fun!')
-    }
-  }
-
   if (loading) {
     return (
       <div style={{ 
@@ -106,21 +94,27 @@ const WanderGroups = ({ navigate }) => {
           ←
         </button>
         <h1 style={{ 
-          fontSize: '1.5rem', 
-          fontWeight: '300', 
+          fontSize: '28px', 
+          fontWeight: '600', 
           color: '#c2410c',
-          marginBottom: '8px'
+          marginBottom: '8px',
+          fontFamily: 'SF Pro Display, -apple-system, sans-serif'
         }}>
           Group Wanders
         </h1>
-        <p style={{ color: '#ea580c', opacity: 0.75, fontSize: '14px' }}>
+        <p style={{ 
+          color: '#ea580c', 
+          opacity: 0.7, 
+          fontSize: '14px',
+          fontFamily: 'SF Pro Text, -apple-system, sans-serif'
+        }}>
           Spark conversation out loud
         </p>
       </header>
 
       <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
         
-        {/* Mode Toggle - softened styling */}
+        {/* Mode Toggle */}
         <div style={{
           display: 'flex',
           backgroundColor: 'rgba(255,255,255,0.3)',
@@ -186,7 +180,7 @@ const WanderGroups = ({ navigate }) => {
           </p>
         </div>
 
-        {/* Prompt Display - enhanced to be the hero */}
+        {/* Prompt Display */}
         <div style={{
           backgroundColor: 'rgba(255,255,255,0.9)',
           borderRadius: '24px',
@@ -207,7 +201,7 @@ const WanderGroups = ({ navigate }) => {
           </p>
         </div>
 
-        {/* Generate Button - de-emphasized */}
+        {/* Generate Button */}
         <div style={{ textAlign: 'center' }}>
           <button
             onClick={generateNewPrompt}
@@ -241,46 +235,142 @@ const WanderGroups = ({ navigate }) => {
         </div>
       </main>
 
-      {/* Bottom Navigation */}
+      {/* Enhanced Bottom Navigation - No active state since Groups isn't in main nav */}
       <nav style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)' }}>
         <div style={{
-          backgroundColor: 'rgba(255,255,255,0.7)',
-          borderRadius: '50px',
+          backgroundColor: 'rgba(255,255,255,0.9)',
+          borderRadius: '30px',
           padding: '12px 24px',
           border: '1px solid rgba(255,255,255,0.3)',
-          backdropFilter: 'blur(10px)'
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
         }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '24px', color: '#ea580c' }}>
-            <button 
+          <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
+            
+            {/* Home */}
+            <div 
               onClick={() => navigate('home')}
-              style={{ fontSize: '12px', opacity: 0.5, color: '#ea580c', background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center',
+                cursor: 'pointer'
+              }}
             >
-              Home
-            </button>
-            <button 
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m0 0V11a1 1 0 011-1h2a1 1 0 011 1v10m3 0a1 1 0 001-1V10m0 0l2 2"/>
+              </svg>
+              <span style={{ 
+                fontSize: '10px', 
+                fontWeight: '500', 
+                color: '#9CA3AF',
+                marginTop: '2px',
+                fontFamily: 'SF Pro Text, -apple-system, sans-serif'
+              }}>
+                Home
+              </span>
+            </div>
+            
+            {/* Daily */}
+            <div 
               onClick={() => navigate('daily')}
-              style={{ fontSize: '12px', opacity: 0.5, color: '#ea580c', background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center',
+                cursor: 'pointer'
+              }}
             >
-              Daily
-            </button>
-            <button 
-              onClick={() => navigate('solo')}
-              style={{ fontSize: '12px', opacity: 0.5, color: '#ea580c', background: 'none', border: 'none', cursor: 'pointer' }}
-            >
-              Solos
-            </button>
-            <button 
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="4"/>
+                <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
+              </svg>
+              <span style={{ 
+                fontSize: '10px', 
+                fontWeight: '500', 
+                color: '#9CA3AF',
+                marginTop: '2px',
+                fontFamily: 'SF Pro Text, -apple-system, sans-serif'
+              }}>
+                Daily
+              </span>
+            </div>
+            
+            {/* Mates */}
+            <div 
               onClick={() => navigate('mates')}
-              style={{ fontSize: '12px', opacity: 0.5, color: '#ea580c', background: 'none', border: 'none', cursor: 'pointer' }}
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center',
+                cursor: 'pointer'
+              }}
             >
-              Mates
-            </button>
-            <button 
-              onClick={() => navigate('groups')}
-              style={{ fontSize: '12px', fontWeight: 'bold', color: '#ea580c', background: 'none', border: 'none', cursor: 'pointer' }}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+              </svg>
+              <span style={{ 
+                fontSize: '10px', 
+                fontWeight: '500', 
+                color: '#9CA3AF',
+                marginTop: '2px',
+                fontFamily: 'SF Pro Text, -apple-system, sans-serif'
+              }}>
+                Mates
+              </span>
+            </div>
+            
+            {/* Solo */}
+            <div 
+              onClick={() => navigate('solo')}
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center',
+                cursor: 'pointer'
+              }}
             >
-              Groups
-            </button>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
+              </svg>
+              <span style={{ 
+                fontSize: '10px', 
+                fontWeight: '500', 
+                color: '#9CA3AF',
+                marginTop: '2px',
+                fontFamily: 'SF Pro Text, -apple-system, sans-serif'
+              }}>
+                Solo
+              </span>
+            </div>
+            
+            {/* L&F */}
+            <div 
+              onClick={() => navigate('lost-found')}
+              style={{ 
+                display: 'flex', 
+                flexDirection: 'column', 
+                alignItems: 'center',
+                cursor: 'pointer'
+              }}
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polygon points="12,2 15.09,8.26 22,9.27 17,14.14 18.18,21.02 12,17.77 5.82,21.02 7,14.14 2,9.27 8.91,8.26"/>
+              </svg>
+              <span style={{ 
+                fontSize: '10px', 
+                fontWeight: '500', 
+                color: '#9CA3AF',
+                marginTop: '2px',
+                fontFamily: 'SF Pro Text, -apple-system, sans-serif'
+              }}>
+                L&F
+              </span>
+            </div>
+            
           </div>
         </div>
       </nav>
