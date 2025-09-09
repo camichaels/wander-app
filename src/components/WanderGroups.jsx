@@ -61,12 +61,29 @@ const WanderGroups = ({ navigate }) => {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #fed7aa, #fdba74, #fb923c)',
+        background: 'linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%)',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        position: 'relative'
       }}>
-        <div style={{ color: '#c2410c', fontSize: '18px' }}>Loading prompts...</div>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+          pointerEvents: 'none'
+        }}></div>
+        <div style={{ 
+          color: '#EA580C', 
+          fontSize: '18px',
+          position: 'relative',
+          zIndex: 1 
+        }}>
+          Loading prompts...
+        </div>
       </div>
     )
   }
@@ -74,22 +91,44 @@ const WanderGroups = ({ navigate }) => {
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #fed7aa, #fdba74, #fb923c)',
-      paddingBottom: '100px'
+      background: 'linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%)',
+      paddingBottom: '100px',
+      position: 'relative'
     }}>
       
-      <header style={{ padding: '24px', textAlign: 'center', position: 'relative' }}>
+      {/* Background overlay */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+        pointerEvents: 'none'
+      }}></div>
+      
+      <header style={{ padding: '24px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
         <button 
           onClick={() => navigate('home')}
           style={{ 
             position: 'absolute', 
             left: '24px', 
             top: '24px',
-            background: 'rgba(255,255,255,0.6)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
             border: '1px solid rgba(255,255,255,0.3)',
             borderRadius: '12px',
             padding: '8px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            boxShadow: '0 4px 16px rgba(234, 88, 12, 0.1)',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)'
+            e.target.style.boxShadow = '0 6px 20px rgba(234, 88, 12, 0.15)'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)'
+            e.target.style.boxShadow = '0 4px 16px rgba(234, 88, 12, 0.1)'
           }}
         >
           ←
@@ -102,21 +141,31 @@ const WanderGroups = ({ navigate }) => {
             position: 'absolute', 
             right: '24px', 
             top: '24px',
-            background: 'rgba(255,255,255,0.6)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
             border: '1px solid rgba(255,255,255,0.3)',
             borderRadius: '20px',
             width: '40px',
             height: '40px',
             cursor: 'pointer',
             fontSize: '16px',
-            color: '#6B7280',
+            color: '#EA580C',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            boxShadow: '0 4px 16px rgba(234, 88, 12, 0.1)',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)'
+            e.target.style.boxShadow = '0 6px 20px rgba(234, 88, 12, 0.15)'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)'
+            e.target.style.boxShadow = '0 4px 16px rgba(234, 88, 12, 0.1)'
           }}
         >
-          ⓘ
+          ℹ︎
         </button>
 
         {/* Logo replacing text title */}
@@ -129,12 +178,13 @@ const WanderGroups = ({ navigate }) => {
             maxWidth: '250px',
             display: 'block',
             margin: '0 auto',
-            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)'
+            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)',
+            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
           }}
           onError={(e) => {
             console.log('Groups logo failed to load from:', e.target.src);
             // Fallback to text if image fails
-            e.target.outerHTML = '<h1 style="font-size: 28px; font-weight: 600; color: #c2410c; margin: 0; font-family: SF Pro Display, -apple-system, sans-serif;">Group Wanders</h1>';
+            e.target.outerHTML = '<h1 style="font-size: 48px; font-weight: 600; color: #DC2626; margin: 0; font-family: Georgia, serif; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Group Wanders</h1>';
           }}
           onLoad={(e) => {
             console.log('Groups logo loaded successfully from:', e.target.src);
@@ -155,17 +205,18 @@ const WanderGroups = ({ navigate }) => {
           zIndex: 40
         }}>
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.95)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
             borderRadius: '24px',
             padding: '32px',
             maxWidth: '500px',
             width: '100%',
             border: '1px solid rgba(255,255,255,0.3)',
             maxHeight: '80vh',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
           }}>
             <div style={{ marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#c2410c', margin: '0 0 16px 0' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#EA580C', margin: '0 0 16px 0' }}>
                 Group Wanders
               </h2>
             </div>
@@ -183,7 +234,7 @@ const WanderGroups = ({ navigate }) => {
                 In Work Mode, prompts lean toward light team-building. They're breezy icebreakers and creative twists that help people connect and think differently: "What's a fake job title that best describes what you really do?" or "Invent an office holiday we should celebrate every year."
               </p>
               
-              <p style={{ margin: 0, fontWeight: '500', color: '#c2410c' }}>
+              <p style={{ margin: 0, fontWeight: '500', color: '#EA580C' }}>
                 Group Wanders aren't about recording responses—they're about shared energy. The kind of quick detour that makes a room feel lighter, more playful, and more connected.
               </p>
             </div>
@@ -192,13 +243,14 @@ const WanderGroups = ({ navigate }) => {
               <button
                 onClick={() => setShowInfo(false)}
                 style={{
-                  backgroundColor: '#ea580c',
+                  background: 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)',
                   color: 'white',
                   padding: '12px 24px',
                   borderRadius: '16px',
                   border: 'none',
                   fontSize: '16px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(234, 88, 12, 0.3)'
                 }}
               >
                 Got it
@@ -208,47 +260,79 @@ const WanderGroups = ({ navigate }) => {
         </div>
       )}
 
-      <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
+      <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1 }}>
         
-        {/* Mode Toggle */}
+        {/* Enhanced Mode Toggle */}
         <div style={{
           display: 'flex',
-          backgroundColor: 'rgba(255,255,255,0.3)',
-          borderRadius: '16px',
-          padding: '4px',
-          marginBottom: '16px',
-          border: '1px solid rgba(255,255,255,0.2)'
+          gap: '10px',
+          marginBottom: '30px'
         }}>
           <button
             onClick={() => handleModeChange('party')}
             style={{
               flex: 1,
-              padding: '12px 16px',
-              borderRadius: '12px',
-              border: 'none',
+              background: mode === 'party' 
+                ? 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)' 
+                : 'linear-gradient(135deg, #FFFFFF 0%, #FEF3E2 100%)',
+              border: `2px solid ${mode === 'party' ? '#C2410C' : 'rgba(234, 88, 12, 0.3)'}`,
+              borderRadius: '15px',
+              padding: '16px',
               fontSize: '14px',
-              fontWeight: '400',
+              fontWeight: '600',
               cursor: 'pointer',
-              backgroundColor: mode === 'party' ? 'rgba(255,255,255,0.4)' : 'transparent',
-              color: mode === 'party' ? '#d97706' : '#92400e',
-              border: mode === 'party' ? '1px solid rgba(217,119,6,0.3)' : '1px solid transparent'
+              color: mode === 'party' ? 'white' : '#EA580C',
+              boxShadow: mode === 'party' 
+                ? '0 8px 24px rgba(234, 88, 12, 0.3)' 
+                : '0 4px 16px rgba(234, 88, 12, 0.1)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              if (mode !== 'party') {
+                e.target.style.background = 'linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%)'
+                e.target.style.transform = 'translateY(-1px)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (mode !== 'party') {
+                e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #FEF3E2 100%)'
+                e.target.style.transform = 'translateY(0)'
+              }
             }}
           >
             Party Mode
           </button>
+          
           <button
             onClick={() => handleModeChange('work')}
             style={{
               flex: 1,
-              padding: '12px 16px',
-              borderRadius: '12px',
-              border: 'none',
+              background: mode === 'work' 
+                ? 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)' 
+                : 'linear-gradient(135deg, #FFFFFF 0%, #FEF3E2 100%)',
+              border: `2px solid ${mode === 'work' ? '#C2410C' : 'rgba(234, 88, 12, 0.3)'}`,
+              borderRadius: '15px',
+              padding: '16px',
               fontSize: '14px',
-              fontWeight: '400',
+              fontWeight: '600',
               cursor: 'pointer',
-              backgroundColor: mode === 'work' ? 'rgba(255,255,255,0.4)' : 'transparent',
-              color: mode === 'work' ? '#d97706' : '#92400e',
-              border: mode === 'work' ? '1px solid rgba(217,119,6,0.3)' : '1px solid transparent'
+              color: mode === 'work' ? 'white' : '#EA580C',
+              boxShadow: mode === 'work' 
+                ? '0 8px 24px rgba(234, 88, 12, 0.3)' 
+                : '0 4px 16px rgba(234, 88, 12, 0.1)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              if (mode !== 'work') {
+                e.target.style.background = 'linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%)'
+                e.target.style.transform = 'translateY(-1px)'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (mode !== 'work') {
+                e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #FEF3E2 100%)'
+                e.target.style.transform = 'translateY(0)'
+              }
             }}
           >
             Work Mode
@@ -262,11 +346,11 @@ const WanderGroups = ({ navigate }) => {
           marginBottom: '24px'
         }}>
           <p style={{
-            color: '#ea580c',
-            opacity: 0.8,
-            fontSize: '14px',
+            color: '#C2410C',
+            opacity: 0.9,
+            fontSize: '16px',
             textAlign: 'center',
-            lineHeight: '1.5',
+            lineHeight: '1.4',
             margin: 0
           }}>
             {mode === 'party' 
@@ -276,39 +360,50 @@ const WanderGroups = ({ navigate }) => {
           </p>
         </div>
 
-        {/* Prompt Display */}
+        {/* Enhanced Prompt Display */}
         <div style={{
-          backgroundColor: 'rgba(255,255,255,0.9)',
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
           borderRadius: '24px',
-          padding: '36px',
-          border: '2px solid rgba(255,255,255,0.6)',
-          boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
-          marginBottom: '24px'
+          padding: '32px',
+          border: '1px solid rgba(255,255,255,0.2)',
+          marginBottom: '32px',
+          boxShadow: '0 8px 32px rgba(234, 88, 12, 0.15), 0 2px 8px rgba(234, 88, 12, 0.1)',
+          position: 'relative'
         }}>
+          <div style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: '1px',
+            background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)'
+          }}></div>
+          
           <p style={{
-            color: '#4b5563',
-            fontSize: '22px',
-            fontWeight: '400',
+            color: '#374151',
+            fontSize: '20px',
+            fontWeight: '500',
             lineHeight: '1.4',
             textAlign: 'center',
-            margin: 0
+            margin: 0,
+            fontFamily: 'SF Pro Text, -apple-system, sans-serif'
           }}>
             {currentPrompt}
           </p>
         </div>
 
-        {/* Generate Button */}
+        {/* Enhanced Generate Button */}
         <div style={{ textAlign: 'center' }}>
           <button
             onClick={generateNewPrompt}
             disabled={isGenerating}
             style={{
               backgroundColor: 'transparent',
-              color: '#d97706',
+              color: '#C2410C',
               border: 'none',
               fontSize: '14px',
               textDecoration: 'underline',
-              opacity: 0.7,
+              opacity: 0.8,
               fontWeight: '400',
               cursor: isGenerating ? 'not-allowed' : 'pointer',
               display: 'flex',
@@ -316,12 +411,33 @@ const WanderGroups = ({ navigate }) => {
               justifyContent: 'center',
               gap: '8px',
               margin: '0 auto',
-              padding: '8px'
+              padding: '8px',
+              fontFamily: 'SF Pro Text, -apple-system, sans-serif',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              if (!isGenerating) {
+                e.target.style.opacity = '1'
+                e.target.style.color = '#EA580C'
+              }
+            }}
+            onMouseLeave={(e) => {
+              if (!isGenerating) {
+                e.target.style.opacity = '0.8'
+                e.target.style.color = '#C2410C'
+              }
             }}
           >
             {isGenerating ? (
               <>
-                <div style={{ width: '12px', height: '12px', border: '2px solid #d97706', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                <div style={{ 
+                  width: '12px', 
+                  height: '12px', 
+                  border: '2px solid #C2410C', 
+                  borderTop: '2px solid transparent', 
+                  borderRadius: '50%', 
+                  animation: 'spin 1s linear infinite' 
+                }}></div>
                 Loading...
               </>
             ) : (
@@ -331,15 +447,15 @@ const WanderGroups = ({ navigate }) => {
         </div>
       </main>
 
-      {/* Enhanced Bottom Navigation - No active state since Groups isn't in main nav */}
-      <nav style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)' }}>
+      {/* Enhanced Bottom Navigation */}
+      <nav style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
         <div style={{
-          backgroundColor: 'rgba(255,255,255,0.9)',
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
           borderRadius: '30px',
           padding: '12px 24px',
           border: '1px solid rgba(255,255,255,0.3)',
           backdropFilter: 'blur(10px)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          boxShadow: '0 8px 32px rgba(234, 88, 12, 0.15), 0 4px 16px rgba(234, 88, 12, 0.1)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
             
@@ -350,7 +466,14 @@ const WanderGroups = ({ navigate }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -374,7 +497,14 @@ const WanderGroups = ({ navigate }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -399,7 +529,14 @@ const WanderGroups = ({ navigate }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -426,7 +563,14 @@ const WanderGroups = ({ navigate }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -450,7 +594,14 @@ const WanderGroups = ({ navigate }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

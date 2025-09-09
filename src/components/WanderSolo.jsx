@@ -160,22 +160,44 @@ const WanderSolo = ({ navigate, currentUser }) => {
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #dbeafe, #bfdbfe, #a5b4fc)',
-      paddingBottom: '100px'
+      background: 'linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%)',
+      paddingBottom: '100px',
+      position: 'relative'
     }}>
       
-      <header style={{ padding: '24px', textAlign: 'center', position: 'relative' }}>
+      {/* Background overlay */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+        pointerEvents: 'none'
+      }}></div>
+      
+      <header style={{ padding: '24px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
         <button 
           onClick={() => navigate('home')}
           style={{ 
             position: 'absolute', 
             left: '24px', 
             top: '24px',
-            background: 'rgba(255,255,255,0.6)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
             border: '1px solid rgba(255,255,255,0.3)',
             borderRadius: '12px',
             padding: '8px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            boxShadow: '0 4px 16px rgba(59, 130, 246, 0.1)',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)'
+            e.target.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.15)'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)'
+            e.target.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.1)'
           }}
         >
           ←
@@ -188,21 +210,31 @@ const WanderSolo = ({ navigate, currentUser }) => {
             position: 'absolute', 
             right: '24px', 
             top: '24px',
-            background: 'rgba(255,255,255,0.6)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
             border: '1px solid rgba(255,255,255,0.3)',
             borderRadius: '20px',
             width: '40px',
             height: '40px',
             cursor: 'pointer',
             fontSize: '16px',
-            color: '#6B7280',
+            color: '#3B82F6',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            boxShadow: '0 4px 16px rgba(59, 130, 246, 0.1)',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)'
+            e.target.style.boxShadow = '0 6px 20px rgba(59, 130, 246, 0.15)'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)'
+            e.target.style.boxShadow = '0 4px 16px rgba(59, 130, 246, 0.1)'
           }}
         >
-          ⓘ
+          ℹ︎
         </button>
 
         {/* Logo replacing text title */}
@@ -215,12 +247,13 @@ const WanderSolo = ({ navigate, currentUser }) => {
             maxWidth: '250px',
             display: 'block',
             margin: '0 auto',
-            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)'
+            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)',
+            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
           }}
           onError={(e) => {
             console.log('Solo logo failed to load from:', e.target.src);
             // Fallback to text if image fails
-            e.target.outerHTML = '<h1 style="font-size: 24px; font-weight: 300; color: #1e40af; margin: 0; font-family: SF Pro Display, -apple-system, sans-serif;">Solo Wanders</h1>';
+            e.target.outerHTML = '<h1 style="font-size: 48px; font-weight: 300; color: #DC2626; margin: 0; font-family: Georgia, serif; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Solo Wanders</h1>';
           }}
           onLoad={(e) => {
             console.log('Solo logo loaded successfully from:', e.target.src);
@@ -241,17 +274,18 @@ const WanderSolo = ({ navigate, currentUser }) => {
           zIndex: 40
         }}>
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.95)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
             borderRadius: '24px',
             padding: '32px',
             maxWidth: '500px',
             width: '100%',
             border: '1px solid rgba(255,255,255,0.3)',
             maxHeight: '80vh',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
           }}>
             <div style={{ marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#1e40af', margin: '0 0 16px 0' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#3B82F6', margin: '0 0 16px 0' }}>
                 Solo Wanders
               </h2>
             </div>
@@ -269,7 +303,7 @@ const WanderSolo = ({ navigate, currentUser }) => {
                 Sometimes you'll uncover something personal. Other times, a prompt may spark a completely unexpected idea—something new to follow or carry into the rest of your day. When you finish, you can start another: either drift into a new prompt that loosely follows the last, or leap to one that takes you somewhere entirely different.
               </p>
               
-              <p style={{ margin: 0, fontWeight: '500', color: '#1e40af' }}>
+              <p style={{ margin: 0, fontWeight: '500', color: '#3B82F6' }}>
                 Solo Wanders aren't about performance. They're about giving your mind space to explore—and discovering where they might take you.
               </p>
             </div>
@@ -278,13 +312,14 @@ const WanderSolo = ({ navigate, currentUser }) => {
               <button
                 onClick={() => setShowInfo(false)}
                 style={{
-                  backgroundColor: '#2563eb',
+                  background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
                   color: 'white',
                   padding: '12px 24px',
                   borderRadius: '16px',
                   border: 'none',
                   fontSize: '16px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)'
                 }}
               >
                 Got it
@@ -294,59 +329,76 @@ const WanderSolo = ({ navigate, currentUser }) => {
         </div>
       )}
 
-      <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
+      <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1 }}>
         
         {currentStep === 'prompt' && (
           <div>
             <div style={{
-              backgroundColor: 'rgba(255,255,255,0.6)',
+              background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
               borderRadius: '24px',
-              padding: '24px 32px 24px 32px',
+              padding: '32px',
               border: '1px solid rgba(255,255,255,0.2)',
-              marginBottom: '12px'
+              marginBottom: '32px',
+              boxShadow: '0 8px 32px rgba(59, 130, 246, 0.15), 0 2px 8px rgba(59, 130, 246, 0.1)',
+              position: 'relative'
             }}>
-              <p style={{ color: '#4b5563', fontSize: '18px', fontWeight: '300', lineHeight: '1.5', margin: 0 }}>
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '1px',
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)'
+              }}></div>
+              <p style={{ 
+                color: '#374151', 
+                fontSize: '20px', 
+                fontWeight: '500', 
+                lineHeight: '1.4', 
+                margin: 0,
+                fontFamily: 'SF Pro Text, -apple-system, sans-serif',
+                textAlign: 'center'
+              }}>
                 {currentPrompt}
               </p>
             </div>
 
-            {/* Timer info - consistent visibility, no fading */}
             {showPromptTimer && (
-              <div style={{ textAlign: 'center', marginBottom: '16px' }}>
-                <p style={{ 
-                  color: '#2563eb', 
-                  fontSize: '12px', 
-                  margin: 0,
+              <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+                <div style={{ 
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px'
+                  gap: '15px',
+                  color: '#3B82F6',
+                  fontSize: '14px'
                 }}>
                   <span>Take a moment to let it settle</span>
-                  <span>•</span>
-                  <span style={{ 
-                    padding: '2px 6px', 
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)', 
-                    borderRadius: '8px',
+                  <div style={{ 
+                    background: 'linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%)',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontWeight: '600',
+                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.15)',
+                    color: 'white',
                     animation: promptTimer <= 10 ? 'gentlePulse 1s ease-in-out infinite' : 'none'
                   }}>
                     {promptTimer}s
-                  </span>
-                  <span>•</span>
+                  </div>
                   <button 
                     onClick={skipTimer}
                     style={{ 
-                      color: '#2563eb', 
+                      color: '#3B82F6', 
                       textDecoration: 'underline',
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      fontSize: '12px'
+                      fontSize: '14px'
                     }}
                   >
                     Skip timer
                   </button>
-                </p>
+                </div>
               </div>
             )}
             
@@ -354,13 +406,14 @@ const WanderSolo = ({ navigate, currentUser }) => {
               <button 
                 onClick={() => startNewWander('random')}
                 style={{ 
-                  backgroundColor: 'transparent',
-                  color: '#2563eb',
-                  border: 'none',
-                  fontSize: '14px',
-                  cursor: 'pointer',
+                  color: '#60A5FA', 
                   textDecoration: 'underline',
-                  opacity: 0.7
+                  background: 'none',
+                  border: 'none',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontFamily: 'SF Pro Text, -apple-system, sans-serif',
+                  opacity: 0.8
                 }}
               >
                 Try a different prompt
@@ -371,12 +424,23 @@ const WanderSolo = ({ navigate, currentUser }) => {
 
         {currentStep === 'respond' && (
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.6)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
             borderRadius: '24px',
             padding: '24px',
-            border: '1px solid rgba(255,255,255,0.2)'
+            border: '1px solid rgba(255,255,255,0.2)',
+            boxShadow: '0 8px 32px rgba(59, 130, 246, 0.15), 0 2px 8px rgba(59, 130, 246, 0.1)',
+            position: 'relative'
           }}>
-            <p style={{ color: '#4b5563', fontSize: '18px', fontWeight: '300', lineHeight: '1.5', marginBottom: '24px', marginTop: 0 }}>
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '1px',
+              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)'
+            }}></div>
+            
+            <p style={{ color: '#374151', fontSize: '18px', fontWeight: '500', lineHeight: '1.5', marginBottom: '24px', marginTop: 0 }}>
               {currentPrompt}
             </p>
 
@@ -387,78 +451,100 @@ const WanderSolo = ({ navigate, currentUser }) => {
               style={{
                 width: '100%',
                 height: '128px',
-                padding: '16px',
-                backgroundColor: 'rgba(255,255,255,0.5)',
-                border: '1px solid #3b82f6',
+                padding: '20px',
+                background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                border: '2px solid #BFDBFE',
                 borderRadius: '16px',
                 resize: 'none',
                 outline: 'none',
                 fontSize: '16px',
-                color: '#4b5563',
+                color: '#374151',
                 marginBottom: '16px',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                boxShadow: 'inset 0 2px 8px rgba(59, 130, 246, 0.05), 0 2px 4px rgba(59, 130, 246, 0.05)',
+                transition: 'all 0.3s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#3B82F6'
+                e.target.style.boxShadow = 'inset 0 2px 8px rgba(59, 130, 246, 0.1), 0 0 0 3px rgba(59, 130, 246, 0.2)'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#BFDBFE'
+                e.target.style.boxShadow = 'inset 0 2px 8px rgba(59, 130, 246, 0.05), 0 2px 4px rgba(59, 130, 246, 0.05)'
               }}
               autoFocus
             />
 
-            {/* Timer info - consistent visibility, no fading */}
             {showResponseTimer && (
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <p style={{ 
-                  color: '#2563eb', 
-                  fontSize: '12px', 
-                  margin: 0,
+                <div style={{ 
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px'
+                  gap: '15px',
+                  color: '#3B82F6',
+                  fontSize: '14px'
                 }}>
                   <span>No rush, just wander</span>
-                  <span>•</span>
-                  <span style={{ 
-                    padding: '2px 6px', 
-                    backgroundColor: 'rgba(37, 99, 235, 0.1)', 
-                    borderRadius: '8px'
+                  <div style={{ 
+                    background: 'linear-gradient(135deg, #93C5FD 0%, #60A5FA 100%)',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontWeight: '600',
+                    boxShadow: '0 4px 12px rgba(59, 130, 246, 0.15)',
+                    color: 'white'
                   }}>
                     {formatTime(responseTimer)}
-                  </span>
-                  <span>•</span>
+                  </div>
                   <button 
                     onClick={() => setShowResponseTimer(false)}
                     style={{ 
-                      color: '#2563eb', 
+                      color: '#3B82F6', 
                       textDecoration: 'underline',
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      fontSize: '12px'
+                      fontSize: '14px'
                     }}
                   >
                     Hide timer
                   </button>
-                </p>
+                </div>
               </div>
             )}
 
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <button
                 onClick={handleSubmit}
                 disabled={!userResponse.trim() || isSubmitting}
                 style={{
                   width: '100%',
-                  backgroundColor: '#2563eb',
+                  background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
                   color: 'white',
-                  padding: '12px 24px',
-                  borderRadius: '16px',
                   border: 'none',
+                  borderRadius: '15px',
+                  padding: '18px 24px',
                   fontSize: '16px',
-                  fontWeight: '500',
+                  fontWeight: '600',
                   cursor: (!userResponse.trim() || isSubmitting) ? 'not-allowed' : 'pointer',
                   opacity: (!userResponse.trim() || isSubmitting) ? 0.5 : 1,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px'
+                  gap: '8px',
+                  boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3), 0 2px 4px rgba(37, 99, 235, 0.2)',
+                  transition: 'all 0.3s ease',
+                  border: '1px solid rgba(37, 99, 235, 0.3)'
+                }}
+                onMouseEnter={(e) => {
+                  if (!(!userResponse.trim() || isSubmitting)) {
+                    e.target.style.transform = 'translateY(-2px)'
+                    e.target.style.boxShadow = '0 12px 32px rgba(59, 130, 246, 0.4), 0 4px 8px rgba(37, 99, 235, 0.3)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)'
+                  e.target.style.boxShadow = '0 8px 24px rgba(59, 130, 246, 0.3), 0 2px 4px rgba(37, 99, 235, 0.2)'
                 }}
               >
                 {isSubmitting ? (
@@ -468,21 +554,23 @@ const WanderSolo = ({ navigate, currentUser }) => {
                 )}
               </button>
 
-              <button
-                onClick={() => startNewWander('random')}
-                style={{
-                  backgroundColor: 'transparent',
-                  color: '#2563eb',
-                  border: 'none',
-                  fontSize: '14px',
-                  cursor: 'pointer',
-                  textDecoration: 'underline',
-                  opacity: 0.7,
-                  padding: '8px'
-                }}
-              >
-                Try a different prompt
-              </button>
+              <div style={{ textAlign: 'center' }}>
+                <button
+                  onClick={() => startNewWander('random')}
+                  style={{
+                    color: '#60A5FA',
+                    border: 'none',
+                    fontSize: '14px',
+                    cursor: 'pointer',
+                    textDecoration: 'underline',
+                    opacity: 0.7,
+                    padding: '8px',
+                    background: 'none'
+                  }}
+                >
+                  Try a different prompt
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -505,14 +593,15 @@ const WanderSolo = ({ navigate, currentUser }) => {
                   ✨
                 </div>
                 <div style={{
-                  backgroundColor: 'rgba(255,255,255,0.8)',
+                  background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
                   borderRadius: '20px',
                   padding: '24px',
                   border: '1px solid rgba(255,255,255,0.4)',
-                  backdropFilter: 'blur(10px)'
+                  backdropFilter: 'blur(10px)',
+                  boxShadow: '0 8px 32px rgba(59, 130, 246, 0.15)'
                 }}>
                   <p style={{ 
-                    color: '#1e40af', 
+                    color: '#3B82F6', 
                     fontWeight: '400', 
                     fontSize: '18px', 
                     margin: 0,
@@ -528,44 +617,69 @@ const WanderSolo = ({ navigate, currentUser }) => {
             {!showCelebration && (
               <>
                 <div style={{
-                  backgroundColor: 'rgba(255,255,255,0.6)',
+                  background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
                   borderRadius: '24px',
                   padding: '24px',
-                  border: '1px solid rgba(255,255,255,0.2)'
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  boxShadow: '0 8px 32px rgba(59, 130, 246, 0.15), 0 2px 8px rgba(59, 130, 246, 0.1)',
+                  position: 'relative'
                 }}>
-                  <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '300', marginBottom: '16px' }}>{currentPrompt}</p>
                   <div style={{
-                    backgroundColor: '#dbeafe',
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    height: '1px',
+                    background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)'
+                  }}></div>
+                  
+                  <p style={{ color: '#374151', fontSize: '16px', fontWeight: '500', marginBottom: '16px' }}>{currentPrompt}</p>
+                  <div style={{
+                    background: 'linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%)',
                     borderRadius: '16px',
-                    padding: '16px',
-                    marginBottom: '16px'
+                    padding: '20px',
+                    marginBottom: '16px',
+                    boxShadow: 'inset 0 2px 8px rgba(59, 130, 246, 0.1), 0 2px 4px rgba(59, 130, 246, 0.05)',
+                    border: '1px solid rgba(59, 130, 246, 0.2)'
                   }}>
-                    <p style={{ color: '#4b5563', fontStyle: 'italic', margin: 0 }}>{userResponse}</p>
+                    <p style={{ color: '#1E40AF', fontStyle: 'italic', margin: 0 }}>{userResponse}</p>
                   </div>
-                  <p style={{ color: '#2563eb', fontSize: '12px', textAlign: 'center', margin: 0 }}>
+                  <p style={{ color: '#3B82F6', fontSize: '12px', textAlign: 'center', margin: 0 }}>
                     Saved to your Lost & Found
                   </p>
                 </div>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-                    <p style={{ color: '#2563eb', fontSize: '14px', opacity: 0.75, marginBottom: '16px' }}>
+                    <p style={{ color: '#60A5FA', fontSize: '16px', marginBottom: '20px' }}>
                       Keep wandering?
                     </p>
                     
                     {/* Two-column layout for follow-up actions */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
                       <button
                         onClick={() => startNewWander('related')}
                         style={{
-                          backgroundColor: 'rgba(255,255,255,0.6)',
-                          color: '#1e40af',
-                          padding: '12px 16px',
-                          borderRadius: '16px',
-                          border: '1px solid #3b82f6',
+                          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
+                          color: '#3B82F6',
+                          border: '2px solid #3B82F6',
+                          borderRadius: '15px',
+                          padding: '16px',
                           fontSize: '15px',
-                          fontWeight: '500',
-                          cursor: 'pointer'
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 16px rgba(59, 130, 246, 0.15), 0 2px 4px rgba(59, 130, 246, 0.1)',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)'
+                          e.target.style.color = 'white'
+                          e.target.style.transform = 'translateY(-1px)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)'
+                          e.target.style.color = '#3B82F6'
+                          e.target.style.transform = 'translateY(0)'
                         }}
                       >
                         Follow that thought
@@ -574,14 +688,26 @@ const WanderSolo = ({ navigate, currentUser }) => {
                       <button
                         onClick={() => startNewWander('random')}
                         style={{
-                          backgroundColor: 'rgba(255,255,255,0.6)',
-                          color: '#1e40af',
-                          padding: '12px 16px',
-                          borderRadius: '16px',
-                          border: '1px solid #3b82f6',
+                          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
+                          color: '#3B82F6',
+                          border: '2px solid #3B82F6',
+                          borderRadius: '15px',
+                          padding: '16px',
                           fontSize: '15px',
-                          fontWeight: '500',
-                          cursor: 'pointer'
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          boxShadow: '0 4px 16px rgba(59, 130, 246, 0.15), 0 2px 4px rgba(59, 130, 246, 0.1)',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)'
+                          e.target.style.color = 'white'
+                          e.target.style.transform = 'translateY(-1px)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)'
+                          e.target.style.color = '#3B82F6'
+                          e.target.style.transform = 'translateY(0)'
                         }}
                       >
                         Surprise me
@@ -596,14 +722,14 @@ const WanderSolo = ({ navigate, currentUser }) => {
       </main>
 
       {/* Enhanced Bottom Navigation */}
-      <nav style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)' }}>
+      <nav style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
         <div style={{
-          backgroundColor: 'rgba(255,255,255,0.9)',
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
           borderRadius: '30px',
           padding: '12px 24px',
           border: '1px solid rgba(255,255,255,0.3)',
           backdropFilter: 'blur(10px)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          boxShadow: '0 8px 32px rgba(59, 130, 246, 0.15), 0 4px 16px rgba(59, 130, 246, 0.1)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
             
@@ -614,7 +740,14 @@ const WanderSolo = ({ navigate, currentUser }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -638,7 +771,14 @@ const WanderSolo = ({ navigate, currentUser }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -663,7 +803,14 @@ const WanderSolo = ({ navigate, currentUser }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -689,13 +836,13 @@ const WanderSolo = ({ navigate, currentUser }) => {
               flexDirection: 'column', 
               alignItems: 'center'
             }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#2563eb" stroke="#1d4ed8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#3B82F6" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/>
               </svg>
               <span style={{ 
                 fontSize: '10px', 
                 fontWeight: '600', 
-                color: '#2563eb',
+                color: '#3B82F6',
                 marginTop: '2px',
                 fontFamily: 'SF Pro Text, -apple-system, sans-serif'
               }}>
@@ -710,7 +857,14 @@ const WanderSolo = ({ navigate, currentUser }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

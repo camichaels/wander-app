@@ -297,14 +297,32 @@ const WanderLostFound = ({ navigate, currentUser }) => {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #f3e8ff, #e9d5ff, #ddd6fe)',
+        background: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        position: 'relative'
       }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ width: '32px', height: '32px', border: '2px solid #7c3aed', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}></div>
-          <p style={{ color: '#7c3aed' }}>Loading your wanders...</p>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+          pointerEvents: 'none'
+        }}></div>
+        <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <div style={{ 
+            width: '32px', 
+            height: '32px', 
+            border: '2px solid #7C3AED', 
+            borderTop: '2px solid transparent', 
+            borderRadius: '50%', 
+            animation: 'spin 1s linear infinite', 
+            margin: '0 auto 16px' 
+          }}></div>
+          <p style={{ color: '#7C3AED' }}>Loading your wanders...</p>
         </div>
       </div>
     )
@@ -314,22 +332,33 @@ const WanderLostFound = ({ navigate, currentUser }) => {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #f3e8ff, #e9d5ff, #ddd6fe)',
+        background: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        position: 'relative'
       }}>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ color: '#dc2626', marginBottom: '16px' }}>{error}</p>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+          pointerEvents: 'none'
+        }}></div>
+        <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <p style={{ color: '#DC2626', marginBottom: '16px' }}>{error}</p>
           <button 
             onClick={loadInitialData}
             style={{
-              backgroundColor: '#7c3aed',
+              background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
               color: 'white',
               padding: '8px 16px',
               borderRadius: '12px',
               border: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(124, 58, 237, 0.3)'
             }}
           >
             Try Again
@@ -343,22 +372,33 @@ const WanderLostFound = ({ navigate, currentUser }) => {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #f3e8ff, #e9d5ff, #ddd6fe)',
+        background: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        position: 'relative'
       }}>
-        <div style={{ textAlign: 'center' }}>
-          <p style={{ color: '#7c3aed', marginBottom: '16px' }}>Please sign in to view your Lost & Found</p>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+          pointerEvents: 'none'
+        }}></div>
+        <div style={{ textAlign: 'center', position: 'relative', zIndex: 1 }}>
+          <p style={{ color: '#7C3AED', marginBottom: '16px' }}>Please sign in to view your Lost & Found</p>
           <button 
             onClick={() => navigate('profile')}
             style={{
-              backgroundColor: '#7c3aed',
+              background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
               color: 'white',
               padding: '12px 24px',
               borderRadius: '16px',
               border: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 8px 24px rgba(124, 58, 237, 0.3)'
             }}
           >
             Go to Profile
@@ -371,22 +411,44 @@ const WanderLostFound = ({ navigate, currentUser }) => {
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #f3e8ff, #e9d5ff, #ddd6fe)',
-      paddingBottom: '100px'
+      background: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
+      paddingBottom: '100px',
+      position: 'relative'
     }}>
       
-      <header style={{ padding: '24px', textAlign: 'center', position: 'relative' }}>
+      {/* Background overlay */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+        pointerEvents: 'none'
+      }}></div>
+      
+      <header style={{ padding: '24px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
         <button 
           onClick={() => navigate('home')}
           style={{ 
             position: 'absolute', 
             left: '24px', 
             top: '24px',
-            background: 'rgba(255,255,255,0.6)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
             border: '1px solid rgba(255,255,255,0.3)',
             borderRadius: '12px',
             padding: '8px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            boxShadow: '0 4px 16px rgba(124, 58, 237, 0.1)',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)'
+            e.target.style.boxShadow = '0 6px 20px rgba(124, 58, 237, 0.15)'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)'
+            e.target.style.boxShadow = '0 4px 16px rgba(124, 58, 237, 0.1)'
           }}
         >
           ←
@@ -399,21 +461,31 @@ const WanderLostFound = ({ navigate, currentUser }) => {
             position: 'absolute', 
             right: '24px', 
             top: '24px',
-            background: 'rgba(255,255,255,0.6)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
             border: '1px solid rgba(255,255,255,0.3)',
             borderRadius: '20px',
             width: '40px',
             height: '40px',
             cursor: 'pointer',
             fontSize: '16px',
-            color: '#6B7280',
+            color: '#7C3AED',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            boxShadow: '0 4px 16px rgba(124, 58, 237, 0.1)',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)'
+            e.target.style.boxShadow = '0 6px 20px rgba(124, 58, 237, 0.15)'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)'
+            e.target.style.boxShadow = '0 4px 16px rgba(124, 58, 237, 0.1)'
           }}
         >
-          ⓘ
+          ℹ︎
         </button>
 
         {/* Logo replacing text title */}
@@ -426,12 +498,13 @@ const WanderLostFound = ({ navigate, currentUser }) => {
             maxWidth: '250px',
             display: 'block',
             margin: '0 auto',
-            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)'
+            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)',
+            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
           }}
           onError={(e) => {
             console.log('Lost & Found logo failed to load from:', e.target.src);
             // Fallback to text if image fails
-            e.target.outerHTML = '<h1 style="font-size: 24px; font-weight: 300; color: #6b21a8; margin: 0; font-family: SF Pro Display, -apple-system, sans-serif;">Lost & Found</h1>';
+            e.target.outerHTML = '<h1 style="font-size: 48px; font-weight: 300; color: #DC2626; margin: 0; font-family: Georgia, serif; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">Lost & Found</h1>';
           }}
           onLoad={(e) => {
             console.log('Lost & Found logo loaded successfully from:', e.target.src);
@@ -452,17 +525,18 @@ const WanderLostFound = ({ navigate, currentUser }) => {
           zIndex: 40
         }}>
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.95)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
             borderRadius: '24px',
             padding: '32px',
             maxWidth: '500px',
             width: '100%',
             border: '1px solid rgba(255,255,255,0.3)',
             maxHeight: '80vh',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
           }}>
             <div style={{ marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#6b21a8', margin: '0 0 16px 0' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#7C3AED', margin: '0 0 16px 0' }}>
                 Lost & Found
               </h2>
             </div>
@@ -492,7 +566,7 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                 </li>
               </ul>
               
-              <p style={{ margin: 0, fontWeight: '500', color: '#6b21a8' }}>
+              <p style={{ margin: 0, fontWeight: '500', color: '#7C3AED' }}>
                 This deeper layer is always optional—a way to catch extra sparks of insight without ever losing the playful spirit. At its core, Lost & Found isn't a journal or a to-do list. It's your whimsical notebook of wandering—waiting to be found again when you need a boost.
               </p>
             </div>
@@ -501,13 +575,14 @@ const WanderLostFound = ({ navigate, currentUser }) => {
               <button
                 onClick={() => setShowInfo(false)}
                 style={{
-                  backgroundColor: '#7c3aed',
+                  background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
                   color: 'white',
                   padding: '12px 24px',
                   borderRadius: '16px',
                   border: 'none',
                   fontSize: '16px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(124, 58, 237, 0.3)'
                 }}
               >
                 Got it
@@ -517,8 +592,8 @@ const WanderLostFound = ({ navigate, currentUser }) => {
         </div>
       )}
 
-      {/* Search and Filter Bar */}
-      <div style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px', marginBottom: '24px' }}>
+      {/* Enhanced Search and Filter Bar */}
+      <div style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px', marginBottom: '24px', position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
           <div style={{ position: 'relative', flex: '1', minWidth: '0' }}>
             <input
@@ -528,13 +603,24 @@ const WanderLostFound = ({ navigate, currentUser }) => {
               placeholder="Search your wanders..."
               style={{
                 width: '100%',
-                padding: '12px 48px 12px 16px',
-                backgroundColor: 'rgba(255,255,255,0.6)',
-                border: '1px solid rgba(124,58,237,0.3)',
+                padding: '16px 48px 16px 20px',
+                background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                border: '2px solid #DDD6FE',
                 borderRadius: '16px',
-                fontSize: '14px',
+                fontSize: '16px',
+                color: '#374151',
                 outline: 'none',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                boxShadow: 'inset 0 2px 8px rgba(124, 58, 237, 0.05), 0 2px 4px rgba(124, 58, 237, 0.05)',
+                transition: 'all 0.3s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#7C3AED'
+                e.target.style.boxShadow = 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 0 0 3px rgba(124, 58, 237, 0.2)'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#DDD6FE'
+                e.target.style.boxShadow = 'inset 0 2px 8px rgba(124, 58, 237, 0.05), 0 2px 4px rgba(124, 58, 237, 0.05)'
               }}
             />
             {searchTerm && (
@@ -542,14 +628,21 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                 onClick={() => setSearchTerm('')}
                 style={{
                   position: 'absolute',
-                  right: '12px',
+                  right: '16px',
                   top: '50%',
                   transform: 'translateY(-50%)',
                   background: 'none',
                   border: 'none',
-                  color: '#7c3aed',
+                  color: '#7C3AED',
                   cursor: 'pointer',
-                  fontSize: '20px'
+                  fontSize: '20px',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.color = '#6D28D9'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.color = '#7C3AED'
                 }}
               >
                 ×
@@ -560,28 +653,52 @@ const WanderLostFound = ({ navigate, currentUser }) => {
           <button
             onClick={() => setShowFilters(!showFilters)}
             style={{
-              padding: '12px',
-              backgroundColor: 'rgba(255,255,255,0.6)',
-              border: '1px solid rgba(124,58,237,0.3)',
+              padding: '16px',
+              background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
+              border: '2px solid #DDD6FE',
               borderRadius: '16px',
               cursor: 'pointer',
               flexShrink: 0,
-              fontSize: '18px'
+              fontSize: '18px',
+              color: '#7C3AED',
+              boxShadow: '0 4px 16px rgba(124, 58, 237, 0.1)',
+              transition: 'all 0.3s ease'
+            }}
+            onMouseEnter={(e) => {
+              e.target.style.background = 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)'
+              e.target.style.color = 'white'
+              e.target.style.transform = 'translateY(-1px)'
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)'
+              e.target.style.color = '#7C3AED'
+              e.target.style.transform = 'translateY(0)'
             }}
           >
             ⚙
           </button>
         </div>
 
-        {/* Filter Options */}
+        {/* Enhanced Filter Options */}
         {showFilters && (
           <div style={{
             marginTop: '12px',
-            backgroundColor: 'rgba(255,255,255,0.8)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
             borderRadius: '16px',
-            padding: '16px',
-            border: '1px solid rgba(255,255,255,0.3)'
+            padding: '20px',
+            border: '1px solid rgba(255,255,255,0.2)',
+            boxShadow: '0 8px 32px rgba(124, 58, 237, 0.15), 0 2px 8px rgba(124, 58, 237, 0.1)',
+            position: 'relative'
           }}>
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '1px',
+              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)'
+            }}></div>
+            
             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
               {[
                 { key: 'shuffled', label: 'Shuffle (default)' },
@@ -595,13 +712,29 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                   style={{
                     width: '100%',
                     textAlign: 'left',
-                    padding: '8px 12px',
-                    borderRadius: '8px',
+                    padding: '12px 16px',
+                    borderRadius: '12px',
                     border: 'none',
                     fontSize: '14px',
                     cursor: 'pointer',
-                    backgroundColor: currentFilter === filter.key ? '#e9d5ff' : 'transparent',
-                    color: '#7c3aed'
+                    background: currentFilter === filter.key 
+                      ? 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)' 
+                      : 'transparent',
+                    color: currentFilter === filter.key ? '#7C3AED' : '#374151',
+                    fontWeight: currentFilter === filter.key ? '600' : '400',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    if (currentFilter !== filter.key) {
+                      e.target.style.background = 'rgba(124, 58, 237, 0.05)'
+                      e.target.style.color = '#7C3AED'
+                    }
+                  }}
+                  onMouseLeave={(e) => {
+                    if (currentFilter !== filter.key) {
+                      e.target.style.background = 'transparent'
+                      e.target.style.color = '#374151'
+                    }
                   }}
                 >
                   {filter.label}
@@ -611,18 +744,20 @@ const WanderLostFound = ({ navigate, currentUser }) => {
           </div>
         )}
 
-        {/* Active Filter Indicator */}
+        {/* Enhanced Active Filter Indicator */}
         {getFilterLabel() && (
           <div style={{ marginTop: '12px', textAlign: 'center' }}>
             <span style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '4px',
+              gap: '8px',
               fontSize: '12px',
-              color: '#7c3aed',
-              backgroundColor: '#e9d5ff',
-              padding: '4px 12px',
-              borderRadius: '50px'
+              color: '#7C3AED',
+              background: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
+              padding: '6px 16px',
+              borderRadius: '20px',
+              border: '1px solid rgba(124, 58, 237, 0.2)',
+              boxShadow: '0 2px 8px rgba(124, 58, 237, 0.1)'
             }}>
               {getFilterLabel()}
               <button
@@ -630,9 +765,10 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                 style={{
                   background: 'none',
                   border: 'none',
-                  color: '#7c3aed',
+                  color: '#7C3AED',
                   cursor: 'pointer',
-                  fontSize: '14px'
+                  fontSize: '14px',
+                  padding: '0 0 0 4px'
                 }}
               >
                 ×
@@ -642,28 +778,48 @@ const WanderLostFound = ({ navigate, currentUser }) => {
         )}
       </div>
 
-      {/* Results Count */}
+      {/* Enhanced Results Count */}
       {(searchTerm || currentFilter !== 'shuffled') && (
-        <div style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px', marginBottom: '16px' }}>
-          <p style={{ fontSize: '12px', color: '#7c3aed', opacity: 0.75, textAlign: 'center' }}>
+        <div style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px', marginBottom: '16px', position: 'relative', zIndex: 1 }}>
+          <p style={{ fontSize: '14px', color: '#A855F7', textAlign: 'center' }}>
             {responses.length} wander{responses.length !== 1 ? 's' : ''} found
           </p>
         </div>
       )}
 
-      <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
+      <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1 }}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {responses.map((item) => (
             <div key={item.id} style={{
-              backgroundColor: 'rgba(255,255,255,0.6)',
+              background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
               borderRadius: '24px',
               padding: '24px',
-              border: '1px solid rgba(255,255,255,0.2)'
-            }}>
+              border: '1px solid rgba(255,255,255,0.2)',
+              boxShadow: '0 8px 32px rgba(124, 58, 237, 0.15), 0 2px 8px rgba(124, 58, 237, 0.1)',
+              transition: 'all 0.3s ease',
+              position: 'relative'
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-2px)'
+              e.currentTarget.style.boxShadow = '0 12px 40px rgba(124, 58, 237, 0.2), 0 4px 12px rgba(124, 58, 237, 0.15)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)'
+              e.currentTarget.style.boxShadow = '0 8px 32px rgba(124, 58, 237, 0.15), 0 2px 8px rgba(124, 58, 237, 0.1)'
+            }}
+            >
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '1px',
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)'
+              }}></div>
               
               {/* Card Header */}
-              <div style={{ marginBottom: '12px' }}>
-                <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '300', lineHeight: '1.4', margin: 0 }}>
+              <div style={{ marginBottom: '16px' }}>
+                <p style={{ color: '#374151', fontSize: '16px', fontWeight: '500', lineHeight: '1.4', margin: 0 }}>
                   {item.prompt}
                 </p>
               </div>
@@ -674,7 +830,7 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                   
                   {/* Edit Original Response */}
                   <div>
-                    <p style={{ fontSize: '12px', color: '#7c3aed', marginBottom: '8px', fontWeight: '500' }}>
+                    <p style={{ fontSize: '14px', color: '#7C3AED', marginBottom: '12px', fontWeight: '600' }}>
                       Your response:
                     </p>
                     <textarea
@@ -682,18 +838,28 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                       onChange={(e) => setEditText(e.target.value)}
                       style={{
                         width: '100%',
-                        padding: '12px',
-                        backgroundColor: '#f3e8ff',
-                        border: '1px solid #c4b5fd',
+                        padding: '16px',
+                        background: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
+                        border: '2px solid #DDD6FE',
                         borderRadius: '16px',
                         resize: 'none',
                         outline: 'none',
-                        color: '#4b5563',
+                        color: '#6B21A8',
                         fontSize: '16px',
                         fontStyle: 'normal',
                         fontFamily: 'inherit',
                         minHeight: '80px',
-                        boxSizing: 'border-box'
+                        boxSizing: 'border-box',
+                        boxShadow: 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 2px 4px rgba(124, 58, 237, 0.05)',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onFocus={(e) => {
+                        e.target.style.borderColor = '#7C3AED'
+                        e.target.style.boxShadow = 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 0 0 3px rgba(124, 58, 237, 0.2)'
+                      }}
+                      onBlur={(e) => {
+                        e.target.style.borderColor = '#DDD6FE'
+                        e.target.style.boxShadow = 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 2px 4px rgba(124, 58, 237, 0.05)'
                       }}
                       rows="3"
                       autoFocus
@@ -703,16 +869,18 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                   {/* Existing Expansion Edit Mode */}
                   {expansionStep === 'edit-expansion' && selectedExpansionType && (
                     <div style={{
-                      backgroundColor: 'rgba(124,58,237,0.1)',
+                      background: 'linear-gradient(135def, #F3E8FF 0%, #E9D5FF 100%)',
                       borderRadius: '16px',
-                      padding: '16px'
+                      padding: '20px',
+                      boxShadow: 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 2px 4px rgba(124, 58, 237, 0.05)',
+                      border: '1px solid rgba(124, 58, 237, 0.2)'
                     }}>
-                      <p style={{ fontSize: '12px', color: '#7c3aed', marginBottom: '12px', fontWeight: '500' }}>
+                      <p style={{ fontSize: '14px', color: '#7C3AED', marginBottom: '16px', fontWeight: '600' }}>
                         {selectedExpansionType.display_name}:
                       </p>
                       
                       <div style={{ marginBottom: '16px' }}>
-                        <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                        <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '8px' }}>
                           {expansionPrompts.initial_prompt_text}
                         </p>
                         <textarea
@@ -720,24 +888,34 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                           onChange={(e) => setExpansionData(prev => ({ ...prev, initialResponse: e.target.value }))}
                           style={{
                             width: '100%',
-                            padding: '12px',
-                            backgroundColor: 'rgba(255,255,255,0.8)',
-                            border: '1px solid #c4b5fd',
+                            padding: '16px',
+                            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                            border: '2px solid #DDD6FE',
                             borderRadius: '12px',
                             resize: 'none',
                             outline: 'none',
-                            color: '#4b5563',
+                            color: '#374151',
                             fontSize: '16px',
                             fontFamily: 'inherit',
                             minHeight: '80px',
-                            boxSizing: 'border-box'
+                            boxSizing: 'border-box',
+                            boxShadow: 'inset 0 2px 8px rgba(124, 58, 237, 0.05), 0 2px 4px rgba(124, 58, 237, 0.05)',
+                            transition: 'all 0.3s ease'
+                          }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = '#7C3AED'
+                            e.target.style.boxShadow = 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 0 0 3px rgba(124, 58, 237, 0.2)'
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = '#DDD6FE'
+                            e.target.style.boxShadow = 'inset 0 2px 8px rgba(124, 58, 237, 0.05), 0 2px 4px rgba(124, 58, 237, 0.05)'
                           }}
                           rows="3"
                         />
                       </div>
 
                       <div>
-                        <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                        <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '8px' }}>
                           {expansionPrompts.tieup_prompt_text}
                         </p>
                         <textarea
@@ -745,17 +923,27 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                           onChange={(e) => setExpansionData(prev => ({ ...prev, tieupResponse: e.target.value }))}
                           style={{
                             width: '100%',
-                            padding: '12px',
-                            backgroundColor: 'rgba(255,255,255,0.8)',
-                            border: '1px solid #c4b5fd',
+                            padding: '16px',
+                            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                            border: '2px solid #DDD6FE',
                             borderRadius: '12px',
                             resize: 'none',
                             outline: 'none',
-                            color: '#4b5563',
+                            color: '#374151',
                             fontSize: '16px',
                             fontFamily: 'inherit',
                             minHeight: '60px',
-                            boxSizing: 'border-box'
+                            boxSizing: 'border-box',
+                            boxShadow: 'inset 0 2px 8px rgba(124, 58, 237, 0.05), 0 2px 4px rgba(124, 58, 237, 0.05)',
+                            transition: 'all 0.3s ease'
+                          }}
+                          onFocus={(e) => {
+                            e.target.style.borderColor = '#7C3AED'
+                            e.target.style.boxShadow = 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 0 0 3px rgba(124, 58, 237, 0.2)'
+                          }}
+                          onBlur={(e) => {
+                            e.target.style.borderColor = '#DDD6FE'
+                            e.target.style.boxShadow = 'inset 0 2px 8px rgba(124, 58, 237, 0.05), 0 2px 4px rgba(124, 58, 237, 0.05)'
                           }}
                           rows="2"
                         />
@@ -766,31 +954,45 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                   {/* Expansion Path Selection */}
                   {expansionStep === 'paths' && showExpansionPaths && (
                     <div style={{
-                      backgroundColor: 'rgba(124,58,237,0.1)',
+                      background: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
                       borderRadius: '16px',
-                      padding: '16px'
+                      padding: '20px',
+                      boxShadow: 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 2px 4px rgba(124, 58, 237, 0.05)',
+                      border: '1px solid rgba(124, 58, 237, 0.2)'
                     }}>
-                      <p style={{ fontSize: '14px', color: '#7c3aed', marginBottom: '12px', fontWeight: '500' }}>
+                      <p style={{ fontSize: '16px', color: '#7C3AED', marginBottom: '16px', fontWeight: '600' }}>
                         Want to go deeper? Pick a direction:
                       </p>
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                         {expansionTypes.map(type => (
                           <button
                             key={type.expansion_type_id}
                             onClick={() => selectExpansionPath(type)}
                             style={{
-                              padding: '12px',
-                              backgroundColor: 'rgba(255,255,255,0.7)',
-                              border: '1px solid rgba(124,58,237,0.3)',
+                              padding: '16px',
+                              background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                              border: '2px solid rgba(124, 58, 237, 0.3)',
                               borderRadius: '12px',
                               cursor: 'pointer',
-                              textAlign: 'left'
+                              textAlign: 'left',
+                              boxShadow: '0 4px 16px rgba(124, 58, 237, 0.1)',
+                              transition: 'all 0.3s ease'
+                            }}
+                            onMouseEnter={(e) => {
+                              e.target.style.background = 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)'
+                              e.target.style.transform = 'translateY(-1px)'
+                              e.target.style.boxShadow = '0 6px 20px rgba(124, 58, 237, 0.15)'
+                            }}
+                            onMouseLeave={(e) => {
+                              e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)'
+                              e.target.style.transform = 'translateY(0)'
+                              e.target.style.boxShadow = '0 4px 16px rgba(124, 58, 237, 0.1)'
                             }}
                           >
-                            <div style={{ fontWeight: '500', color: '#7c3aed', fontSize: '14px' }}>
+                            <div style={{ fontWeight: '600', color: '#7C3AED', fontSize: '14px', marginBottom: '4px' }}>
                               {type.display_name}
                             </div>
-                            <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                            <div style={{ fontSize: '12px', color: '#6B7280' }}>
                               {type.description}
                             </div>
                           </button>
@@ -802,14 +1004,16 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                   {/* Initial Expansion Step */}
                   {expansionStep === 'initial' && selectedExpansionType && (
                     <div style={{
-                      backgroundColor: 'rgba(124,58,237,0.1)',
+                      background: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
                       borderRadius: '16px',
-                      padding: '16px'
+                      padding: '20px',
+                      boxShadow: 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 2px 4px rgba(124, 58, 237, 0.05)',
+                      border: '1px solid rgba(124, 58, 237, 0.2)'
                     }}>
-                      <p style={{ fontSize: '12px', color: '#7c3aed', marginBottom: '8px', fontWeight: '500' }}>
+                      <p style={{ fontSize: '14px', color: '#7C3AED', marginBottom: '12px', fontWeight: '600' }}>
                         {selectedExpansionType.display_name}:
                       </p>
-                      <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '12px' }}>
+                      <p style={{ fontSize: '14px', color: '#374151', marginBottom: '16px' }}>
                         {expansionPrompts.initial_prompt_text}
                       </p>
                       <textarea
@@ -818,17 +1022,27 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                         placeholder="Your thoughts..."
                         style={{
                           width: '100%',
-                          padding: '12px',
-                          backgroundColor: 'rgba(255,255,255,0.8)',
-                          border: '1px solid #c4b5fd',
+                          padding: '16px',
+                          background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                          border: '2px solid #DDD6FE',
                           borderRadius: '12px',
                           resize: 'none',
                           outline: 'none',
-                          color: '#4b5563',
+                          color: '#374151',
                           fontSize: '16px',
                           fontFamily: 'inherit',
                           minHeight: '80px',
-                          boxSizing: 'border-box'
+                          boxSizing: 'border-box',
+                          boxShadow: 'inset 0 2px 8px rgba(124, 58, 237, 0.05), 0 2px 4px rgba(124, 58, 237, 0.05)',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.borderColor = '#7C3AED'
+                          e.target.style.boxShadow = 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 0 0 3px rgba(124, 58, 237, 0.2)'
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = '#DDD6FE'
+                          e.target.style.boxShadow = 'inset 0 2px 8px rgba(124, 58, 237, 0.05), 0 2px 4px rgba(124, 58, 237, 0.05)'
                         }}
                         rows="3"
                       />
@@ -838,24 +1052,32 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                   {/* Tieup Step with Context */}
                   {expansionStep === 'tieup' && selectedExpansionType && (
                     <div style={{
-                      backgroundColor: 'rgba(124,58,237,0.1)',
+                      background: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
                       borderRadius: '16px',
-                      padding: '16px'
+                      padding: '20px',
+                      boxShadow: 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 2px 4px rgba(124, 58, 237, 0.05)',
+                      border: '1px solid rgba(124, 58, 237, 0.2)'
                     }}>
                       {/* Show previous context */}
-                      <div style={{ marginBottom: '16px', padding: '12px', backgroundColor: 'rgba(255,255,255,0.6)', borderRadius: '12px' }}>
-                        <p style={{ fontSize: '12px', color: '#7c3aed', fontWeight: '500', marginBottom: '4px' }}>
+                      <div style={{ 
+                        marginBottom: '16px', 
+                        padding: '16px', 
+                        background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)', 
+                        borderRadius: '12px',
+                        boxShadow: '0 2px 8px rgba(124, 58, 237, 0.1)'
+                      }}>
+                        <p style={{ fontSize: '14px', color: '#7C3AED', fontWeight: '600', marginBottom: '8px' }}>
                           {selectedExpansionType.display_name}:
                         </p>
-                        <p style={{ fontSize: '14px', color: '#4b5563', margin: 0 }}>
+                        <p style={{ fontSize: '14px', color: '#374151', margin: 0 }}>
                           {expansionData.initialResponse}
                         </p>
                       </div>
 
-                      <p style={{ fontSize: '12px', color: '#7c3aed', marginBottom: '8px', fontWeight: '500' }}>
+                      <p style={{ fontSize: '14px', color: '#7C3AED', marginBottom: '12px', fontWeight: '600' }}>
                         One more thing:
                       </p>
-                      <p style={{ fontSize: '14px', color: '#4b5563', marginBottom: '12px' }}>
+                      <p style={{ fontSize: '14px', color: '#374151', marginBottom: '16px' }}>
                         {expansionPrompts.tieup_prompt_text}
                       </p>
                       <textarea
@@ -864,37 +1086,58 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                         placeholder="Your thoughts..."
                         style={{
                           width: '100%',
-                          padding: '12px',
-                          backgroundColor: 'rgba(255,255,255,0.8)',
-                          border: '1px solid #c4b5fd',
+                          padding: '16px',
+                          background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                          border: '2px solid #DDD6FE',
                           borderRadius: '12px',
                           resize: 'none',
                           outline: 'none',
-                          color: '#4b5563',
+                          color: '#374151',
                           fontSize: '16px',
                           fontFamily: 'inherit',
                           minHeight: '60px',
-                          boxSizing: 'border-box'
+                          boxSizing: 'border-box',
+                          boxShadow: 'inset 0 2px 8px rgba(124, 58, 237, 0.05), 0 2px 4px rgba(124, 58, 237, 0.05)',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onFocus={(e) => {
+                          e.target.style.borderColor = '#7C3AED'
+                          e.target.style.boxShadow = 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 0 0 3px rgba(124, 58, 237, 0.2)'
+                        }}
+                        onBlur={(e) => {
+                          e.target.style.borderColor = '#DDD6FE'
+                          e.target.style.boxShadow = 'inset 0 2px 8px rgba(124, 58, 237, 0.05), 0 2px 4px rgba(124, 58, 237, 0.05)'
                         }}
                         rows="2"
                       />
                     </div>
                   )}
 
-                  {/* Action Buttons */}
-                  <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                  {/* Enhanced Action Buttons */}
+                  <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
                     {expansionStep === 'edit' && (
                       <>
                         <button
                           onClick={saveEditOnly}
                           style={{
-                            padding: '6px 12px',
-                            backgroundColor: '#7c3aed',
+                            padding: '14px 24px',
+                            background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
                             color: 'white',
-                            borderRadius: '8px',
+                            borderRadius: '12px',
                             border: 'none',
-                            fontSize: '12px',
-                            cursor: 'pointer'
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            boxShadow: '0 8px 24px rgba(124, 58, 237, 0.3), 0 2px 4px rgba(109, 40, 217, 0.2)',
+                            transition: 'all 0.3s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.transform = 'translateY(-2px)'
+                            e.target.style.boxShadow = '0 12px 32px rgba(124, 58, 237, 0.4), 0 4px 8px rgba(109, 40, 217, 0.3)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.transform = 'translateY(0)'
+                            e.target.style.boxShadow = '0 8px 24px rgba(124, 58, 237, 0.3), 0 2px 4px rgba(109, 40, 217, 0.2)'
                           }}
                         >
                           Save
@@ -902,13 +1145,26 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                         <button
                           onClick={proceedToExpansionPaths}
                           style={{
-                            padding: '6px 12px',
-                            backgroundColor: 'rgba(124,58,237,0.2)',
-                            color: '#7c3aed',
-                            border: '1px solid #7c3aed',
-                            borderRadius: '8px',
-                            fontSize: '12px',
-                            cursor: 'pointer'
+                            padding: '12px 24px',
+                            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
+                            color: '#7C3AED',
+                            border: '2px solid #7C3AED',
+                            borderRadius: '12px',
+                            fontSize: '14px',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            boxShadow: '0 4px 16px rgba(124, 58, 237, 0.15), 0 2px 4px rgba(124, 58, 237, 0.1)',
+                            transition: 'all 0.3s ease'
+                          }}
+                          onMouseEnter={(e) => {
+                            e.target.style.background = 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)'
+                            e.target.style.color = 'white'
+                            e.target.style.transform = 'translateY(-1px)'
+                          }}
+                          onMouseLeave={(e) => {
+                            e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)'
+                            e.target.style.color = '#7C3AED'
+                            e.target.style.transform = 'translateY(0)'
                           }}
                         >
                           Go Deeper
@@ -921,13 +1177,32 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                         onClick={saveExpansionStep}
                         disabled={!expansionData.initialResponse.trim()}
                         style={{
-                          padding: '6px 12px',
-                          backgroundColor: expansionData.initialResponse.trim() ? '#7c3aed' : '#9ca3af',
+                          padding: '14px 24px',
+                          background: expansionData.initialResponse.trim() 
+                            ? 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)' 
+                            : 'linear-gradient(135deg, #9CA3AF 0%, #6B7280 100%)',
                           color: 'white',
-                          borderRadius: '8px',
+                          borderRadius: '12px',
                           border: 'none',
-                          fontSize: '12px',
-                          cursor: expansionData.initialResponse.trim() ? 'pointer' : 'not-allowed'
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: expansionData.initialResponse.trim() ? 'pointer' : 'not-allowed',
+                          boxShadow: expansionData.initialResponse.trim() 
+                            ? '0 8px 24px rgba(124, 58, 237, 0.3)' 
+                            : '0 4px 16px rgba(156, 163, 175, 0.3)',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          if (expansionData.initialResponse.trim()) {
+                            e.target.style.transform = 'translateY(-2px)'
+                            e.target.style.boxShadow = '0 12px 32px rgba(124, 58, 237, 0.4)'
+                          }
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'translateY(0)'
+                          e.target.style.boxShadow = expansionData.initialResponse.trim() 
+                            ? '0 8px 24px rgba(124, 58, 237, 0.3)' 
+                            : '0 4px 16px rgba(156, 163, 175, 0.3)'
                         }}
                       >
                         Continue
@@ -938,13 +1213,24 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                       <button
                         onClick={saveExpansionStep}
                         style={{
-                          padding: '6px 12px',
-                          backgroundColor: '#7c3aed',
+                          padding: '14px 24px',
+                          background: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
                           color: 'white',
-                          borderRadius: '8px',
+                          borderRadius: '12px',
                           border: 'none',
-                          fontSize: '12px',
-                          cursor: 'pointer'
+                          fontSize: '14px',
+                          fontWeight: '600',
+                          cursor: 'pointer',
+                          boxShadow: '0 8px 24px rgba(124, 58, 237, 0.3), 0 2px 4px rgba(109, 40, 217, 0.2)',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.transform = 'translateY(-2px)'
+                          e.target.style.boxShadow = '0 12px 32px rgba(124, 58, 237, 0.4), 0 4px 8px rgba(109, 40, 217, 0.3)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.transform = 'translateY(0)'
+                          e.target.style.boxShadow = '0 8px 24px rgba(124, 58, 237, 0.3), 0 2px 4px rgba(109, 40, 217, 0.2)'
                         }}
                       >
                         {expansionStep === 'edit-expansion' ? 'Save' : 'Finish'}
@@ -954,13 +1240,26 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                     <button
                       onClick={cancelExpand}
                       style={{
-                        padding: '6px 12px',
-                        backgroundColor: 'rgba(255,255,255,0.6)',
-                        color: '#7c3aed',
-                        border: '1px solid #c4b5fd',
-                        borderRadius: '8px',
-                        fontSize: '12px',
-                        cursor: 'pointer'
+                        padding: '12px 24px',
+                        background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
+                        color: '#7C3AED',
+                        border: '2px solid #7C3AED',
+                        borderRadius: '12px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        boxShadow: '0 4px 16px rgba(124, 58, 237, 0.15), 0 2px 4px rgba(124, 58, 237, 0.1)',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.background = 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)'
+                        e.target.style.color = 'white'
+                        e.target.style.transform = 'translateY(-1px)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)'
+                        e.target.style.color = '#7C3AED'
+                        e.target.style.transform = 'translateY(0)'
                       }}
                     >
                       Cancel
@@ -971,40 +1270,44 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                 <div>
                   {/* Original Response */}
                   <div style={{
-                    backgroundColor: '#f3e8ff',
+                    background: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
                     borderRadius: '16px',
-                    padding: '16px',
-                    marginBottom: item.expansion ? '16px' : '12px'
+                    padding: '20px',
+                    marginBottom: item.expansion ? '16px' : '16px',
+                    boxShadow: 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 2px 4px rgba(124, 58, 237, 0.05)',
+                    border: '1px solid rgba(124, 58, 237, 0.2)'
                   }}>
-                    <p style={{ color: '#4b5563', fontStyle: 'italic', margin: 0 }}>{item.response}</p>
+                    <p style={{ color: '#6B21A8', fontStyle: 'italic', margin: 0 }}>{item.response}</p>
                   </div>
                   
                   {/* Expansion Content (if exists) */}
                   {item.expansion && (
                     <div style={{
-                      backgroundColor: 'rgba(124,58,237,0.1)',
+                      background: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)',
                       borderRadius: '16px',
-                      padding: '16px',
-                      marginBottom: '12px'
+                      padding: '20px',
+                      marginBottom: '16px',
+                      boxShadow: 'inset 0 2px 8px rgba(124, 58, 237, 0.1), 0 2px 4px rgba(124, 58, 237, 0.05)',
+                      border: '1px solid rgba(124, 58, 237, 0.2)'
                     }}>
-                      <div style={{ marginBottom: '12px' }}>
-                        <p style={{ fontSize: '12px', color: '#7c3aed', fontWeight: '500', marginBottom: '4px' }}>
+                      <div style={{ marginBottom: '16px' }}>
+                        <p style={{ fontSize: '14px', color: '#7C3AED', fontWeight: '600', marginBottom: '8px' }}>
                           {item.expansion.expansion_type.display_name}
                         </p>
-                        <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                        <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '8px' }}>
                           {item.expansion.initial_prompt.prompt_text}
                         </p>
-                        <p style={{ color: '#4b5563', fontSize: '14px', margin: 0 }}>
+                        <p style={{ color: '#374151', fontSize: '14px', margin: 0 }}>
                           {item.expansion.initial_response}
                         </p>
                       </div>
                       
                       {item.expansion.tieup_response && (
                         <div>
-                          <p style={{ fontSize: '12px', color: '#6b7280', marginBottom: '8px' }}>
+                          <p style={{ fontSize: '12px', color: '#6B7280', marginBottom: '8px' }}>
                             {item.expansion.tieup_prompt.prompt_text}
                           </p>
-                          <p style={{ color: '#4b5563', fontSize: '14px', margin: 0 }}>
+                          <p style={{ color: '#374151', fontSize: '14px', margin: 0 }}>
                             {item.expansion.tieup_response}
                           </p>
                         </div>
@@ -1012,22 +1315,30 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                     </div>
                   )}
                   
-                  {/* Action Buttons */}
+                  {/* Enhanced Action Buttons */}
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                    <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
                       <button
                         onClick={() => toggleStar(item.id)}
                         style={{
-                          padding: '4px',
+                          padding: '8px',
                           background: 'none',
                           border: 'none',
-                          borderRadius: '4px',
-                          cursor: 'pointer'
+                          borderRadius: '8px',
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.background = 'rgba(124, 58, 237, 0.1)'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.background = 'none'
                         }}
                       >
                         <span style={{ 
-                          color: item.starred ? '#7c3aed' : '#d1d5db',
-                          fontSize: '16px'
+                          color: item.starred ? '#7C3AED' : '#9CA3AF',
+                          fontSize: '18px',
+                          transition: 'all 0.3s ease'
                         }}>
                           {item.starred ? '★' : '☆'}
                         </span>
@@ -1038,11 +1349,18 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                           display: 'flex',
                           alignItems: 'center',
                           gap: '4px',
-                          fontSize: '12px',
-                          color: '#9ca3af',
+                          fontSize: '14px',
+                          color: '#9CA3AF',
                           background: 'none',
                           border: 'none',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.color = '#7C3AED'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.color = '#9CA3AF'
                         }}
                       >
                         Expand
@@ -1053,18 +1371,25 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                           display: 'flex',
                           alignItems: 'center',
                           gap: '4px',
-                          fontSize: '12px',
-                          color: '#9ca3af',
+                          fontSize: '14px',
+                          color: '#9CA3AF',
                           background: 'none',
                           border: 'none',
-                          cursor: 'pointer'
+                          cursor: 'pointer',
+                          transition: 'all 0.3s ease'
+                        }}
+                        onMouseEnter={(e) => {
+                          e.target.style.color = '#EF4444'
+                        }}
+                        onMouseLeave={(e) => {
+                          e.target.style.color = '#9CA3AF'
                         }}
                       >
                         Delete
                       </button>
                     </div>
                     
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '4px', fontSize: '12px', color: '#7c3aed', opacity: 0.6 }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '12px', color: '#A855F7', opacity: 0.8 }}>
                       <span>{item.source}</span>
                       <span>•</span>
                       <span>{formatDate(item.date)}</span>
@@ -1078,7 +1403,7 @@ const WanderLostFound = ({ navigate, currentUser }) => {
 
         {responses.length === 0 && (
           <div style={{ textAlign: 'center', padding: '48px 24px' }}>
-            <p style={{ color: '#7c3aed', opacity: 0.75 }}>
+            <p style={{ color: '#A855F7', opacity: 0.75 }}>
               {searchTerm || currentFilter === 'starred' 
                 ? "No wanders match your search" 
                 : "Your wandering thoughts will appear here"}
@@ -1087,12 +1412,12 @@ const WanderLostFound = ({ navigate, currentUser }) => {
         )}
       </main>
 
-      {/* Delete Confirmation Modal */}
+      {/* Enhanced Delete Confirmation Modal */}
       {showDeleteConfirm && (
         <div style={{
           position: 'fixed',
           inset: '0',
-          backgroundColor: 'rgba(0,0,0,0.2)',
+          backgroundColor: 'rgba(0,0,0,0.3)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -1100,26 +1425,38 @@ const WanderLostFound = ({ navigate, currentUser }) => {
           zIndex: 20
         }}>
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.9)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
             borderRadius: '24px',
-            padding: '24px',
+            padding: '32px',
             maxWidth: '400px',
             width: '100%',
             border: '1px solid rgba(255,255,255,0.3)',
-            textAlign: 'center'
+            textAlign: 'center',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
           }}>
-            <p style={{ color: '#4b5563', marginBottom: '16px' }}>Really delete this wander?</p>
+            <p style={{ color: '#374151', marginBottom: '24px', fontSize: '16px' }}>Really delete this wander?</p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button
                 onClick={() => deleteResponse(showDeleteConfirm)}
                 style={{
-                  padding: '8px 16px',
-                  backgroundColor: '#dc2626',
+                  padding: '12px 24px',
+                  background: 'linear-gradient(135deg, #EF4444 0%, #DC2626 100%)',
                   color: 'white',
                   borderRadius: '12px',
                   border: 'none',
                   fontSize: '14px',
-                  cursor: 'pointer'
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(239, 68, 68, 0.3)',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)'
+                  e.target.style.boxShadow = '0 12px 32px rgba(239, 68, 68, 0.4)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)'
+                  e.target.style.boxShadow = '0 8px 24px rgba(239, 68, 68, 0.3)'
                 }}
               >
                 Delete
@@ -1127,13 +1464,26 @@ const WanderLostFound = ({ navigate, currentUser }) => {
               <button
                 onClick={() => setShowDeleteConfirm(null)}
                 style={{
-                  padding: '8px 16px',
-                  backgroundColor: 'rgba(255,255,255,0.6)',
-                  color: '#4b5563',
-                  border: '1px solid #d1d5db',
+                  padding: '12px 24px',
+                  background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
+                  color: '#7C3AED',
+                  border: '2px solid #7C3AED',
                   borderRadius: '12px',
                   fontSize: '14px',
-                  cursor: 'pointer'
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 16px rgba(124, 58, 237, 0.15)',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)'
+                  e.target.style.color = 'white'
+                  e.target.style.transform = 'translateY(-1px)'
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)'
+                  e.target.style.color = '#7C3AED'
+                  e.target.style.transform = 'translateY(0)'
                 }}
               >
                 Cancel
@@ -1144,14 +1494,14 @@ const WanderLostFound = ({ navigate, currentUser }) => {
       )}
 
       {/* Enhanced Bottom Navigation - L&F is highlighted since this is the Lost & Found page */}
-      <nav style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)' }}>
+      <nav style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
         <div style={{
-          backgroundColor: 'rgba(255,255,255,0.9)',
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
           borderRadius: '30px',
           padding: '12px 24px',
           border: '1px solid rgba(255,255,255,0.3)',
           backdropFilter: 'blur(10px)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          boxShadow: '0 8px 32px rgba(124, 58, 237, 0.15), 0 4px 16px rgba(124, 58, 237, 0.1)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
             
@@ -1162,7 +1512,14 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1186,7 +1543,14 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1211,7 +1575,14 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1238,7 +1609,14 @@ const WanderLostFound = ({ navigate, currentUser }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

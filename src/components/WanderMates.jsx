@@ -29,7 +29,6 @@ const WanderMates = ({ navigate, currentUser }) => {
   // Track when users view the reveal page
   useEffect(() => {
     if (currentView === 'reveal' && selectedMate?.currentSharedWanderId && currentUser?.id) {
-      // Mark that this user has viewed the reveal
       SharedWandersAPI.markUserViewedReveal(currentUser.id, selectedMate.currentSharedWanderId)
     }
   }, [currentView, selectedMate?.currentSharedWanderId, currentUser?.id])
@@ -41,7 +40,6 @@ const WanderMates = ({ navigate, currentUser }) => {
     let interval
     
     if ((currentView === 'reveal' || currentView === 'waiting') && selectedMate) {
-      // Poll for updates in active conversations
       interval = setInterval(async () => {
         try {
           const matesResult = await MatesAPI.getActiveMates(currentUser.id)
@@ -68,10 +66,9 @@ const WanderMates = ({ navigate, currentUser }) => {
         } catch (error) {
           console.warn('Background polling error:', error)
         }
-      }, 20000) // Poll every 20 seconds
+      }, 20000)
       
     } else if (currentView === 'dashboard') {
-      // Less frequent polling for dashboard updates
       interval = setInterval(async () => {
         try {
           const [matesResult, invitesResult, usersResult] = await Promise.all([
@@ -94,7 +91,7 @@ const WanderMates = ({ navigate, currentUser }) => {
         } catch (error) {
           console.warn('Dashboard polling error:', error)
         }
-      }, 30000) // Poll every 30 seconds
+      }, 30000)
     }
     
     return () => {
@@ -113,7 +110,6 @@ const WanderMates = ({ navigate, currentUser }) => {
         return
       }
 
-      // Load all data in parallel
       const [matesResult, invitesResult, usersResult] = await Promise.all([
         MatesAPI.getActiveMates(currentUser.id),
         MatesAPI.getPendingInvitations(currentUser.id),
@@ -137,12 +133,12 @@ const WanderMates = ({ navigate, currentUser }) => {
 
   const getStatusDisplay = (status) => {
     switch(status) {
-      case 'waiting_for_you': return { text: 'Your turn to wander', color: '#059669', bg: '#ecfdf5' }
-      case 'waiting_for_them': return { text: 'Waiting for their response', color: '#d97706', bg: '#fef3c7' }
+      case 'waiting_for_you': return { text: 'Your turn to wander', color: '#047857', bg: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)' }
+      case 'waiting_for_them': return { text: 'Waiting for their response', color: '#92400E', bg: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)' }
       case 'ready_to_reveal': 
-      case 'reacting': return { text: 'Share a reaction', color: '#7c3aed', bg: '#f3e8ff' }
-      case 'ready': return { text: 'New wander available', color: '#2563eb', bg: '#dbeafe' }
-      default: return { text: 'New wander available', color: '#6b7280', bg: '#f9fafb' }
+      case 'reacting': return { text: 'Share a reaction', color: '#7C3AED', bg: 'linear-gradient(135deg, #F3E8FF 0%, #E9D5FF 100%)' }
+      case 'ready': return { text: 'New wander available', color: '#1E40AF', bg: 'linear-gradient(135deg, #DBEAFE 0%, #BFDBFE 100%)' }
+      default: return { text: 'New wander available', color: '#6b7280', bg: 'linear-gradient(135deg, #F9FAFB 0%, #F3F4F6 100%)' }
     }
   }
 
@@ -160,7 +156,6 @@ const WanderMates = ({ navigate, currentUser }) => {
     setShowMateMenu(null)
     
     if (mate.status === 'waiting_for_you') {
-      // If no current shared wander, create a new one
       if (!mate.currentSharedWanderId) {
         try {
           const wanderResult = await SharedWandersAPI.createSharedWander(mate.id)
@@ -169,7 +164,6 @@ const WanderMates = ({ navigate, currentUser }) => {
             throw new Error('Failed to create shared wander: ' + wanderResult.error.message)
           }
           
-          // Get the prompt from the created shared wander
           const { data: sharedWander, error: fetchError } = await supabase
             .from('shared_wanders')
             .select(`
@@ -184,7 +178,6 @@ const WanderMates = ({ navigate, currentUser }) => {
             throw new Error('Failed to load prompt details: ' + fetchError.message)
           }
           
-          // Update mate with new prompt and shared wander ID
           const updatedMate = {
             ...mate,
             prompt: sharedWander.mate_prompts?.prompt_text || 'Prompt not available',
@@ -203,7 +196,6 @@ const WanderMates = ({ navigate, currentUser }) => {
     } else if (mate.status === 'waiting_for_them') {
       setCurrentView('waiting')
     } else if (mate.status === 'ready') {
-      // Start a new wander
       await handleMateClick({ ...mate, status: 'waiting_for_you' })
     }
   }
@@ -215,7 +207,6 @@ const WanderMates = ({ navigate, currentUser }) => {
     setError(null)
     
     try {
-      // Submit response to shared wander
       const responseResult = await SharedWandersAPI.submitResponse(
         currentUser.id,
         selectedMate.currentSharedWanderId,
@@ -226,7 +217,6 @@ const WanderMates = ({ navigate, currentUser }) => {
         throw new Error('Failed to submit response: ' + responseResult.error.message)
       }
 
-      // Save to prompt history for Lost & Found
       if (selectedMate.prompt && selectedMate.prompt !== 'Prompt not available' && selectedMate.prompt !== 'Unable to load prompt') {
         try {
           await PromptHistoryAPI.createPromptHistory(currentUser.id, {
@@ -240,21 +230,18 @@ const WanderMates = ({ navigate, currentUser }) => {
         }
       }
 
-      // Reload the mate data to get updated status
       const matesResult = await MatesAPI.getActiveMates(currentUser.id)
       if (!matesResult.error) {
         const updatedMate = matesResult.data?.find(m => m.id === selectedMate.id)
         if (updatedMate) {
           setSelectedMate(updatedMate)
           
-          // Navigate based on updated status
           if (updatedMate.status === 'reacting') {
             setCurrentView('reveal')
           } else {
             setCurrentView('waiting')
           }
           
-          // Update local mates list
           setMates(prev => prev.map(m => 
             m.id === selectedMate.id ? updatedMate : m
           ))
@@ -264,13 +251,11 @@ const WanderMates = ({ navigate, currentUser }) => {
       setUserResponse('')
 
     } catch (error) {
-      // Check if the response actually saved despite the error
       try {
         const matesResult = await MatesAPI.getActiveMates(currentUser.id)
         if (!matesResult.error) {
           const updatedMate = matesResult.data?.find(m => m.id === selectedMate.id)
           if (updatedMate && updatedMate.yourResponse) {
-            // It actually saved, update the UI
             setSelectedMate(updatedMate)
             setCurrentView('waiting')
             setUserResponse('')
@@ -310,7 +295,6 @@ const WanderMates = ({ navigate, currentUser }) => {
         timestamp: timestamp
       }
       
-      // Update local state
       const updatedMate = {
         ...selectedMate,
         sharedReactions: [...(selectedMate.sharedReactions || []), newReaction]
@@ -337,7 +321,6 @@ const WanderMates = ({ navigate, currentUser }) => {
       
       if (result.error) throw result.error
 
-      // Refresh pending invites and available users
       const [invitesResult, usersResult] = await Promise.all([
         MatesAPI.getPendingInvitations(currentUser.id),
         MatesAPI.getAvailableUsers(currentUser.id)
@@ -346,7 +329,6 @@ const WanderMates = ({ navigate, currentUser }) => {
       if (!invitesResult.error) setPendingInvites(invitesResult.data?.all || [])
       if (!usersResult.error) setAvailableUsers(usersResult.data || [])
 
-      // Close modal and reset form
       setShowInviteModal(false)
       setSelectedExistingUser('')
 
@@ -369,7 +351,6 @@ const WanderMates = ({ navigate, currentUser }) => {
         if (result.error) throw result.error
       }
 
-      // Refresh all data
       await loadInitialData()
 
     } catch (error) {
@@ -384,7 +365,6 @@ const WanderMates = ({ navigate, currentUser }) => {
       const result = await MatesAPI.endMateRelationship(currentUser.id, mateId)
       if (result.error) throw result.error
 
-      // Remove from local state
       setMates(prev => prev.filter(m => m.id !== mateId))
       setShowStopConfirm(null)
 
@@ -396,19 +376,26 @@ const WanderMates = ({ navigate, currentUser }) => {
   const canSendInvite = () => {
     return selectedExistingUser && availableUsers.length > 0
   }
-
-  if (loading) {
+if (loading) {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #ecfdf5, #d1fae5, #a7f3d0)',
+        background: 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <div style={{ width: '32px', height: '32px', border: '2px solid #059669', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px' }}></div>
-          <p style={{ color: '#059669' }}>Loading your mates...</p>
+          <div style={{ 
+            width: '32px', 
+            height: '32px', 
+            border: '3px solid #A7F3D0', 
+            borderTop: '3px solid #10B981', 
+            borderRadius: '50%', 
+            animation: 'spin 1s linear infinite', 
+            margin: '0 auto 16px' 
+          }}></div>
+          <p style={{ color: '#10B981' }}>Loading your mates...</p>
         </div>
       </div>
     )
@@ -418,7 +405,7 @@ const WanderMates = ({ navigate, currentUser }) => {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #ecfdf5, #d1fae5, #a7f3d0)',
+        background: 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
@@ -431,12 +418,13 @@ const WanderMates = ({ navigate, currentUser }) => {
               loadInitialData()
             }}
             style={{
-              backgroundColor: '#059669',
+              background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
               color: 'white',
-              padding: '8px 16px',
-              borderRadius: '12px',
+              padding: '12px 24px',
+              borderRadius: '16px',
               border: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 8px 24px rgba(16, 185, 129, 0.3)'
             }}
           >
             Try Again
@@ -450,22 +438,25 @@ const WanderMates = ({ navigate, currentUser }) => {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #ecfdf5, #d1fae5, #a7f3d0)',
+        background: 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center'
       }}>
         <div style={{ textAlign: 'center' }}>
-          <p style={{ color: '#059669', marginBottom: '16px' }}>Please sign in to view your mates</p>
+          <p style={{ color: '#10B981', marginBottom: '16px' }}>Please sign in to view your mates</p>
           <button 
             onClick={() => navigate('profile')}
             style={{
-              backgroundColor: '#059669',
+              background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
               color: 'white',
-              padding: '12px 24px',
-              borderRadius: '16px',
+              padding: '18px 32px',
+              borderRadius: '20px',
               border: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              fontSize: '16px',
+              fontWeight: '600',
+              boxShadow: '0 8px 24px rgba(16, 185, 129, 0.3)'
             }}
           >
             Go to Profile
@@ -478,7 +469,7 @@ const WanderMates = ({ navigate, currentUser }) => {
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #ecfdf5, #d1fae5, #a7f3d0)',
+      background: 'linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%)',
       paddingBottom: '100px'
     }}>
       
@@ -489,41 +480,49 @@ const WanderMates = ({ navigate, currentUser }) => {
             position: 'absolute', 
             left: '24px', 
             top: '24px',
-            background: 'rgba(255,255,255,0.6)',
-            border: '1px solid rgba(255,255,255,0.3)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+            border: '1px solid rgba(255,255,255,0.2)',
             borderRadius: '12px',
             padding: '8px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            boxShadow: '0 4px 16px rgba(16, 185, 129, 0.15)',
+            color: '#10B981',
+            fontSize: '16px',
+            width: '40px',
+            height: '40px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
           }}
         >
           ←
         </button>
         
-        {/* Info button */}
         <button 
           onClick={() => setShowInfo(true)}
           style={{ 
             position: 'absolute', 
             right: '24px', 
             top: '24px',
-            background: 'rgba(255,255,255,0.6)',
-            border: '1px solid rgba(255,255,255,0.3)',
-            borderRadius: '20px',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+            border: '1px solid rgba(255,255,255,0.2)',
+            borderRadius: '50%',
             width: '40px',
             height: '40px',
             cursor: 'pointer',
             fontSize: '16px',
-            color: '#6B7280',
+            color: '#10B981',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontWeight: 'bold'
+            fontWeight: '500',
+            fontFamily: 'SF Pro Text, -apple-system, sans-serif',
+            boxShadow: '0 4px 16px rgba(16, 185, 129, 0.15)'
           }}
         >
-          ℹ️
+          i
         </button>
 
-        {/* Logo replacing text title */}
         <img 
           src="/mates-logo.png" 
           alt="Wander Mates" 
@@ -537,7 +536,6 @@ const WanderMates = ({ navigate, currentUser }) => {
           }}
           onError={(e) => {
             console.log('Mates logo failed to load from:', e.target.src);
-            // Fallback to text if image fails
             e.target.outerHTML = '<h1 style="font-size: 24px; font-weight: 300; color: #047857; margin: 0; font-family: SF Pro Display, -apple-system, sans-serif;">Wander Mates</h1>';
           }}
           onLoad={(e) => {
@@ -546,7 +544,6 @@ const WanderMates = ({ navigate, currentUser }) => {
         />
       </header>
 
-      {/* Info Modal */}
       {showInfo && (
         <div style={{
           position: 'fixed',
@@ -559,14 +556,15 @@ const WanderMates = ({ navigate, currentUser }) => {
           zIndex: 40
         }}>
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.95)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
             borderRadius: '24px',
             padding: '32px',
             maxWidth: '500px',
             width: '100%',
-            border: '1px solid rgba(255,255,255,0.3)',
+            border: '1px solid rgba(255,255,255,0.2)',
             maxHeight: '80vh',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15), 0 8px 32px rgba(4, 120, 87, 0.15)'
           }}>
             <div style={{ marginBottom: '24px' }}>
               <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#047857', margin: '0 0 16px 0' }}>
@@ -596,13 +594,15 @@ const WanderMates = ({ navigate, currentUser }) => {
               <button
                 onClick={() => setShowInfo(false)}
                 style={{
-                  backgroundColor: '#059669',
+                  background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
                   color: 'white',
-                  padding: '12px 24px',
-                  borderRadius: '16px',
+                  padding: '18px 32px',
+                  borderRadius: '20px',
                   border: 'none',
                   fontSize: '16px',
-                  cursor: 'pointer'
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(16, 185, 129, 0.3)'
                 }}
               >
                 Got it
@@ -617,21 +617,32 @@ const WanderMates = ({ navigate, currentUser }) => {
         {currentView === 'dashboard' && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             
-            {/* Active Mates */}
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px' }}>
-                <h2 style={{ fontSize: '18px', fontWeight: '500', color: '#047857' }}>Your Mates</h2>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between', 
+                marginBottom: '20px' 
+              }}>
+                <h2 style={{ 
+                  fontSize: '20px', 
+                  fontWeight: '600', 
+                  color: '#047857',
+                  margin: 0
+                }}>Your Mates</h2>
                 <button 
                   onClick={() => setShowInviteModal(true)}
                   style={{ 
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '4px',
-                    fontSize: '14px',
-                    color: '#059669',
-                    background: 'none',
+                    background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
+                    color: 'white',
                     border: 'none',
-                    cursor: 'pointer'
+                    borderRadius: '12px',
+                    padding: '8px 16px',
+                    fontSize: '14px',
+                    fontWeight: '600',
+                    cursor: 'pointer',
+                    boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
+                    transition: 'all 0.3s ease'
                   }}
                 >
                   + Invite
@@ -639,13 +650,20 @@ const WanderMates = ({ navigate, currentUser }) => {
               </div>
               
               {mates.length === 0 ? (
-                <div style={{ textAlign: 'center', padding: '48px 24px' }}>
-                  <p style={{ color: '#059669', opacity: 0.75 }}>
+                <div style={{ 
+                  textAlign: 'center', 
+                  padding: '48px 24px',
+                  background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                  borderRadius: '20px',
+                  border: '1px solid rgba(255, 255, 255, 0.2)',
+                  boxShadow: '0 8px 32px rgba(4, 120, 87, 0.15)'
+                }}>
+                  <p style={{ color: '#10B981', opacity: 0.75 }}>
                     No mates yet. Invite someone to start wandering together!
                   </p>
                 </div>
               ) : (
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                   {mates.map((mate) => {
                     const statusInfo = getStatusDisplay(mate.status)
                     return (
@@ -653,22 +671,37 @@ const WanderMates = ({ navigate, currentUser }) => {
                         key={mate.id}
                         onClick={() => handleMateClick(mate)}
                         style={{
-                          backgroundColor: 'rgba(255,255,255,0.6)',
-                          borderRadius: '24px',
+                          background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                          borderRadius: '20px',
                           padding: '24px',
-                          border: '1px solid rgba(255,255,255,0.2)',
-                          cursor: 'pointer'
+                          border: '1px solid rgba(255, 255, 255, 0.2)',
+                          cursor: 'pointer',
+                          boxShadow: '0 8px 32px rgba(4, 120, 87, 0.15), 0 2px 8px rgba(4, 120, 87, 0.1)',
+                          transition: 'all 0.3s ease',
+                          position: 'relative'
                         }}
                       >
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '12px' }}>
-                          <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#047857' }}>{mate.name}</h3>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'space-between', 
+                          marginBottom: '16px' 
+                        }}>
+                          <h3 style={{ 
+                            fontSize: '18px', 
+                            fontWeight: '600', 
+                            color: '#047857',
+                            margin: 0
+                          }}>{mate.name}</h3>
                           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                             <span style={{
                               fontSize: '12px',
-                              padding: '4px 12px',
-                              borderRadius: '50px',
-                              backgroundColor: statusInfo.bg,
-                              color: statusInfo.color
+                              padding: '6px 12px',
+                              borderRadius: '16px',
+                              background: statusInfo.bg,
+                              color: statusInfo.color,
+                              fontWeight: '500',
+                              border: `1px solid ${statusInfo.color}20`
                             }}>
                               {statusInfo.text}
                             </span>
@@ -683,7 +716,8 @@ const WanderMates = ({ navigate, currentUser }) => {
                                   background: 'none',
                                   border: 'none',
                                   cursor: 'pointer',
-                                  borderRadius: '4px'
+                                  borderRadius: '4px',
+                                  color: '#6B7280'
                                 }}
                               >
                                 ⋯
@@ -694,14 +728,14 @@ const WanderMates = ({ navigate, currentUser }) => {
                                   position: 'absolute',
                                   right: '0',
                                   top: '100%',
-                                  backgroundColor: 'rgba(255,255,255,0.9)',
+                                  background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
                                   borderRadius: '16px',
                                   padding: '8px',
-                                  border: '1px solid rgba(255,255,255,0.3)',
+                                  border: '1px solid rgba(255,255,255,0.2)',
                                   zIndex: 10,
                                   minWidth: '120px',
                                   marginTop: '4px',
-                                  boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
+                                  boxShadow: '0 8px 24px rgba(0,0,0,0.1)'
                                 }}>
                                   <button
                                     onClick={(e) => {
@@ -730,14 +764,27 @@ const WanderMates = ({ navigate, currentUser }) => {
                         </div>
                         
                         {mate.prompt && mate.prompt !== 'Unable to load prompt' && mate.prompt !== 'Prompt not available' && (
-                          <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '300', lineHeight: '1.4', marginBottom: '12px' }}>
+                          <p style={{ 
+                            color: '#374151', 
+                            fontSize: '16px', 
+                            lineHeight: '1.4', 
+                            margin: '0 0 16px 0'
+                          }}>
                             {mate.prompt}
                           </p>
                         )}
                         
-                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ 
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'space-between' 
+                        }}>
                           <div></div>
-                          <div style={{ fontSize: '12px', color: '#059669', opacity: 0.6 }}>
+                          <div style={{ 
+                            fontSize: '12px', 
+                            color: '#10B981', 
+                            opacity: 0.8
+                          }}>
                             {formatDate(mate.lastActivity)}
                           </div>
                         </div>
@@ -748,22 +795,37 @@ const WanderMates = ({ navigate, currentUser }) => {
               )}
             </div>
 
-            {/* Pending Invites */}
             {pendingInvites.length > 0 && (
               <div>
-                <h2 style={{ fontSize: '18px', fontWeight: '500', color: '#047857', marginBottom: '16px' }}>Pending</h2>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <h2 style={{ 
+                  fontSize: '20px', 
+                  fontWeight: '600', 
+                  color: '#047857', 
+                  marginBottom: '20px' 
+                }}>Pending</h2>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
                   {pendingInvites.map((invite, index) => (
                     <div key={invite.id || index} style={{
-                      backgroundColor: 'rgba(255,255,255,0.4)',
-                      borderRadius: '16px',
-                      padding: '16px',
-                      border: '1px solid rgba(255,255,255,0.2)'
+                      background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                      borderRadius: '20px',
+                      padding: '20px',
+                      border: '1px solid rgba(255,255,255,0.2)',
+                      boxShadow: '0 4px 16px rgba(4, 120, 87, 0.1)'
                     }}>
                       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                         <div>
-                          <p style={{ fontSize: '14px', fontWeight: '500', color: '#047857' }}>{invite.name}</p>
-                          <p style={{ fontSize: '12px', color: '#059669', opacity: 0.75 }}>
+                          <p style={{ 
+                            fontSize: '16px', 
+                            fontWeight: '600', 
+                            color: '#047857',
+                            margin: '0 0 4px 0'
+                          }}>{invite.name}</p>
+                          <p style={{ 
+                            fontSize: '14px', 
+                            color: '#10B981', 
+                            opacity: 0.75,
+                            margin: 0
+                          }}>
                             {invite.type === 'incoming' && 'Invited you to be Mates'}
                             {invite.type === 'outgoing' && 'Invitation sent'}
                           </p>
@@ -775,12 +837,14 @@ const WanderMates = ({ navigate, currentUser }) => {
                               onClick={() => handleInviteResponse(invite.id, true)}
                               style={{
                                 fontSize: '12px',
-                                backgroundColor: '#059669',
+                                background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
                                 color: 'white',
-                                padding: '4px 12px',
-                                borderRadius: '8px',
+                                padding: '8px 16px',
+                                borderRadius: '12px',
                                 border: 'none',
-                                cursor: 'pointer'
+                                cursor: 'pointer',
+                                fontWeight: '600',
+                                boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)'
                               }}
                             >
                               Accept
@@ -789,7 +853,7 @@ const WanderMates = ({ navigate, currentUser }) => {
                               onClick={() => handleInviteResponse(invite.id, false)}
                               style={{
                                 fontSize: '12px',
-                                color: '#059669',
+                                color: '#10B981',
                                 background: 'none',
                                 border: 'none',
                                 cursor: 'pointer'
@@ -807,25 +871,40 @@ const WanderMates = ({ navigate, currentUser }) => {
             )}
           </div>
         )}
-
-        {currentView === 'prompt' && selectedMate && (
+{currentView === 'prompt' && selectedMate && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: '500', color: '#047857', marginBottom: '4px' }}>
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: '600', 
+                color: '#047857', 
+                margin: '0 0 8px 0'
+              }}>
                 Wander with {selectedMate.name}
               </h2>
-              <p style={{ fontSize: '14px', color: '#059669', opacity: 0.75 }}>
+              <p style={{ 
+                fontSize: '14px', 
+                color: '#10B981', 
+                opacity: 0.8,
+                margin: 0
+              }}>
                 They're waiting for your response
               </p>
             </div>
             
             <div style={{
-              backgroundColor: 'rgba(255,255,255,0.6)',
+              background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
               borderRadius: '24px',
-              padding: '24px',
-              border: '1px solid rgba(255,255,255,0.2)'
+              padding: '32px',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              boxShadow: '0 8px 32px rgba(4, 120, 87, 0.15), 0 2px 8px rgba(4, 120, 87, 0.1)'
             }}>
-              <p style={{ color: '#4b5563', fontSize: '18px', fontWeight: '300', lineHeight: '1.5', marginBottom: '24px' }}>
+              <p style={{ 
+                color: '#374151', 
+                fontSize: '18px', 
+                lineHeight: '1.5', 
+                margin: '0 0 32px 0'
+              }}>
                 {selectedMate.prompt || 'Loading prompt...'}
               </p>
 
@@ -835,17 +914,27 @@ const WanderMates = ({ navigate, currentUser }) => {
                 placeholder="Share your wandering thoughts..."
                 style={{
                   width: '100%',
-                  height: '128px',
-                  padding: '16px',
-                  backgroundColor: 'rgba(255,255,255,0.5)',
-                  border: '1px solid #10b981',
+                  height: '120px',
+                  padding: '20px',
+                  background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                  border: '2px solid #A7F3D0',
                   borderRadius: '16px',
                   resize: 'none',
                   outline: 'none',
                   fontSize: '16px',
-                  color: '#4b5563',
+                  color: '#374151',
                   marginBottom: '24px',
-                  boxSizing: 'border-box'
+                  boxSizing: 'border-box',
+                  boxShadow: 'inset 0 2px 8px rgba(4, 120, 87, 0.05), 0 2px 4px rgba(4, 120, 87, 0.05)',
+                  transition: 'all 0.3s ease'
+                }}
+                onFocus={(e) => {
+                  e.target.style.borderColor = '#10B981'
+                  e.target.style.boxShadow = 'inset 0 2px 8px rgba(4, 120, 87, 0.1), 0 0 0 3px rgba(16, 185, 129, 0.2)'
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = '#A7F3D0'
+                  e.target.style.boxShadow = 'inset 0 2px 8px rgba(4, 120, 87, 0.05), 0 2px 4px rgba(4, 120, 87, 0.05)'
                 }}
                 autoFocus
               />
@@ -856,23 +945,32 @@ const WanderMates = ({ navigate, currentUser }) => {
                   disabled={!userResponse.trim() || isSubmitting}
                   style={{
                     flex: 1,
-                    backgroundColor: '#059669',
+                    background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
                     color: 'white',
-                    padding: '12px 24px',
-                    borderRadius: '16px',
+                    padding: '18px 24px',
+                    borderRadius: '15px',
                     border: 'none',
                     fontSize: '16px',
-                    fontWeight: '500',
+                    fontWeight: '600',
                     cursor: (!userResponse.trim() || isSubmitting) ? 'not-allowed' : 'pointer',
                     opacity: (!userResponse.trim() || isSubmitting) ? 0.5 : 1,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '8px'
+                    gap: '8px',
+                    boxShadow: '0 8px 24px rgba(16, 185, 129, 0.3), 0 2px 4px rgba(4, 120, 87, 0.2)',
+                    transition: 'all 0.3s ease'
                   }}
                 >
                   {isSubmitting ? (
-                    <div style={{ width: '16px', height: '16px', border: '2px solid white', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                    <div style={{ 
+                      width: '16px', 
+                      height: '16px', 
+                      border: '2px solid white', 
+                      borderTop: '2px solid transparent', 
+                      borderRadius: '50%', 
+                      animation: 'spin 1s linear infinite' 
+                    }}></div>
                   ) : (
                     `Send to ${selectedMate.name}`
                   )}
@@ -881,12 +979,16 @@ const WanderMates = ({ navigate, currentUser }) => {
                 <button
                   onClick={() => setCurrentView('dashboard')}
                   style={{ 
-                    padding: '12px 24px', 
-                    color: '#059669', 
-                    background: 'none', 
-                    border: 'none', 
+                    background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
+                    color: '#10B981',
+                    border: '2px solid #10B981',
+                    borderRadius: '12px',
+                    padding: '12px 24px',
+                    fontSize: '16px',
+                    fontWeight: '600',
                     cursor: 'pointer',
-                    fontSize: '16px'
+                    boxShadow: '0 4px 16px rgba(16, 185, 129, 0.15)',
+                    transition: 'all 0.3s ease'
                   }}
                 >
                   Back
@@ -899,49 +1001,78 @@ const WanderMates = ({ navigate, currentUser }) => {
         {currentView === 'waiting' && selectedMate && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: '500', color: '#047857', marginBottom: '4px' }}>
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: '600', 
+                color: '#047857', 
+                margin: '0 0 8px 0'
+              }}>
                 Wander with {selectedMate.name}
               </h2>
-              <p style={{ fontSize: '14px', color: '#059669', opacity: 0.75 }}>
+              <p style={{ 
+                fontSize: '14px', 
+                color: '#10B981', 
+                opacity: 0.8,
+                margin: 0
+              }}>
                 Waiting for {selectedMate.name} to respond
               </p>
             </div>
             
             <div style={{
-              backgroundColor: 'rgba(255,255,255,0.6)',
+              background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
               borderRadius: '24px',
               padding: '32px',
-              border: '1px solid rgba(255,255,255,0.2)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              boxShadow: '0 8px 32px rgba(4, 120, 87, 0.15), 0 2px 8px rgba(4, 120, 87, 0.1)',
               textAlign: 'center'
             }}>
               <div style={{
-                width: '64px',
-                height: '64px',
+                width: '32px',
+                height: '32px',
                 margin: '0 auto 24px',
+                border: '3px solid #A7F3D0',
+                borderTop: '3px solid #10B981',
                 borderRadius: '50%',
-                backgroundColor: '#a7f3d0',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}>
-                <div style={{ width: '32px', height: '32px', border: '3px solid #059669', borderTop: '3px solid transparent', borderRadius: '50%', animation: 'spin 2s linear infinite' }}></div>
-              </div>
+                animation: 'spin 1s linear infinite'
+              }}></div>
               
-              <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '300', marginBottom: '16px', lineHeight: '1.4' }}>
+              <p style={{ 
+                color: '#374151', 
+                fontSize: '16px', 
+                margin: '0 0 24px 0',
+                lineHeight: '1.4'
+              }}>
                 {selectedMate.prompt || 'Loading prompt...'}
               </p>
               
               <div style={{
-                backgroundColor: '#ecfdf5',
+                background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)',
                 borderRadius: '16px',
-                padding: '16px',
-                marginBottom: '24px'
+                padding: '20px',
+                marginBottom: '24px',
+                border: '1px solid rgba(16, 185, 129, 0.2)',
+                boxShadow: 'inset 0 2px 8px rgba(4, 120, 87, 0.1)'
               }}>
-                <p style={{ fontSize: '12px', color: '#059669', marginBottom: '8px' }}>Your response:</p>
-                <p style={{ color: '#4b5563', fontStyle: 'italic' }}>{selectedMate.yourResponse}</p>
+                <p style={{ 
+                  fontSize: '12px', 
+                  color: '#047857', 
+                  margin: '0 0 8px 0',
+                  fontWeight: '600'
+                }}>Your response:</p>
+                <p style={{ 
+                  color: '#065F46', 
+                  fontStyle: 'italic',
+                  margin: 0
+                }}>{selectedMate.yourResponse}</p>
               </div>
               
-              <p style={{ fontSize: '12px', color: '#059669', opacity: 0.75 }}>
+              <p style={{ 
+                fontSize: '12px', 
+                color: '#10B981', 
+                opacity: 0.8,
+                margin: 0
+              }}>
                 You'll both see responses when they complete theirs
               </p>
             </div>
@@ -951,7 +1082,7 @@ const WanderMates = ({ navigate, currentUser }) => {
                 onClick={() => setCurrentView('dashboard')}
                 style={{
                   fontSize: '14px',
-                  color: '#059669',
+                  color: '#10B981',
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer'
@@ -966,53 +1097,115 @@ const WanderMates = ({ navigate, currentUser }) => {
         {currentView === 'reveal' && selectedMate && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: '500', color: '#047857', marginBottom: '4px' }}>
+              <h2 style={{ 
+                fontSize: '20px', 
+                fontWeight: '600', 
+                color: '#047857', 
+                margin: '0 0 8px 0'
+              }}>
                 Wander with {selectedMate.name}
               </h2>
-              <p style={{ fontSize: '14px', color: '#059669', opacity: 0.75 }}>
+              <p style={{ 
+                fontSize: '14px', 
+                color: '#10B981', 
+                opacity: 0.8,
+                margin: 0
+              }}>
                 Share your reaction
               </p>
             </div>
             
             <div style={{
-              backgroundColor: 'rgba(255,255,255,0.6)',
+              background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
               borderRadius: '24px',
               padding: '24px',
-              border: '1px solid rgba(255,255,255,0.2)'
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              boxShadow: '0 8px 32px rgba(4, 120, 87, 0.15), 0 2px 8px rgba(4, 120, 87, 0.1)'
             }}>
-              <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '300', marginBottom: '16px' }}>
+              <p style={{ 
+                color: '#374151', 
+                fontSize: '16px', 
+                margin: '0 0 16px 0'
+              }}>
                 {selectedMate.prompt || 'Loading prompt...'}
               </p>
               
-              {/* Your Response */}
               <div style={{ marginBottom: '16px' }}>
-                <p style={{ fontSize: '12px', color: '#059669', marginBottom: '8px' }}>Your response:</p>
-                <div style={{ backgroundColor: '#ecfdf5', borderRadius: '16px', padding: '16px' }}>
-                  <p style={{ color: '#4b5563', fontStyle: 'italic' }}>{selectedMate.yourResponse}</p>
+                <p style={{ 
+                  fontSize: '12px', 
+                  color: '#047857', 
+                  margin: '0 0 8px 0',
+                  fontWeight: '600'
+                }}>Your response:</p>
+                <div style={{ 
+                  background: 'linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%)', 
+                  borderRadius: '16px', 
+                  padding: '16px',
+                  border: '1px solid rgba(16, 185, 129, 0.2)',
+                  boxShadow: 'inset 0 2px 8px rgba(4, 120, 87, 0.1)'
+                }}>
+                  <p style={{ 
+                    color: '#065F46', 
+                    fontStyle: 'italic',
+                    margin: 0
+                  }}>{selectedMate.yourResponse}</p>
                 </div>
               </div>
 
-              {/* Their Response */}
               <div style={{ marginBottom: '16px' }}>
-                <p style={{ fontSize: '12px', color: '#059669', marginBottom: '8px' }}>{selectedMate.name}'s response:</p>
-                <div style={{ backgroundColor: '#dbeafe', borderRadius: '16px', padding: '16px' }}>
-                  <p style={{ color: '#4b5563', fontStyle: 'italic' }}>{selectedMate.theirResponse}</p>
+                <p style={{ 
+                  fontSize: '12px', 
+                  color: '#047857', 
+                  margin: '0 0 8px 0',
+                  fontWeight: '600'
+                }}>{selectedMate.name}'s response:</p>
+                <div style={{ 
+                  background: 'linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%)', 
+                  borderRadius: '16px', 
+                  padding: '16px',
+                  border: '1px solid rgba(67, 56, 202, 0.2)'
+                }}>
+                  <p style={{ 
+                    color: '#4338CA', 
+                    fontStyle: 'italic',
+                    margin: 0
+                  }}>{selectedMate.theirResponse}</p>
                 </div>
               </div>
 
-              {/* Shared Reactions */}
               {selectedMate.sharedReactions && selectedMate.sharedReactions.length > 0 && (
                 <div style={{ marginBottom: '16px' }}>
-                  <p style={{ fontSize: '12px', color: '#059669', marginBottom: '8px' }}>Reactions:</p>
-                  <div style={{ backgroundColor: '#fef3c7', borderRadius: '16px', padding: '12px' }}>
+                  <p style={{ 
+                    fontSize: '12px', 
+                    color: '#92400E', 
+                    margin: '0 0 8px 0',
+                    fontWeight: '600'
+                  }}>Reactions:</p>
+                  <div style={{ 
+                    background: 'linear-gradient(135deg, #FEF3C7 0%, #FDE68A 100%)', 
+                    borderRadius: '16px', 
+                    padding: '16px' 
+                  }}>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {selectedMate.sharedReactions.map((reaction, index) => (
-                        <div key={index} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                          <span style={{ fontSize: '12px', color: '#059669', fontWeight: '500' }}>
-                            {reaction.author}:
+                        <div key={index} style={{ 
+                          display: 'flex', 
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          padding: '8px 12px',
+                          background: 'rgba(255, 255, 255, 0.6)',
+                          borderRadius: '8px'
+                        }}>
+                          <span style={{ 
+                            fontSize: '14px',
+                            color: '#374151'
+                          }}>
+                            <strong>{reaction.author}:</strong> {reaction.content}
                           </span>
-                          <span style={{ fontSize: '14px' }}>{reaction.content}</span>
-                          <span style={{ fontSize: '12px', color: '#059669', opacity: 0.5, marginLeft: 'auto' }}>
+                          <span style={{ 
+                            fontSize: '12px', 
+                            color: '#6B7280'
+                          }}>
                             {reaction.timestamp}
                           </span>
                         </div>
@@ -1022,9 +1215,13 @@ const WanderMates = ({ navigate, currentUser }) => {
                 </div>
               )}
 
-              {/* Reaction Interface */}
               <div style={{ borderTop: '1px solid rgba(16,185,129,0.2)', paddingTop: '16px' }}>
-                <p style={{ fontSize: '12px', color: '#059669', marginBottom: '12px' }}>Add a reaction:</p>
+                <p style={{ 
+                  fontSize: '12px', 
+                  color: '#047857', 
+                  margin: '0 0 12px 0',
+                  fontWeight: '600'
+                }}>Add a reaction:</p>
                 
                 <div style={{ display: 'flex', gap: '8px' }}>
                   <input
@@ -1034,27 +1231,40 @@ const WanderMates = ({ navigate, currentUser }) => {
                     placeholder="Type a few words..."
                     style={{
                       flex: 1,
-                      padding: '8px 12px',
-                      backgroundColor: 'rgba(255,255,255,0.5)',
-                      border: '1px solid #10b981',
-                      borderRadius: '8px',
+                      padding: '12px 16px',
+                      background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                      border: '2px solid #A7F3D0',
+                      borderRadius: '12px',
                       fontSize: '14px',
-                      outline: 'none'
+                      outline: 'none',
+                      color: '#374151',
+                      transition: 'all 0.3s ease'
                     }}
-                    maxLength="50"
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#10B981'
+                      e.target.style.boxShadow = '0 0 0 3px rgba(16, 185, 129, 0.2)'
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = '#A7F3D0'
+                      e.target.style.boxShadow = 'none'
+                    }}
+                    maxLength={50}
                   />
                   <button
                     onClick={sendReaction}
                     disabled={!reactionText.trim()}
                     style={{
-                      padding: '8px 16px',
-                      backgroundColor: '#059669',
+                      padding: '12px 20px',
+                      background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
                       color: 'white',
-                      borderRadius: '8px',
+                      borderRadius: '12px',
                       border: 'none',
                       fontSize: '14px',
+                      fontWeight: '600',
                       cursor: !reactionText.trim() ? 'not-allowed' : 'pointer',
-                      opacity: !reactionText.trim() ? 0.5 : 1
+                      opacity: !reactionText.trim() ? 0.5 : 1,
+                      boxShadow: '0 4px 16px rgba(16, 185, 129, 0.3)',
+                      transition: 'all 0.3s ease'
                     }}
                   >
                     Send
@@ -1068,7 +1278,7 @@ const WanderMates = ({ navigate, currentUser }) => {
                 onClick={() => setCurrentView('dashboard')}
                 style={{
                   fontSize: '14px',
-                  color: '#059669',
+                  color: '#10B981',
                   background: 'none',
                   border: 'none',
                   cursor: 'pointer'
@@ -1080,13 +1290,11 @@ const WanderMates = ({ navigate, currentUser }) => {
           </div>
         )}
       </main>
-
-      {/* Invite Modal */}
-      {showInviteModal && (
+{showInviteModal && (
         <div style={{
           position: 'fixed',
           inset: '0',
-          backgroundColor: 'rgba(0,0,0,0.2)',
+          backgroundColor: 'rgba(0,0,0,0.3)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -1094,32 +1302,46 @@ const WanderMates = ({ navigate, currentUser }) => {
           zIndex: 20
         }}>
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.9)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
             borderRadius: '24px',
-            padding: '24px',
+            padding: '32px',
             maxWidth: '400px',
             width: '100%',
-            border: '1px solid rgba(255,255,255,0.3)'
+            border: '1px solid rgba(255,255,255,0.2)',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15), 0 8px 32px rgba(4, 120, 87, 0.15)'
           }}>
-            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
-              <h3 style={{ fontSize: '18px', fontWeight: '500', color: '#047857', marginBottom: '8px' }}>
+            <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+              <h3 style={{ 
+                fontSize: '20px', 
+                fontWeight: '600', 
+                color: '#047857', 
+                margin: '0 0 8px 0'
+              }}>
                 Invite a Mate
               </h3>
-              <p style={{ fontSize: '14px', color: '#059669', opacity: 0.75 }}>
+              <p style={{ 
+                fontSize: '14px', 
+                color: '#10B981', 
+                opacity: 0.8,
+                margin: 0
+              }}>
                 Choose someone already on Wander
               </p>
             </div>
             
             {availableUsers.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '24px' }}>
-                <p style={{ color: '#6b7280', marginBottom: '16px' }}>
+                <p style={{ 
+                  color: '#6b7280', 
+                  margin: '0 0 16px 0'
+                }}>
                   No available users to invite right now.
                 </p>
                 <button
                   onClick={() => setShowInviteModal(false)}
                   style={{
-                    padding: '8px 16px',
-                    color: '#059669',
+                    padding: '12px 24px',
+                    color: '#10B981',
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
@@ -1131,19 +1353,30 @@ const WanderMates = ({ navigate, currentUser }) => {
               </div>
             ) : (
               <>
-                <div style={{ marginBottom: '20px' }}>
+                <div style={{ marginBottom: '24px' }}>
                   <select
                     value={selectedExistingUser}
                     onChange={(e) => setSelectedExistingUser(e.target.value)}
                     style={{
                       width: '100%',
-                      padding: '12px 16px',
-                      backgroundColor: 'rgba(255,255,255,0.6)',
-                      border: '1px solid #10b981',
+                      padding: '16px 20px',
+                      background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                      border: '2px solid #A7F3D0',
                       borderRadius: '16px',
-                      fontSize: '14px',
+                      fontSize: '16px',
                       outline: 'none',
-                      boxSizing: 'border-box'
+                      boxSizing: 'border-box',
+                      color: '#374151',
+                      boxShadow: 'inset 0 2px 8px rgba(4, 120, 87, 0.05), 0 2px 4px rgba(4, 120, 87, 0.05)',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = '#10B981'
+                      e.target.style.boxShadow = 'inset 0 2px 8px rgba(4, 120, 87, 0.1), 0 0 0 3px rgba(16, 185, 129, 0.2)'
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = '#A7F3D0'
+                      e.target.style.boxShadow = 'inset 0 2px 8px rgba(4, 120, 87, 0.05), 0 2px 4px rgba(4, 120, 87, 0.05)'
                     }}
                   >
                     <option value="">Select a friend...</option>
@@ -1161,22 +1394,32 @@ const WanderMates = ({ navigate, currentUser }) => {
                     disabled={!canSendInvite() || isSubmitting}
                     style={{
                       flex: 1,
-                      backgroundColor: '#059669',
+                      background: 'linear-gradient(135deg, #10B981 0%, #047857 100%)',
                       color: 'white',
-                      padding: '12px 16px',
-                      borderRadius: '16px',
+                      padding: '18px 24px',
+                      borderRadius: '15px',
                       border: 'none',
-                      fontSize: '14px',
+                      fontSize: '16px',
+                      fontWeight: '600',
                       cursor: (canSendInvite() && !isSubmitting) ? 'pointer' : 'not-allowed',
                       opacity: (canSendInvite() && !isSubmitting) ? 1 : 0.5,
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '8px'
+                      gap: '8px',
+                      boxShadow: '0 8px 24px rgba(16, 185, 129, 0.3), 0 2px 4px rgba(4, 120, 87, 0.2)',
+                      transition: 'all 0.3s ease'
                     }}
                   >
                     {isSubmitting ? (
-                      <div style={{ width: '16px', height: '16px', border: '2px solid white', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                      <div style={{ 
+                        width: '16px', 
+                        height: '16px', 
+                        border: '2px solid white', 
+                        borderTop: '2px solid transparent', 
+                        borderRadius: '50%', 
+                        animation: 'spin 1s linear infinite' 
+                      }}></div>
                     ) : (
                       'Send Invite'
                     )}
@@ -1187,12 +1430,16 @@ const WanderMates = ({ navigate, currentUser }) => {
                       setSelectedExistingUser('')
                     }}
                     style={{ 
-                      padding: '12px 16px', 
-                      color: '#059669', 
-                      background: 'none', 
-                      border: 'none', 
+                      background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
+                      color: '#10B981',
+                      border: '2px solid #10B981',
+                      borderRadius: '12px',
+                      padding: '12px 24px',
+                      fontSize: '16px',
+                      fontWeight: '600',
                       cursor: 'pointer',
-                      fontSize: '14px'
+                      boxShadow: '0 4px 16px rgba(16, 185, 129, 0.15)',
+                      transition: 'all 0.3s ease'
                     }}
                   >
                     Cancel
@@ -1204,12 +1451,11 @@ const WanderMates = ({ navigate, currentUser }) => {
         </div>
       )}
 
-      {/* Stop Confirmation Modal */}
       {showStopConfirm && (
         <div style={{
           position: 'fixed',
           inset: '0',
-          backgroundColor: 'rgba(0,0,0,0.2)',
+          backgroundColor: 'rgba(0,0,0,0.3)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -1217,31 +1463,41 @@ const WanderMates = ({ navigate, currentUser }) => {
           zIndex: 20
         }}>
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.9)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
             borderRadius: '24px',
-            padding: '24px',
+            padding: '32px',
             maxWidth: '400px',
             width: '100%',
-            border: '1px solid rgba(255,255,255,0.3)',
-            textAlign: 'center'
+            border: '1px solid rgba(255,255,255,0.2)',
+            textAlign: 'center',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15), 0 8px 32px rgba(4, 120, 87, 0.15)'
           }}>
-            <p style={{ color: '#4b5563', marginBottom: '8px' }}>
+            <p style={{ 
+              color: '#4b5563', 
+              margin: '0 0 8px 0'
+            }}>
               Stop wandering with {mates.find(m => m.id === showStopConfirm)?.name}?
             </p>
-            <p style={{ fontSize: '14px', color: '#6b7280', marginBottom: '24px' }}>
+            <p style={{ 
+              fontSize: '14px', 
+              color: '#6b7280', 
+              margin: '0 0 24px 0'
+            }}>
               You can always invite them again later
             </p>
             <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
               <button
                 onClick={() => handleEndRelationship(showStopConfirm)}
                 style={{
-                  padding: '8px 16px',
+                  padding: '12px 20px',
                   backgroundColor: '#dc2626',
                   color: 'white',
                   borderRadius: '12px',
                   border: 'none',
                   fontSize: '14px',
-                  cursor: 'pointer'
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 16px rgba(220, 38, 38, 0.3)'
                 }}
               >
                 Stop wandering
@@ -1249,13 +1505,15 @@ const WanderMates = ({ navigate, currentUser }) => {
               <button
                 onClick={() => setShowStopConfirm(null)}
                 style={{
-                  padding: '8px 16px',
-                  backgroundColor: 'rgba(255,255,255,0.6)',
+                  padding: '12px 20px',
+                  background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
                   color: '#4b5563',
-                  border: '1px solid #d1d5db',
+                  border: '2px solid #10B981',
                   borderRadius: '12px',
                   fontSize: '14px',
-                  cursor: 'pointer'
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 16px rgba(16, 185, 129, 0.15)'
                 }}
               >
                 Keep wandering
@@ -1265,19 +1523,17 @@ const WanderMates = ({ navigate, currentUser }) => {
         </div>
       )}
 
-      {/* Bottom Navigation */}
       <nav style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)' }}>
         <div style={{
-          backgroundColor: 'rgba(255,255,255,0.9)',
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
           borderRadius: '30px',
           padding: '12px 24px',
-          border: '1px solid rgba(255,255,255,0.3)',
+          border: '1px solid rgba(255,255,255,0.2)',
           backdropFilter: 'blur(10px)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          boxShadow: '0 8px 32px rgba(0,0,0,0.15)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
             
-            {/* Home */}
             <div 
               onClick={() => navigate('home')}
               style={{ 
@@ -1301,7 +1557,6 @@ const WanderMates = ({ navigate, currentUser }) => {
               </span>
             </div>
             
-            {/* Daily */}
             <div 
               onClick={() => navigate('daily')}
               style={{ 
@@ -1326,13 +1581,12 @@ const WanderMates = ({ navigate, currentUser }) => {
               </span>
             </div>
             
-            {/* Mates - Active */}
             <div style={{ 
               display: 'flex', 
               flexDirection: 'column', 
               alignItems: 'center'
             }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#059669" stroke="#047857" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#10B981" stroke="#047857" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
                 <circle cx="9" cy="7" r="4"/>
                 <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
@@ -1341,7 +1595,7 @@ const WanderMates = ({ navigate, currentUser }) => {
               <span style={{ 
                 fontSize: '10px', 
                 fontWeight: '600', 
-                color: '#059669',
+                color: '#10B981',
                 marginTop: '2px',
                 fontFamily: 'SF Pro Text, -apple-system, sans-serif'
               }}>
@@ -1349,7 +1603,6 @@ const WanderMates = ({ navigate, currentUser }) => {
               </span>
             </div>
             
-            {/* Solo */}
             <div 
               onClick={() => navigate('solo')}
               style={{ 
@@ -1373,7 +1626,6 @@ const WanderMates = ({ navigate, currentUser }) => {
               </span>
             </div>
             
-            {/* L&F */}
             <div 
               onClick={() => navigate('lost-found')}
               style={{ 
@@ -1411,4 +1663,4 @@ const WanderMates = ({ navigate, currentUser }) => {
   )
 }
 
-export default WanderMates
+export default WanderMates                

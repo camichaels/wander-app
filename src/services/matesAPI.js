@@ -633,6 +633,21 @@ export const SharedWandersAPI = {
 
       console.log('=== Creating shared wander for relationship:', mateRelationshipId)
 
+    // ADD THIS CHECK HERE:
+    const { data: existingWander } = await supabase
+      .from('shared_wanders')
+      .select('shared_wander_id')
+      .eq('mate_relationship_id', mateRelationshipId)
+      .neq('status', 'reset')
+      .is('reset_scheduled_for', null)
+      .single()
+
+    if (existingWander) {
+      console.log('=== Found existing wander, returning:', existingWander.shared_wander_id)
+      return { data: existingWander, error: null }
+    }
+    // END OF NEW CODE
+
       // Get a random available prompt (simplified approach)
       const promptResult = await MatePromptsAPI.getRandomPrompt(mateRelationshipId)
       
