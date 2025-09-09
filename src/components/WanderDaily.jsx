@@ -217,32 +217,46 @@ const WanderDaily = ({ navigate, currentUser }) => {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #fef3c7, #fed7aa, #fecaca)',
+        background: 'linear-gradient(135deg, #F5E6D3 0%, #E8D5C4 100%)',
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'center',
+        position: 'relative'
       }}>
+        <div style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+          pointerEvents: 'none'
+        }}></div>
         <div style={{ 
-          backgroundColor: 'rgba(255,255,255,0.6)',
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
           borderRadius: '24px',
           padding: '32px',
           border: '1px solid rgba(255,255,255,0.2)',
           textAlign: 'center',
-          maxWidth: '400px'
+          maxWidth: '400px',
+          boxShadow: '0 8px 32px rgba(139, 69, 19, 0.15), 0 2px 8px rgba(139, 69, 19, 0.1)',
+          position: 'relative',
+          zIndex: 1
         }}>
-          <h2 style={{ color: '#92400e', marginBottom: '16px' }}>No Daily Prompt</h2>
-          <p style={{ color: '#a16207', marginBottom: '24px' }}>
+          <h2 style={{ color: '#8B4513', marginBottom: '16px' }}>No Daily Prompt</h2>
+          <p style={{ color: '#CD853F', marginBottom: '24px' }}>
             No prompt has been assigned for today. Please contact the admin to add today's prompt.
           </p>
           <button 
             onClick={() => navigate('home')}
             style={{
-              backgroundColor: '#d97706',
+              background: 'linear-gradient(135deg, #D2691E 0%, #B8541A 100%)',
               color: 'white',
               padding: '12px 24px',
               borderRadius: '16px',
               border: 'none',
-              cursor: 'pointer'
+              cursor: 'pointer',
+              boxShadow: '0 4px 16px rgba(210, 105, 30, 0.3)'
             }}
           >
             Back to Home
@@ -255,22 +269,44 @@ const WanderDaily = ({ navigate, currentUser }) => {
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #fef3c7, #fed7aa, #fecaca)',
-      paddingBottom: '100px'
+      background: 'linear-gradient(135deg, #F5E6D3 0%, #E8D5C4 100%)',
+      paddingBottom: '100px',
+      position: 'relative'
     }}>
       
-      <header style={{ padding: '24px', textAlign: 'center', position: 'relative' }}>
+      {/* Background overlay */}
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        background: 'linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%)',
+        pointerEvents: 'none'
+      }}></div>
+      
+      <header style={{ padding: '24px', textAlign: 'center', position: 'relative', zIndex: 1 }}>
         <button 
           onClick={() => navigate('home')}
           style={{ 
             position: 'absolute', 
             left: '24px', 
             top: '24px',
-            background: 'rgba(255,255,255,0.6)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
             border: '1px solid rgba(255,255,255,0.3)',
             borderRadius: '12px',
             padding: '8px',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            boxShadow: '0 4px 16px rgba(139, 69, 19, 0.1)',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)'
+            e.target.style.boxShadow = '0 6px 20px rgba(139, 69, 19, 0.15)'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)'
+            e.target.style.boxShadow = '0 4px 16px rgba(139, 69, 19, 0.1)'
           }}
         >
           ←
@@ -283,18 +319,28 @@ const WanderDaily = ({ navigate, currentUser }) => {
             position: 'absolute', 
             right: '24px', 
             top: '24px',
-            background: 'rgba(255,255,255,0.6)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
             border: '1px solid rgba(255,255,255,0.3)',
             borderRadius: '20px',
             width: '40px',
             height: '40px',
             cursor: 'pointer',
             fontSize: '16px',
-            color: '#6B7280',
+            color: '#8B4513',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            boxShadow: '0 4px 16px rgba(139, 69, 19, 0.1)',
+            transition: 'all 0.3s ease'
+          }}
+          onMouseEnter={(e) => {
+            e.target.style.transform = 'translateY(-2px)'
+            e.target.style.boxShadow = '0 6px 20px rgba(139, 69, 19, 0.15)'
+          }}
+          onMouseLeave={(e) => {
+            e.target.style.transform = 'translateY(0)'
+            e.target.style.boxShadow = '0 4px 16px rgba(139, 69, 19, 0.1)'
           }}
         >
           ℹ︎
@@ -310,12 +356,13 @@ const WanderDaily = ({ navigate, currentUser }) => {
             maxWidth: '250px',
             display: 'block',
             margin: '0 auto',
-            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)'
+            filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)',
+            textShadow: '0 2px 4px rgba(0,0,0,0.1)'
           }}
           onError={(e) => {
             console.log('Daily logo failed to load from:', e.target.src);
             // Fallback to text if image fails
-            e.target.outerHTML = '<h1 style="font-size: 28px; font-weight: 600; color: #92400E; margin: 0; font-family: SF Pro Display, -apple-system, sans-serif;">The Daily</h1>';
+            e.target.outerHTML = '<h1 style="font-size: 48px; font-weight: 600; color: #D2691E; margin: 0; font-family: Georgia, serif; text-shadow: 0 2px 4px rgba(0,0,0,0.1);">The Daily</h1>';
           }}
           onLoad={(e) => {
             console.log('Daily logo loaded successfully from:', e.target.src);
@@ -323,7 +370,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
         />
         
         <p style={{ 
-          color: '#D97706', 
+          color: '#CD853F', 
           opacity: 0.7, 
           fontSize: '14px',
           fontFamily: 'SF Pro Text, -apple-system, sans-serif',
@@ -346,17 +393,18 @@ const WanderDaily = ({ navigate, currentUser }) => {
           zIndex: 40
         }}>
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.95)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
             borderRadius: '24px',
             padding: '32px',
             maxWidth: '500px',
             width: '100%',
             border: '1px solid rgba(255,255,255,0.3)',
             maxHeight: '80vh',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
           }}>
             <div style={{ marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#92400e', margin: '0 0 16px 0' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#8B4513', margin: '0 0 16px 0' }}>
                 The Daily
               </h2>
             </div>
@@ -374,7 +422,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
                 You can keep your answer private or share it with the world. If you share, you'll see how others drifted too. No likes, no comments. Just glimpses of connection. And the next day, everyone's replies transform into something new: a word cloud, a collective poem, or maybe a curious map of how infinite minds twisted the same spark.
               </p>
               
-              <p style={{ margin: 0, fontWeight: '500', color: '#92400e' }}>
+              <p style={{ margin: 0, fontWeight: '500', color: '#8B4513' }}>
                 The Daily isn't about winning—it's about belonging.
               </p>
             </div>
@@ -383,13 +431,14 @@ const WanderDaily = ({ navigate, currentUser }) => {
               <button
                 onClick={() => setShowInfo(false)}
                 style={{
-                  backgroundColor: '#d97706',
+                  background: 'linear-gradient(135deg, #D2691E 0%, #B8541A 100%)',
                   color: 'white',
                   padding: '12px 24px',
                   borderRadius: '16px',
                   border: 'none',
                   fontSize: '16px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(210, 105, 30, 0.3)'
                 }}
               >
                 Got it
@@ -399,17 +448,18 @@ const WanderDaily = ({ navigate, currentUser }) => {
         </div>
       )}
 
-      <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
+      <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px', position: 'relative', zIndex: 1 }}>
         
         {error && error !== 'No prompt available for today' && (
           <div style={{
-            backgroundColor: '#fecaca',
-            border: '1px solid #f87171',
+            background: 'linear-gradient(135deg, #FEF2F2 0%, #FECACA 100%)',
+            border: '1px solid #F87171',
             borderRadius: '16px',
             padding: '16px',
-            marginBottom: '24px'
+            marginBottom: '24px',
+            boxShadow: '0 4px 16px rgba(248, 113, 113, 0.2)'
           }}>
-            <p style={{ color: '#dc2626', fontSize: '14px' }}>{error}</p>
+            <p style={{ color: '#DC2626', fontSize: '14px' }}>{error}</p>
           </div>
         )}
 
@@ -419,13 +469,13 @@ const WanderDaily = ({ navigate, currentUser }) => {
               <div style={{
                 width: '32px',
                 height: '32px',
-                border: '2px solid #d97706',
+                border: '2px solid #D2691E',
                 borderTop: '2px solid transparent',
                 borderRadius: '50%',
                 animation: 'spin 1s linear infinite',
                 margin: '0 auto 16px'
               }}></div>
-              <p style={{ color: '#a16207' }}>Loading today's wander...</p>
+              <p style={{ color: '#CD853F' }}>Loading today's wander...</p>
             </div>
           </div>
         )}
@@ -434,15 +484,24 @@ const WanderDaily = ({ navigate, currentUser }) => {
           <div>
             {/* Enhanced prompt card with gradient and shadow */}
             <div style={{
-              background: 'linear-gradient(135deg, #FFFBEB, #FEF3C7)',
+              background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
               borderRadius: '24px',
               padding: '32px',
-              border: '1px solid rgba(255,255,255,0.3)',
+              border: '1px solid rgba(255,255,255,0.2)',
               marginBottom: '32px',
-              boxShadow: '0 4px 8px rgba(0,0,0,0.08)'
+              boxShadow: '0 8px 32px rgba(139, 69, 19, 0.15), 0 2px 8px rgba(139, 69, 19, 0.1)',
+              position: 'relative'
             }}>
+              <div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '1px',
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)'
+              }}></div>
               <p style={{ 
-                color: '#7C2D12', 
+                color: '#8B4513', 
                 fontSize: '20px', 
                 fontWeight: '500', 
                 lineHeight: '1.4', 
@@ -456,41 +515,39 @@ const WanderDaily = ({ navigate, currentUser }) => {
 
             {showPromptTimer && (
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <p style={{ 
-                  color: '#d97706', 
-                  fontSize: '12px', 
-                  margin: 0,
+                <div style={{ 
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px'
+                  gap: '15px',
+                  color: '#CD853F',
+                  fontSize: '14px'
                 }}>
                   <span>Take a moment to let it settle</span>
-                  <span>•</span>
-                  <span style={{ 
-                    backgroundColor: 'rgba(161,98,7,0.15)',
-                    borderRadius: '8px',
-                    padding: '4px 8px',
-                    fontWeight: '500',
+                  <div style={{ 
+                    background: 'linear-gradient(135deg, #F0E68C 0%, #DDD06B 100%)',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontWeight: '600',
+                    boxShadow: '0 4px 12px rgba(139, 69, 19, 0.15)',
                     opacity: Math.max(0.3, promptTimer / 30)
                   }}>
                     {promptTimer}s
-                  </span>
-                  <span>•</span>
+                  </div>
                   <button 
                     onClick={skipTimer}
                     style={{ 
-                      color: '#d97706', 
+                      color: '#CD853F', 
                       textDecoration: 'underline',
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      fontSize: '12px'
+                      fontSize: '14px'
                     }}
                   >
                     Skip timer
                   </button>
-                </p>
+                </div>
               </div>
             )}
             
@@ -527,7 +584,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
                 opacity: '0.7',
                 animation: 'pulse 2s ease-in-out infinite'
               }}></div>
-              <p style={{ color: '#a16207', fontWeight: '300' }}>
+              <p style={{ color: '#CD853F', fontWeight: '300' }}>
                 Let other thoughts drift away...
               </p>
             </div>
@@ -548,15 +605,16 @@ const WanderDaily = ({ navigate, currentUser }) => {
                 ✨
               </div>
               <div style={{
-                backgroundColor: 'rgba(255,255,255,0.8)',
+                background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
                 borderRadius: '20px',
                 padding: '24px',
                 border: '1px solid rgba(255,255,255,0.4)',
                 backdropFilter: 'blur(10px)',
-                maxWidth: '400px'
+                maxWidth: '400px',
+                boxShadow: '0 8px 32px rgba(139, 69, 19, 0.15)'
               }}>
                 <p style={{ 
-                  color: '#92400e', 
+                  color: '#8B4513', 
                   fontWeight: '400', 
                   fontSize: '18px', 
                   margin: 0,
@@ -571,12 +629,23 @@ const WanderDaily = ({ navigate, currentUser }) => {
 
         {currentStep === 'respond' && (
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.6)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
             borderRadius: '24px',
             padding: '24px',
-            border: '1px solid rgba(255,255,255,0.2)'
+            border: '1px solid rgba(255,255,255,0.2)',
+            boxShadow: '0 8px 32px rgba(139, 69, 19, 0.15), 0 2px 8px rgba(139, 69, 19, 0.1)',
+            position: 'relative'
           }}>
-            <p style={{ color: '#4b5563', fontSize: '18px', fontWeight: '300', lineHeight: '1.5', marginBottom: '24px', marginTop: 0 }}>
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '1px',
+              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)'
+            }}></div>
+            
+            <p style={{ color: '#8B4513', fontSize: '18px', fontWeight: '500', lineHeight: '1.5', marginBottom: '24px', marginTop: 0 }}>
               {currentPrompt}
             </p>
 
@@ -587,57 +656,65 @@ const WanderDaily = ({ navigate, currentUser }) => {
               style={{
                 width: '100%',
                 height: '128px',
-                padding: '16px',
-                backgroundColor: 'rgba(255,255,255,0.5)',
-                border: '1px solid #f59e0b',
+                padding: '20px',
+                background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
+                border: '2px solid #E8D5C4',
                 borderRadius: '16px',
                 resize: 'none',
                 outline: 'none',
                 fontSize: '16px',
-                color: '#4b5563',
+                color: '#5D4037',
                 marginBottom: '16px',
-                boxSizing: 'border-box'
+                boxSizing: 'border-box',
+                boxShadow: 'inset 0 2px 8px rgba(139, 69, 19, 0.05), 0 2px 4px rgba(139, 69, 19, 0.05)',
+                transition: 'all 0.3s ease'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = '#D2691E'
+                e.target.style.boxShadow = 'inset 0 2px 8px rgba(139, 69, 19, 0.1), 0 0 0 3px rgba(210, 105, 30, 0.2)'
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = '#E8D5C4'
+                e.target.style.boxShadow = 'inset 0 2px 8px rgba(139, 69, 19, 0.05), 0 2px 4px rgba(139, 69, 19, 0.05)'
               }}
               autoFocus
             />
 
             {showResponseTimer && (
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-                <p style={{ 
-                  color: '#d97706', 
-                  fontSize: '12px', 
-                  margin: 0,
+                <div style={{ 
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px'
+                  gap: '15px',
+                  color: '#CD853F',
+                  fontSize: '14px'
                 }}>
                   <span>No rush, just wander</span>
-                  <span>•</span>
-                  <span style={{ 
-                    backgroundColor: 'rgba(161,98,7,0.15)',
-                    borderRadius: '8px',
-                    padding: '4px 8px',
-                    fontWeight: '500',
+                  <div style={{ 
+                    background: 'linear-gradient(135deg, #F0E68C 0%, #DDD06B 100%)',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontWeight: '600',
+                    boxShadow: '0 4px 12px rgba(139, 69, 19, 0.15)',
                     opacity: Math.max(0.3, responseTimer / 300)
                   }}>
                     {formatTime(responseTimer)}
-                  </span>
-                  <span>•</span>
+                  </div>
                   <button 
                     onClick={() => setShowResponseTimer(false)}
                     style={{ 
-                      color: '#d97706', 
+                      color: '#CD853F', 
                       textDecoration: 'underline',
                       background: 'none',
                       border: 'none',
                       cursor: 'pointer',
-                      fontSize: '12px'
+                      fontSize: '14px'
                     }}
                   >
                     Hide timer
                   </button>
-                </p>
+                </div>
               </div>
             )}
 
@@ -647,19 +724,32 @@ const WanderDaily = ({ navigate, currentUser }) => {
                 disabled={!userResponse.trim() || isSubmitting}
                 style={{
                   width: '100%',
-                  backgroundColor: '#d97706',
+                  background: 'linear-gradient(135deg, #D2691E 0%, #B8541A 100%)',
                   color: 'white',
-                  padding: '12px 24px',
-                  borderRadius: '16px',
                   border: 'none',
+                  borderRadius: '15px',
+                  padding: '18px 24px',
                   fontSize: '16px',
-                  fontWeight: '500',
+                  fontWeight: '600',
                   cursor: (!userResponse.trim() || isSubmitting) ? 'not-allowed' : 'pointer',
                   opacity: (!userResponse.trim() || isSubmitting) ? 0.5 : 1,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px'
+                  gap: '8px',
+                  boxShadow: '0 8px 24px rgba(210, 105, 30, 0.3), 0 2px 4px rgba(139, 69, 19, 0.2)',
+                  transition: 'all 0.3s ease',
+                  border: '1px solid rgba(184, 84, 26, 0.3)'
+                }}
+                onMouseEnter={(e) => {
+                  if (!(!userResponse.trim() || isSubmitting)) {
+                    e.target.style.transform = 'translateY(-2px)'
+                    e.target.style.boxShadow = '0 12px 32px rgba(210, 105, 30, 0.4), 0 4px 8px rgba(139, 69, 19, 0.3)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)'
+                  e.target.style.boxShadow = '0 8px 24px rgba(210, 105, 30, 0.3), 0 2px 4px rgba(139, 69, 19, 0.2)'
                 }}
               >
                 {isSubmitting && responseType === 'shared' ? (
@@ -674,23 +764,37 @@ const WanderDaily = ({ navigate, currentUser }) => {
                 disabled={!userResponse.trim() || isSubmitting}
                 style={{
                   width: '100%',
-                  backgroundColor: 'rgba(255,255,255,0.6)',
-                  color: '#a16207',
-                  padding: '12px 24px',
-                  borderRadius: '16px',
-                  border: '1px solid #f59e0b',
+                  background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
+                  color: '#D2691E',
+                  border: '2px solid #D2691E',
+                  borderRadius: '15px',
+                  padding: '16px 24px',
                   fontSize: '16px',
-                  fontWeight: '500',
+                  fontWeight: '600',
                   cursor: (!userResponse.trim() || isSubmitting) ? 'not-allowed' : 'pointer',
                   opacity: (!userResponse.trim() || isSubmitting) ? 0.5 : 1,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  gap: '8px'
+                  gap: '8px',
+                  boxShadow: '0 4px 16px rgba(210, 105, 30, 0.15), 0 2px 4px rgba(139, 69, 19, 0.1)',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  if (!(!userResponse.trim() || isSubmitting)) {
+                    e.target.style.background = 'linear-gradient(135deg, #D2691E 0%, #B8541A 100%)'
+                    e.target.style.color = 'white'
+                    e.target.style.transform = 'translateY(-1px)'
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)'
+                  e.target.style.color = '#D2691E'
+                  e.target.style.transform = 'translateY(0)'
                 }}
               >
                 {isSubmitting && responseType === 'private' ? (
-                  <div style={{ width: '16px', height: '16px', border: '2px solid #a16207', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                  <div style={{ width: '16px', height: '16px', border: '2px solid #D2691E', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
                 ) : (
                   'Keep private'
                 )}
@@ -704,21 +808,34 @@ const WanderDaily = ({ navigate, currentUser }) => {
             
             {userResponse && responseType !== 'skipped' && (
               <div style={{
-                backgroundColor: 'rgba(255,255,255,0.6)',
+                background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
                 borderRadius: '24px',
                 padding: '24px',
-                border: '1px solid rgba(255,255,255,0.2)'
+                border: '1px solid rgba(255,255,255,0.2)',
+                boxShadow: '0 8px 32px rgba(139, 69, 19, 0.15), 0 2px 8px rgba(139, 69, 19, 0.1)',
+                position: 'relative'
               }}>
-                <p style={{ color: '#6b7280', fontSize: '14px', fontWeight: '300', marginBottom: '16px' }}>{currentPrompt}</p>
                 <div style={{
-                  backgroundColor: '#fef3c7',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  height: '1px',
+                  background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)'
+                }}></div>
+                
+                <p style={{ color: '#8B4513', fontSize: '16px', fontWeight: '500', marginBottom: '16px' }}>{currentPrompt}</p>
+                <div style={{
+                  background: 'linear-gradient(135deg, #FFF8E1 0%, #F5E6D3 100%)',
                   borderRadius: '16px',
-                  padding: '16px',
-                  marginBottom: '16px'
+                  padding: '20px',
+                  marginBottom: '16px',
+                  boxShadow: 'inset 0 2px 8px rgba(139, 69, 19, 0.1), 0 2px 4px rgba(139, 69, 19, 0.05)',
+                  border: '1px solid rgba(205, 133, 63, 0.2)'
                 }}>
-                  <p style={{ color: '#4b5563', fontStyle: 'italic', margin: 0 }}>{userResponse}</p>
+                  <p style={{ color: '#5D4037', fontStyle: 'italic', margin: 0 }}>{userResponse}</p>
                 </div>
-                <p style={{ color: '#d97706', fontSize: '12px', textAlign: 'center' }}>
+                <p style={{ color: '#CD853F', fontSize: '12px', textAlign: 'center' }}>
                   {responseType === 'shared' ? 'Shared with the world • Saved to Lost & Found' : 'Saved to your Lost & Found'}
                 </p>
               </div>
@@ -726,13 +843,14 @@ const WanderDaily = ({ navigate, currentUser }) => {
 
             {responseType === 'skipped' && (
               <div style={{
-                backgroundColor: 'rgba(255,255,255,0.6)',
+                background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
                 borderRadius: '24px',
                 padding: '32px',
                 border: '1px solid rgba(255,255,255,0.2)',
-                textAlign: 'center'
+                textAlign: 'center',
+                boxShadow: '0 8px 32px rgba(139, 69, 19, 0.15)'
               }}>
-                <p style={{ color: '#a16207' }}>See you tomorrow for a new drift</p>
+                <p style={{ color: '#CD853F' }}>See you tomorrow for a new drift</p>
               </div>
             )}
 
@@ -742,13 +860,26 @@ const WanderDaily = ({ navigate, currentUser }) => {
                   onClick={handleShowOthers}
                   style={{
                     width: '100%',
-                    backgroundColor: 'rgba(255,255,255,0.6)',
-                    color: '#a16207',
-                    padding: '12px 24px',
-                    borderRadius: '16px',
-                    border: '1px solid #f59e0b',
+                    background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
+                    color: '#D2691E',
+                    border: '2px solid #D2691E',
+                    borderRadius: '15px',
+                    padding: '16px 24px',
                     cursor: 'pointer',
-                    fontSize: '16px'
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    boxShadow: '0 4px 16px rgba(210, 105, 30, 0.15), 0 2px 4px rgba(139, 69, 19, 0.1)',
+                    transition: 'all 0.3s ease'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.target.style.background = 'linear-gradient(135deg, #D2691E 0%, #B8541A 100%)'
+                    e.target.style.color = 'white'
+                    e.target.style.transform = 'translateY(-1px)'
+                  }}
+                  onMouseLeave={(e) => {
+                    e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)'
+                    e.target.style.color = '#D2691E'
+                    e.target.style.transform = 'translateY(0)'
                   }}
                 >
                   {showOthers ? 'Hide others' : 'See how others drifted'}
@@ -760,28 +891,40 @@ const WanderDaily = ({ navigate, currentUser }) => {
               <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxHeight: '384px', overflowY: 'auto' }}>
                 {sharedResponses.length === 0 ? (
                   <div style={{
-                    backgroundColor: 'rgba(255,255,255,0.4)',
+                    background: 'linear-gradient(135deg, #FEFEFE 0%, #F9F9F9 100%)',
                     borderRadius: '16px',
                     padding: '16px',
-                    textAlign: 'center'
+                    textAlign: 'center',
+                    boxShadow: '0 6px 20px rgba(139, 69, 19, 0.1)',
+                    border: '1px solid rgba(205, 133, 63, 0.1)'
                   }}>
-                    <p style={{ color: '#6b7280', fontSize: '14px' }}>No other shared responses yet today</p>
+                    <p style={{ color: '#8B4513', fontSize: '14px' }}>No other shared responses yet today</p>
                   </div>
                 ) : (
                   sharedResponses.map((response, index) => (
                     <div 
                       key={index}
                       style={{
-                        backgroundColor: 'rgba(255,255,255,0.4)',
-                        borderRadius: '16px',
-                        padding: '16px',
-                        border: '1px solid rgba(255,255,255,0.3)'
+                        background: 'linear-gradient(135deg, #FEFEFE 0%, #F9F9F9 100%)',
+                        borderRadius: '15px',
+                        padding: '20px',
+                        border: '1px solid rgba(205, 133, 63, 0.1)',
+                        boxShadow: '0 6px 20px rgba(139, 69, 19, 0.1), 0 2px 4px rgba(139, 69, 19, 0.05)',
+                        transition: 'all 0.3s ease'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.target.style.transform = 'translateY(-2px)'
+                        e.target.style.boxShadow = '0 8px 28px rgba(139, 69, 19, 0.15), 0 4px 8px rgba(139, 69, 19, 0.1)'
+                      }}
+                      onMouseLeave={(e) => {
+                        e.target.style.transform = 'translateY(0)'
+                        e.target.style.boxShadow = '0 6px 20px rgba(139, 69, 19, 0.1), 0 2px 4px rgba(139, 69, 19, 0.05)'
                       }}
                     >
-                      <p style={{ color: '#4b5563', fontSize: '14px', fontStyle: 'italic', marginBottom: '8px' }}>
+                      <p style={{ color: '#5D4037', fontSize: '14px', fontStyle: 'italic', marginBottom: '8px' }}>
                         {response.response_text}
                       </p>
-                      <p style={{ color: '#a16207', fontSize: '12px', opacity: 0.75 }}>
+                      <p style={{ color: '#CD853F', fontSize: '12px', opacity: 0.75 }}>
                         — {response.users?.display_name || response.users?.username || 'Anonymous'}
                       </p>
                     </div>
@@ -806,34 +949,36 @@ const WanderDaily = ({ navigate, currentUser }) => {
           zIndex: 30
         }}>
           <div style={{
-            backgroundColor: 'rgba(255,255,255,0.95)',
+            background: 'linear-gradient(135deg, #FFFFFF 0%, #FEFEFE 100%)',
             borderRadius: '24px',
             padding: '32px',
             maxWidth: '500px',
             width: '100%',
             border: '1px solid rgba(255,255,255,0.3)',
             maxHeight: '80vh',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
           }}>
             <div style={{ marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '20px', fontWeight: '500', color: '#92400e', margin: 0 }}>
+              <h2 style={{ fontSize: '20px', fontWeight: '500', color: '#8B4513', margin: 0 }}>
                 Yesterday's Wander
               </h2>
             </div>
 
             <div style={{
-              backgroundColor: '#fef3c7',
+              background: 'linear-gradient(135deg, #FFF8E1 0%, #F5E6D3 100%)',
               borderRadius: '16px',
               padding: '20px',
-              marginBottom: '24px'
+              marginBottom: '24px',
+              boxShadow: 'inset 0 2px 8px rgba(139, 69, 19, 0.1)'
             }}>
-              <p style={{ color: '#92400e', fontSize: '16px', fontWeight: '300', textAlign: 'center', margin: 0 }}>
+              <p style={{ color: '#8B4513', fontSize: '16px', fontWeight: '300', textAlign: 'center', margin: 0 }}>
                 {yesterdaySynthesis.prompt}
               </p>
             </div>
 
             <div style={{ marginBottom: '24px' }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#92400e', marginBottom: '12px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#8B4513', marginBottom: '12px' }}>
                 Words that wandered through minds:
               </h3>
               <div style={{ 
@@ -846,12 +991,13 @@ const WanderDaily = ({ navigate, currentUser }) => {
                   <span 
                     key={index}
                     style={{
-                      backgroundColor: '#fed7aa',
-                      color: '#ea580c',
+                      background: 'linear-gradient(135deg, #FED7AA 0%, #F97316 100%)',
+                      color: 'white',
                       padding: '6px 12px',
                       borderRadius: '20px',
                       fontSize: '14px',
-                      fontWeight: '500'
+                      fontWeight: '500',
+                      boxShadow: '0 2px 8px rgba(249, 115, 22, 0.3)'
                     }}
                   >
                     {word}
@@ -861,12 +1007,13 @@ const WanderDaily = ({ navigate, currentUser }) => {
             </div>
 
             <div style={{
-              backgroundColor: 'rgba(255,255,255,0.6)',
+              background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
               borderRadius: '16px',
               padding: '20px',
-              marginBottom: '24px'
+              marginBottom: '24px',
+              boxShadow: '0 4px 16px rgba(139, 69, 19, 0.1)'
             }}>
-              <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#92400e', marginBottom: '12px' }}>
+              <h3 style={{ fontSize: '16px', fontWeight: '500', color: '#8B4513', marginBottom: '12px' }}>
                 The collective drift:
               </h3>
               <p style={{ color: '#4b5563', fontSize: '16px', fontStyle: 'italic', lineHeight: '1.5', margin: 0 }}>
@@ -875,12 +1022,13 @@ const WanderDaily = ({ navigate, currentUser }) => {
             </div>
 
             <div style={{
-              backgroundColor: '#fecaca',
+              background: 'linear-gradient(135deg, #FEF2F2 0%, #FECACA 100%)',
               borderRadius: '16px',
               padding: '20px',
-              textAlign: 'center'
+              textAlign: 'center',
+              boxShadow: '0 4px 16px rgba(248, 113, 113, 0.2)'
             }}>
-              <p style={{ color: '#dc2626', fontSize: '14px', fontWeight: '500', margin: 0 }}>
+              <p style={{ color: '#DC2626', fontSize: '14px', fontWeight: '500', margin: 0 }}>
                 {yesterdaySynthesis.pulse}
               </p>
             </div>
@@ -889,13 +1037,14 @@ const WanderDaily = ({ navigate, currentUser }) => {
               <button
                 onClick={handleCloseYesterdayResults}
                 style={{
-                  backgroundColor: '#d97706',
+                  background: 'linear-gradient(135deg, #D2691E 0%, #B8541A 100%)',
                   color: 'white',
                   padding: '12px 24px',
                   borderRadius: '16px',
                   border: 'none',
                   fontSize: '16px',
-                  cursor: 'pointer'
+                  cursor: 'pointer',
+                  boxShadow: '0 8px 24px rgba(210, 105, 30, 0.3)'
                 }}
               >
                 Back to today's drift
@@ -906,14 +1055,14 @@ const WanderDaily = ({ navigate, currentUser }) => {
       )}
 
       {/* Enhanced Bottom Navigation */}
-      <nav style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)' }}>
+      <nav style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
         <div style={{
-          backgroundColor: 'rgba(255,255,255,0.9)',
+          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
           borderRadius: '30px',
           padding: '12px 24px',
           border: '1px solid rgba(255,255,255,0.3)',
           backdropFilter: 'blur(10px)',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+          boxShadow: '0 8px 32px rgba(139, 69, 19, 0.15), 0 4px 16px rgba(139, 69, 19, 0.1)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
             
@@ -924,7 +1073,14 @@ const WanderDaily = ({ navigate, currentUser }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -947,14 +1103,14 @@ const WanderDaily = ({ navigate, currentUser }) => {
               flexDirection: 'column', 
               alignItems: 'center'
             }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="#D97706" stroke="#B45309" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="#D2691E" stroke="#B8541A" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="4"/>
                 <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/>
               </svg>
               <span style={{ 
                 fontSize: '10px', 
                 fontWeight: '600', 
-                color: '#D97706',
+                color: '#D2691E',
                 marginTop: '2px',
                 fontFamily: 'SF Pro Text, -apple-system, sans-serif'
               }}>
@@ -969,7 +1125,14 @@ const WanderDaily = ({ navigate, currentUser }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -996,7 +1159,14 @@ const WanderDaily = ({ navigate, currentUser }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -1020,7 +1190,14 @@ const WanderDaily = ({ navigate, currentUser }) => {
                 display: 'flex', 
                 flexDirection: 'column', 
                 alignItems: 'center',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-2px)'
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
               }}
             >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9CA3AF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">

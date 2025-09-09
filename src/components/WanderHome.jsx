@@ -312,7 +312,7 @@ const WanderHome = ({ navigate, currentUser }) => {
               margin: '0 0 4px 0',
               fontFamily: 'SF Pro Display, -apple-system, sans-serif'
             }}>
-              Solo Wanders
+              Solos
             </h4>
             <p style={{ 
               color: '#1E40AF', 
@@ -376,7 +376,7 @@ const WanderHome = ({ navigate, currentUser }) => {
               margin: 0,
               fontFamily: 'SF Pro Text, -apple-system, sans-serif'
             }}>
-              Start talking
+              Spark talks
             </p>
           </div>
 
@@ -418,7 +418,7 @@ const WanderHome = ({ navigate, currentUser }) => {
               margin: '0 0 4px 0',
               fontFamily: 'SF Pro Display, -apple-system, sans-serif'
             }}>
-              L&F
+              Lost & Found
             </h4>
             <p style={{ 
               color: '#6D28D9', 
