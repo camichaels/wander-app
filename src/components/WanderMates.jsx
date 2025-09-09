@@ -26,53 +26,54 @@ const WanderMates = ({ navigate, currentUser }) => {
     loadInitialData()
   }, [currentUser])
 
-  // Real-time polling for active mate interactions and dashboard updates
+  // Track when users view the reveal page
+  useEffect(() => {
+    if (currentView === 'reveal' && selectedMate?.currentSharedWanderId && currentUser?.id) {
+      // Mark that this user has viewed the reveal
+      SharedWandersAPI.markUserViewedReveal(currentUser.id, selectedMate.currentSharedWanderId)
+    }
+  }, [currentView, selectedMate?.currentSharedWanderId, currentUser?.id])
+
+  // SIMPLIFIED: Basic polling for active conversations only
   useEffect(() => {
     if (!currentUser?.id) return
 
     let interval
     
     if ((currentView === 'reveal' || currentView === 'waiting') && selectedMate) {
-      // Frequent polling for active conversations
+      // Poll for updates in active conversations
       interval = setInterval(async () => {
         try {
           const matesResult = await MatesAPI.getActiveMates(currentUser.id)
           if (!matesResult.error && matesResult.data) {
             const updatedMate = matesResult.data.find(m => m.id === selectedMate.id)
             if (updatedMate) {
-              // Check if there are meaningful changes before updating
-              const hasNewReactions = updatedMate.sharedReactions?.length !== selectedMate.sharedReactions?.length
-              const statusChanged = updatedMate.status !== selectedMate.status
-              const newTheirResponse = updatedMate.theirResponse !== selectedMate.theirResponse
+              const hasChanges = updatedMate.status !== selectedMate.status ||
+                                updatedMate.sharedReactions?.length !== selectedMate.sharedReactions?.length ||
+                                updatedMate.theirResponse !== selectedMate.theirResponse
               
-              if (hasNewReactions || statusChanged || newTheirResponse) {
+              if (hasChanges) {
                 setSelectedMate(updatedMate)
-                
-                // Update the mate in the local list too
                 setMates(prev => prev.map(m => 
                   m.id === selectedMate.id ? updatedMate : m
                 ))
                 
-                // If status changed significantly, update the view
-                if (statusChanged && updatedMate.status === 'reacting' && currentView === 'waiting') {
+                if (updatedMate.status === 'reacting' && currentView === 'waiting') {
                   setCurrentView('reveal')
                 }
               }
             }
-            
-            // Always update the full mates list for dashboard consistency
             setMates(matesResult.data)
           }
         } catch (error) {
           console.warn('Background polling error:', error)
         }
-      }, 20000) // Poll every 20 seconds for active conversations
+      }, 20000) // Poll every 20 seconds
       
     } else if (currentView === 'dashboard') {
-      // Less frequent polling for dashboard status updates and invitation changes
+      // Less frequent polling for dashboard updates
       interval = setInterval(async () => {
         try {
-          // Load mates, pending invitations, and available users to catch all changes
           const [matesResult, invitesResult, usersResult] = await Promise.all([
             MatesAPI.getActiveMates(currentUser.id),
             MatesAPI.getPendingInvitations(currentUser.id),
@@ -80,61 +81,20 @@ const WanderMates = ({ navigate, currentUser }) => {
           ])
           
           if (!matesResult.error && matesResult.data) {
-            // Check for status changes in existing mates
-            const currentStatuses = mates.map(m => ({id: m.id, status: m.status}))
-            const newStatuses = matesResult.data.map(m => ({id: m.id, status: m.status}))
-            
-            const hasStatusChanges = currentStatuses.some(current => {
-              const updated = newStatuses.find(n => n.id === current.id)
-              return updated && updated.status !== current.status
-            })
-            
-            // Check for new mates (accepted invitations)
-            const currentMateIds = new Set(mates.map(m => m.id))
-            const newMateIds = new Set(matesResult.data.map(m => m.id))
-            const hasNewMates = matesResult.data.some(m => !currentMateIds.has(m.id))
-            
-            // Check for removed mates (stopped wandering)
-            const hasRemovedMates = mates.some(m => !newMateIds.has(m.id))
-            
-            if (hasStatusChanges || hasNewMates || hasRemovedMates || matesResult.data.length !== mates.length) {
-              setMates(matesResult.data)
-            }
+            setMates(matesResult.data)
           }
           
           if (!invitesResult.error && invitesResult.data) {
-            // Check for changes in pending invitations
-            const currentInviteIds = new Set(pendingInvites.map(i => i.id))
-            const newInviteIds = new Set(invitesResult.data.all?.map(i => i.id) || [])
-            
-            // Detect if invitations were accepted/rejected (removed from pending)
-            // or new invitations received
-            const invitesChanged = currentInviteIds.size !== newInviteIds.size ||
-              [...currentInviteIds].some(id => !newInviteIds.has(id)) ||
-              [...newInviteIds].some(id => !currentInviteIds.has(id))
-            
-            if (invitesChanged) {
-              setPendingInvites(invitesResult.data.all || [])
-            }
+            setPendingInvites(invitesResult.data.all || [])
           }
 
           if (!usersResult.error && usersResult.data) {
-            // Check for changes in available users (people becoming available to invite again)
-            const currentUserIds = new Set(availableUsers.map(u => u.user_id))
-            const newUserIds = new Set(usersResult.data.map(u => u.user_id))
-            
-            const usersChanged = currentUserIds.size !== newUserIds.size ||
-              [...currentUserIds].some(id => !newUserIds.has(id)) ||
-              [...newUserIds].some(id => !currentUserIds.has(id))
-            
-            if (usersChanged) {
-              setAvailableUsers(usersResult.data)
-            }
+            setAvailableUsers(usersResult.data)
           }
         } catch (error) {
           console.warn('Dashboard polling error:', error)
         }
-      }, 30000) // Back to 30 seconds for battery efficiency
+      }, 30000) // Poll every 30 seconds
     }
     
     return () => {
@@ -186,7 +146,6 @@ const WanderMates = ({ navigate, currentUser }) => {
     }
   }
 
-  // Format date like Lost & Found (Month Day)
   const formatDate = (dateString) => {
     if (!dateString) return 'Today'
     const date = new Date(dateString)
@@ -210,7 +169,7 @@ const WanderMates = ({ navigate, currentUser }) => {
             throw new Error('Failed to create shared wander: ' + wanderResult.error.message)
           }
           
-          // Get the prompt from the created shared wander using proper join
+          // Get the prompt from the created shared wander
           const { data: sharedWander, error: fetchError } = await supabase
             .from('shared_wanders')
             .select(`
@@ -267,7 +226,7 @@ const WanderMates = ({ navigate, currentUser }) => {
         throw new Error('Failed to submit response: ' + responseResult.error.message)
       }
 
-      // Only save to prompt history if we have valid prompt text
+      // Save to prompt history for Lost & Found
       if (selectedMate.prompt && selectedMate.prompt !== 'Prompt not available' && selectedMate.prompt !== 'Unable to load prompt') {
         try {
           await PromptHistoryAPI.createPromptHistory(currentUser.id, {
@@ -305,7 +264,6 @@ const WanderMates = ({ navigate, currentUser }) => {
       setUserResponse('')
 
     } catch (error) {
-      
       // Check if the response actually saved despite the error
       try {
         const matesResult = await MatesAPI.getActiveMates(currentUser.id)
@@ -562,7 +520,7 @@ const WanderMates = ({ navigate, currentUser }) => {
             fontWeight: 'bold'
           }}
         >
-          ⓘ
+          ℹ️
         </button>
 
         {/* Logo replacing text title */}
@@ -1123,7 +1081,7 @@ const WanderMates = ({ navigate, currentUser }) => {
         )}
       </main>
 
-      {/* Invite Modal - Only for existing users */}
+      {/* Invite Modal */}
       {showInviteModal && (
         <div style={{
           position: 'fixed',
@@ -1307,7 +1265,7 @@ const WanderMates = ({ navigate, currentUser }) => {
         </div>
       )}
 
-      {/* Enhanced Bottom Navigation */}
+      {/* Bottom Navigation */}
       <nav style={{ position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)' }}>
         <div style={{
           backgroundColor: 'rgba(255,255,255,0.9)',

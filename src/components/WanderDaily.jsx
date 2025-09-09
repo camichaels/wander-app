@@ -38,36 +38,12 @@ const WanderDaily = ({ navigate, currentUser }) => {
     pulse: "2,847 people wandered for 8,341 minutes yesterday. That's like skipping 12,000 notification pings."
   }
 
+  // Load today's data on component mount
   useEffect(() => {
     loadTodaysData()
   }, [currentUser])
 
-  // Check for day changes to handle users who leave the app open overnight
-  useEffect(() => {
-    const checkForNewDay = () => {
-      const currentDailyDate = DailyAPI.getCurrentDailyDate()
-      const lastCheckedDate = localStorage.getItem('lastDailyCheck')
-      
-      if (lastCheckedDate !== currentDailyDate) {
-        localStorage.setItem('lastDailyCheck', currentDailyDate)
-        console.log('New day detected, refreshing data:', currentDailyDate)
-        setCurrentStep('loading')
-        setExistingResponse(null)
-        setUserResponse('')
-        setResponseType('')
-        setError(null)
-        loadTodaysData()
-      }
-    }
-    
-    // Check immediately
-    checkForNewDay()
-    
-    // Check every minute in case user leaves app open overnight
-    const interval = setInterval(checkForNewDay, 60000)
-    return () => clearInterval(interval)
-  }, [currentUser])
-
+  // Timer effects
   useEffect(() => {
     if (currentStep === 'prompt' && promptTimer <= 0) {
       startWander()
@@ -100,14 +76,14 @@ const WanderDaily = ({ navigate, currentUser }) => {
       setError(null)
       setCurrentStep('loading')
 
-      // Get today's prompt
+      // SIMPLIFIED: Just get today's prompt from pre-populated table
       const promptResult = await DailyAPI.getTodaysPrompt()
       if (promptResult.error) {
-        throw new Error('Failed to load today\'s prompt')
+        throw new Error(promptResult.error.message || 'Failed to load today\'s prompt')
       }
 
       if (!promptResult.data) {
-        setError('No more Daily prompts in database')
+        setError('No prompt available for today')
         return
       }
 
@@ -236,7 +212,8 @@ const WanderDaily = ({ navigate, currentUser }) => {
     return existingResponse && existingResponse.is_shared_publicly
   }
 
-  if (error === 'No more Daily prompts in database') {
+  // Show error state for missing prompts
+  if (error === 'No prompt available for today') {
     return (
       <div style={{ 
         minHeight: '100vh', 
@@ -253,9 +230,9 @@ const WanderDaily = ({ navigate, currentUser }) => {
           textAlign: 'center',
           maxWidth: '400px'
         }}>
-          <h2 style={{ color: '#92400e', marginBottom: '16px' }}>No More Daily Prompts</h2>
+          <h2 style={{ color: '#92400e', marginBottom: '16px' }}>No Daily Prompt</h2>
           <p style={{ color: '#a16207', marginBottom: '24px' }}>
-            No more Daily prompts in database. Please add more prompts to continue.
+            No prompt has been assigned for today. Please contact the admin to add today's prompt.
           </p>
           <button 
             onClick={() => navigate('home')}
@@ -320,7 +297,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
             fontWeight: 'bold'
           }}
         >
-          ⓘ
+          ℹ︎
         </button>
 
         {/* Logo replacing text title */}
@@ -424,7 +401,7 @@ const WanderDaily = ({ navigate, currentUser }) => {
 
       <main style={{ maxWidth: '512px', margin: '0 auto', padding: '0 24px' }}>
         
-        {error && error !== 'No more Daily prompts in database' && (
+        {error && error !== 'No prompt available for today' && (
           <div style={{
             backgroundColor: '#fecaca',
             border: '1px solid #f87171',
