@@ -86,31 +86,43 @@ export const DailyAPI = {
   },
 
   // Submit daily response
-  submitDailyResponse: async (userId, promptId, responseText, isShared = false) => {
-    try {
-      if (!userId || !promptId || !responseText?.trim()) {
-        throw new Error('User ID, prompt ID, and response text are required')
-      }
-
-      const today = DailyAPI.getCurrentDailyDate()
-
-      const { data, error } = await supabase
-        .from('user_daily_responses')
-        .insert({
-          user_id: userId,
-          assignment_date: today,
-          prompt_id: promptId,
-          response_text: responseText.trim(),
-          is_shared_publicly: isShared
-        })
-        .select()
-        .single()
-
-      return { data, error }
-    } catch (error) {
-      return { data: null, error }
+submitDailyResponse: async (userId, promptId, responseText, isShared = false) => {
+  try {
+    if (!userId || !promptId || !responseText?.trim()) {
+      throw new Error('User ID, prompt ID, and response text are required')
     }
-  },
+
+    // FIXED: Use the assignment date that corresponds to this prompt_id
+    // instead of calculating "today" at submission time
+    const { data: assignment, error: assignmentError } = await supabase
+      .from('daily_prompt_assignments')
+      .select('assignment_date')
+      .eq('prompt_id', promptId)
+      .order('assignment_date', { ascending: false })
+      .limit(1)
+      .single()
+
+    if (assignmentError || !assignment) {
+      throw new Error('Could not find assignment date for this prompt')
+    }
+
+    const { data, error } = await supabase
+      .from('user_daily_responses')
+      .insert({
+        user_id: userId,
+        assignment_date: assignment.assignment_date, // Use the actual assignment date
+        prompt_id: promptId,
+        response_text: responseText.trim(),
+        is_shared_publicly: isShared
+      })
+      .select()
+      .single()
+
+    return { data, error }
+  } catch (error) {
+    return { data: null, error }
+  }
+},
 
   // Get shared responses for today
   getTodaysSharedResponses: async () => {
