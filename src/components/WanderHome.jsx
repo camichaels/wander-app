@@ -488,14 +488,14 @@ const WanderHome = ({ navigate, currentUser }) => {
           <div style={{
             textAlign: 'center',
             color: '#8B7355',
-            fontSize: '14px',
+            fontSize: '16px',
             fontStyle: 'italic',
             lineHeight: '1.4',
             opacity: 0.75,
-            marginTop: '20px',
+            marginTop: '32px',
             fontFamily: 'SF Pro Text, -apple-system, sans-serif',
             maxWidth: '320px',
-            margin: '20px auto 0 auto'
+            margin: '32px auto 0 auto'
           }}>
             {randomText}
           </div>
