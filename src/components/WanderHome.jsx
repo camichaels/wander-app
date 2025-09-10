@@ -483,6 +483,24 @@ const WanderHome = ({ navigate, currentUser }) => {
           </div>
         </div>
 
+{/* Secondary grid */}
+<div style={{ 
+  display: 'grid', 
+  gridTemplateColumns: '1fr 1fr 1fr', 
+  gap: '12px',
+  marginBottom: '24px'
+}}>
+  {/* ... your three cards (Solos, Groups, Lost & Found) ... */}
+</div>
+
+{/* Visual separator before quote */}
+<div style={{
+  height: '1px',
+  background: 'rgba(209, 213, 219, 0.6)',
+  margin: '0 16px 24px 16px'
+}}></div>
+
+
         {/* Random inspirational text */}
         {randomText && (
           <div style={{
