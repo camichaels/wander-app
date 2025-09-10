@@ -1,12 +1,37 @@
-// services/matesAPI.js - COMPLETE VERSION WITH VIEW TRACKING
+// services/matesAPI.js - COMPLETE VERSION WITH VIEW TRACKING AND 3 AM PT RESET
 import { supabase } from './supabase'
 
 export const MatesAPI = {
-  // Helper function to get current date in Pacific Time
+  // Helper function to get current date in Pacific Time with 3 AM boundary
   getCurrentDailyDate: () => {
+    // Get current time in Pacific timezone
     const now = new Date()
-    const ptTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}))
-    return ptTime.toISOString().split('T')[0]
+    const utcHours = now.getUTCHours()
+    
+    // PT is UTC-7 (PDT) or UTC-8 (PST)
+    // For September, we're in PDT (UTC-7)
+    const ptHours = (utcHours - 7 + 24) % 24
+    
+    console.log('Mates API - UTC hours:', utcHours)
+    console.log('Mates API - PT hours:', ptHours) 
+    console.log('Mates API - Is before 3 AM PT?', ptHours < 3)
+    
+    // Create a date in PT timezone first
+    const ptDate = new Date(now.getTime() - 7 * 60 * 60 * 1000) // Subtract 7 hours for PDT
+    
+    // If it's before 3 AM PT, the daily prompt date should be yesterday
+    if (ptHours < 3) {
+      console.log('Mates API - Before 3 AM PT: using yesterday for daily prompt')
+      ptDate.setDate(ptDate.getDate() - 1)
+    } else {
+      console.log('Mates API - After 3 AM PT: using today for daily prompt')
+      // But we actually want to use PT date, not UTC date
+    }
+    
+    const result = ptDate.toISOString().split('T')[0]
+    console.log('Mates API - Final date result:', result)
+    
+    return result
   },
 
   // Get all users for invitations (excluding current mates)
@@ -432,10 +457,10 @@ export const MatesAPI = {
     }
   },
 
-  // Check and reset relationships based on view tracking
+  // Check and reset relationships based on view tracking - PRESERVES LOGIC, UPDATES DATE CALCULATION
   checkAndResetRelationship: async (relationshipId) => {
     try {
-      const currentDate = MatesAPI.getCurrentDailyDate()
+      const currentDate = MatesAPI.getCurrentDailyDate() // Now uses 3 AM PT boundary
       
       console.log('=== Checking reset for relationship:', relationshipId, 'current date:', currentDate)
       

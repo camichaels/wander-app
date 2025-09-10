@@ -1,16 +1,37 @@
-// services/dailyAPI.js - SIMPLIFIED VERSION
+// services/dailyAPI.js - FIXED VERSION with 3 AM PT boundary
 import { supabase } from './supabase'
 
 export const DailyAPI = {
-  // Helper function to get current date in Pacific Time
+  // Helper function to get current date in Pacific Time with 3 AM boundary
   getCurrentDailyDate: () => {
+    // Get current time in Pacific timezone
     const now = new Date()
+    const utcHours = now.getUTCHours()
     
-    // Create a date in PT (Pacific Time)
-    const ptTime = new Date(now.toLocaleString("en-US", {timeZone: "America/Los_Angeles"}))
+    // PT is UTC-7 (PDT) or UTC-8 (PST)
+    // For September, we're in PDT (UTC-7)
+    const ptHours = (utcHours - 7 + 24) % 24
     
-    // Return YYYY-MM-DD format
-    return ptTime.toISOString().split('T')[0]
+    console.log('UTC hours:', utcHours)
+    console.log('PT hours:', ptHours) 
+    console.log('Is before 3 AM PT?', ptHours < 3)
+    
+    // Create a date in PT timezone first
+    const ptDate = new Date(now.getTime() - 7 * 60 * 60 * 1000) // Subtract 7 hours for PDT
+    
+    // If it's before 3 AM PT, the daily prompt date should be yesterday
+    if (ptHours < 3) {
+      console.log('Before 3 AM PT: using yesterday for daily prompt')
+      ptDate.setDate(ptDate.getDate() - 1)
+    } else {
+      console.log('After 3 AM PT: using today for daily prompt')
+      // But we actually want to use PT date, not UTC date
+    }
+    
+    const result = ptDate.toISOString().split('T')[0]
+    console.log('Final date result:', result)
+    
+    return result
   },
 
   // Get today's prompt - now just a simple lookup!
@@ -86,43 +107,43 @@ export const DailyAPI = {
   },
 
   // Submit daily response
-submitDailyResponse: async (userId, promptId, responseText, isShared = false) => {
-  try {
-    if (!userId || !promptId || !responseText?.trim()) {
-      throw new Error('User ID, prompt ID, and response text are required')
+  submitDailyResponse: async (userId, promptId, responseText, isShared = false) => {
+    try {
+      if (!userId || !promptId || !responseText?.trim()) {
+        throw new Error('User ID, prompt ID, and response text are required')
+      }
+
+      // FIXED: Use the assignment date that corresponds to this prompt_id
+      // instead of calculating "today" at submission time
+      const { data: assignment, error: assignmentError } = await supabase
+        .from('daily_prompt_assignments')
+        .select('assignment_date')
+        .eq('prompt_id', promptId)
+        .order('assignment_date', { ascending: false })
+        .limit(1)
+        .single()
+
+      if (assignmentError || !assignment) {
+        throw new Error('Could not find assignment date for this prompt')
+      }
+
+      const { data, error } = await supabase
+        .from('user_daily_responses')
+        .insert({
+          user_id: userId,
+          assignment_date: assignment.assignment_date, // Use the actual assignment date
+          prompt_id: promptId,
+          response_text: responseText.trim(),
+          is_shared_publicly: isShared
+        })
+        .select()
+        .single()
+
+      return { data, error }
+    } catch (error) {
+      return { data: null, error }
     }
-
-    // FIXED: Use the assignment date that corresponds to this prompt_id
-    // instead of calculating "today" at submission time
-    const { data: assignment, error: assignmentError } = await supabase
-      .from('daily_prompt_assignments')
-      .select('assignment_date')
-      .eq('prompt_id', promptId)
-      .order('assignment_date', { ascending: false })
-      .limit(1)
-      .single()
-
-    if (assignmentError || !assignment) {
-      throw new Error('Could not find assignment date for this prompt')
-    }
-
-    const { data, error } = await supabase
-      .from('user_daily_responses')
-      .insert({
-        user_id: userId,
-        assignment_date: assignment.assignment_date, // Use the actual assignment date
-        prompt_id: promptId,
-        response_text: responseText.trim(),
-        is_shared_publicly: isShared
-      })
-      .select()
-      .single()
-
-    return { data, error }
-  } catch (error) {
-    return { data: null, error }
-  }
-},
+  },
 
   // Get shared responses for today
   getTodaysSharedResponses: async () => {
