@@ -2,6 +2,58 @@ import React, { useState, useEffect } from 'react'
 
 const WanderHome = ({ navigate, currentUser }) => {
   const [showAdminMenu, setShowAdminMenu] = useState(false)
+  const [randomText, setRandomText] = useState('')
+
+  // Array of random text lines
+  const wanderTexts = [
+    "Take time to wander. A playful mind is never empty.",
+    "Wanderers don't get lost. They find ideas others miss.",
+    "Every wander says something about you. Especially the weird ones.",
+    "When you spend time to wander, you're not missing out. You're tuning in.",
+    "Wander delivers less doom, and more bloom.",
+    "A single wander clears more brain clutter than an hour of scrolling.",
+    "A wander takes less time than a coffee break, but energizes just as much.",
+    "Five playful minutes now is often worth hours of focus later.",
+    "Wander gives your thoughts a playground, not a checklist.",
+    "Try The Daily each morning. It's like coffee for your imagination.",
+    "Do The Daily. Because a wander a day keeps the doomscroll away.",
+    "The Daily takes less time than brushing your teeth. And is way more fun.",
+    "The Daily is like a morning stretch for your mind.",
+    "The Daily is the spark that can reset your whole day.",
+    "Invite your bestie to be a Wander Mate for double the giggles.",
+    "Wander Mates: Two minds, one prompt, endless jokes.",
+    "Try Wander Mates. Because drifting together beats scrolling alone.",
+    "Nothing's more fun than seeing what your Wander Mate came up with.",
+    "The best part of Wander Mates? You never know what your buddy will say.",
+    "Stuck for that spark? Try a Solo and see what surfaces.",
+    "Solos: the world's most playful five-minute break.",
+    "Go as weird or deep as you like in Solos. Nobody's watching.",
+    "Solos are your private playground for ideas.",
+    "Solos = guilt-free me-time for your brain.",
+    "Solos are phone breaks that actually refresh you.",
+    "There are no wrong answers when you Solo.",
+    "Stuck? Solos are the reset button you didn't know you needed.",
+    "Need a quick icebreaker? Groups have you covered.",
+    "Party Mode in Groups: less small talk, more big laughs.",
+    "Work Mode in Groups: icebreakers that don't make you cringe.",
+    "Tap Groups and awkward silences will vanish away.",
+    "Got five minutes and five friends? Groups are made for that.",
+    "Next time the room goes quiet, tap Groups.",
+    "Try Groups. Nothing says \"team bonding\" like inventing fake job titles together.",
+    "Check out Lost & Found. Yesterday's stray thought might be today's big idea.",
+    "Lost & Found is where your best surprises hide.",
+    "Go to Lost & Found and expand a wander. You never know sparks will fly.",
+    "Lost & Found is basically a secret idea notebook in disguise.",
+    "Tap Lost & Found. You might discover something past-you left for future-you.",
+    "Think of Lost & Found as a curiosity time machine.",
+    "Revisit your wanders in Lost & Found. It's like a playlist of your brain."
+  ]
+
+  // Pick a random text on component mount
+  useEffect(() => {
+    const randomIndex = Math.floor(Math.random() * wanderTexts.length)
+    setRandomText(wanderTexts[randomIndex])
+  }, [])
 
   const getUserDisplayName = () => {
     if (!currentUser) return "You"
@@ -430,6 +482,24 @@ const WanderHome = ({ navigate, currentUser }) => {
             </p>
           </div>
         </div>
+
+        {/* Random inspirational text */}
+        {randomText && (
+          <div style={{
+            textAlign: 'center',
+            color: '#8B7355',
+            fontSize: '14px',
+            fontStyle: 'italic',
+            lineHeight: '1.4',
+            opacity: 0.75,
+            marginTop: '20px',
+            fontFamily: 'SF Pro Text, -apple-system, sans-serif',
+            maxWidth: '320px',
+            margin: '20px auto 0 auto'
+          }}>
+            {randomText}
+          </div>
+        )}
 
       </main>
 
