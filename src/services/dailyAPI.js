@@ -1,4 +1,4 @@
-// services/dailyAPI.js - FIXED VERSION with proper timezone handling
+// services/dailyAPI.js - FIXED VERSION with consistent date handling
 import { supabase } from './supabase'
 
 export const DailyAPI = {
@@ -122,32 +122,21 @@ export const DailyAPI = {
     }
   },
 
-  // Submit daily response
+  // Submit daily response - FIXED to use consistent date calculation
   submitDailyResponse: async (userId, promptId, responseText, isShared = false) => {
     try {
       if (!userId || !promptId || !responseText?.trim()) {
         throw new Error('User ID, prompt ID, and response text are required')
       }
 
-      // Use the assignment date that corresponds to this prompt_id
-      // instead of calculating "today" at submission time
-      const { data: assignment, error: assignmentError } = await supabase
-        .from('daily_prompt_assignments')
-        .select('assignment_date')
-        .eq('prompt_id', promptId)
-        .order('assignment_date', { ascending: false })
-        .limit(1)
-        .single()
-
-      if (assignmentError || !assignment) {
-        throw new Error('Could not find assignment date for this prompt')
-      }
+      // Use consistent date calculation instead of prompt assignment lookup
+      const today = DailyAPI.getCurrentDailyDate()
 
       const { data, error } = await supabase
         .from('user_daily_responses')
         .insert({
           user_id: userId,
-          assignment_date: assignment.assignment_date, // Use the actual assignment date
+          assignment_date: today, // Use calculated date, not prompt assignment date
           prompt_id: promptId,
           response_text: responseText.trim(),
           is_shared_publicly: isShared
