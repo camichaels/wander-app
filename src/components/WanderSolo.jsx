@@ -109,6 +109,14 @@ const WanderSolo = ({ navigate, currentUser }) => {
   }
 
   const handleSubmit = async () => {
+     console.log('=== DATE DEBUG - SOLO ===')
+  console.log('Local time:', new Date())
+  console.log('UTC time:', new Date().toISOString())
+  console.log('User timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone)
+  console.log('Timezone offset (minutes):', new Date().getTimezoneOffset())
+  console.log('==================')
+  
+  
     if (!userResponse.trim()) return
     
     setIsSubmitting(true)

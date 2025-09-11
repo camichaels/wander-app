@@ -71,19 +71,22 @@ const WanderLostFound = ({ navigate, currentUser }) => {
         return
       }
 
-      const transformedData = data?.map(item => ({
-        id: item.id,
-        prompt: item.prompt_text,
-        response: item.response_text,
-        date: new Date(item.created_at).toISOString().split('T')[0],
-        starred: item.is_favorite || false,
-        source: capitalizeFirst(item.prompt_type || 'Unknown'),
-        title: item.title,
-        primaryCategory: item.primary_category_name,
-        secondaryCategory: item.secondary_category_name,
-        tags: item.tags || [],
-        expansion: item.expansion
-      })) || []
+const transformedData = data?.map(item => {
+  console.log('Raw timestamp from DB:', item.created_at)
+  return {
+    id: item.id,
+    prompt: item.prompt_text,
+    response: item.response_text,
+    date: item.created_at,
+    starred: item.is_favorite || false,
+    source: capitalizeFirst(item.prompt_type || 'Unknown'),
+    title: item.title,
+    primaryCategory: item.primary_category_name,
+    secondaryCategory: item.secondary_category_name,
+    tags: item.tags || [],
+    expansion: item.expansion
+  }
+}) || []
 
       if (currentFilter === 'shuffled') {
         setResponses(shuffle(transformedData))
@@ -276,13 +279,14 @@ const WanderLostFound = ({ navigate, currentUser }) => {
     }
   }
 
-  const formatDate = (dateString) => {
-    const date = new Date(dateString)
-    return date.toLocaleDateString('en-US', { 
-      month: 'short', 
-      day: 'numeric'
-    })
-  }
+const formatDate = (dateString) => {
+  const date = new Date(dateString)
+  return date.toLocaleDateString('en-US', { 
+    month: 'short', 
+    day: 'numeric',
+    timeZone: 'America/Los_Angeles'
+  })
+}
 
   const getFilterLabel = () => {
     switch (currentFilter) {
