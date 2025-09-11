@@ -152,7 +152,7 @@ const WanderHome = ({ navigate, currentUser }) => {
                 style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#4b5563', borderRadius: '6px' }}
                 onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(0,0,0,0.05)'}
                 onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}>
-                Profile
+                Your Profile
               </button>
               <button onClick={handleShareWander}
                 style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#4b5563', borderRadius: '6px' }}
@@ -164,7 +164,7 @@ const WanderHome = ({ navigate, currentUser }) => {
                 style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#4b5563', borderRadius: '6px' }}
                 onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(0,0,0,0.05)'}
                 onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}>
-                About
+                About Wander
               </button>
               <button onClick={() => { navigate('how-to'); setShowAdminMenu(false) }}
                 style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#4b5563', borderRadius: '6px' }}
@@ -172,6 +172,12 @@ const WanderHome = ({ navigate, currentUser }) => {
                 onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}>
                 How to Wander
               </button>
+              <button onClick={() => { navigate('quiz'); setShowAdminMenu(false) }}
+                style={{ display: 'block', width: '100%', textAlign: 'left', padding: '8px 12px', background: 'none', border: 'none', cursor: 'pointer', fontSize: '14px', color: '#4b5563', borderRadius: '6px' }}
+                onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(0,0,0,0.05)'}
+                onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}>
+                Wander Quiz
+    </button>
             </div>
           )}
         </div>
