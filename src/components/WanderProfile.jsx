@@ -153,7 +153,7 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
       setCurrentUser({ id: result.data.user_id, email: result.data.email })
       setShowCreateForm(false)
       resetForm()
-      await loadInitialData()
+      navigate('home')
       
     } catch (err) {
       setError('Failed to create user: ' + err.message)
@@ -232,6 +232,9 @@ const WanderProfile = ({ navigate, currentUser, setCurrentUser }) => {
         
         // Clear the dropdown
         setSelectedUserId('')
+        
+        // Navigate to home
+        navigate('home')
       }
     } catch (err) {
       console.error('Error during user switch:', err)

@@ -542,9 +542,20 @@ export const MatesAPI = {
         const user1ViewDate = new Date(wander.user1_viewed_reveal_at)
         const user2ViewDate = new Date(wander.user2_viewed_reveal_at)
         const bothViewedDate = user1ViewDate > user2ViewDate ? user1ViewDate : user2ViewDate
-        const bothViewedDateStr = bothViewedDate.toISOString().split('T')[0]
+        
+        // Apply same 3 AM PT boundary logic to the view date
+        const viewUtcHours = bothViewedDate.getUTCHours()
+        const viewPtHours = (viewUtcHours - 7 + 24) % 24
+        const viewPtDate = new Date(bothViewedDate.getTime() - 7 * 60 * 60 * 1000)
+        
+        if (viewPtHours < 3) {
+          viewPtDate.setDate(viewPtDate.getDate() - 1)
+        }
+        
+        const bothViewedDateStr = viewPtDate.toISOString().split('T')[0]
         
         console.log('=== Wander', wander.shared_wander_id, 'both viewed by:', bothViewedDateStr, 'vs current:', currentDate)
+        console.log('=== View timestamp details: UTC hours:', viewUtcHours, 'PT hours:', viewPtHours, 'before 3 AM?', viewPtHours < 3)
         
         if (bothViewedDateStr < currentDate) {
           console.log(`=== Resetting wander ${wander.shared_wander_id} (both users viewed on ${bothViewedDateStr})`)
