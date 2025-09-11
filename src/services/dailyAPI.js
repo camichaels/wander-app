@@ -1,37 +1,53 @@
-// services/dailyAPI.js - FIXED VERSION with 3 AM PT boundary
+// services/dailyAPI.js - FIXED VERSION with proper timezone handling
 import { supabase } from './supabase'
 
 export const DailyAPI = {
   // Helper function to get current date in Pacific Time with 3 AM boundary
   getCurrentDailyDate: () => {
-    // Get current time in Pacific timezone
-    const now = new Date()
-    const utcHours = now.getUTCHours()
-    
-    // PT is UTC-7 (PDT) or UTC-8 (PST)
-    // For September, we're in PDT (UTC-7)
-    const ptHours = (utcHours - 7 + 24) % 24
-    
-    console.log('UTC hours:', utcHours)
-    console.log('PT hours:', ptHours) 
-    console.log('Is before 3 AM PT?', ptHours < 3)
-    
-    // Create a date in PT timezone first
-    const ptDate = new Date(now.getTime() - 7 * 60 * 60 * 1000) // Subtract 7 hours for PDT
-    
-    // If it's before 3 AM PT, the daily prompt date should be yesterday
-    if (ptHours < 3) {
-      console.log('Before 3 AM PT: using yesterday for daily prompt')
-      ptDate.setDate(ptDate.getDate() - 1)
-    } else {
-      console.log('After 3 AM PT: using today for daily prompt')
-      // But we actually want to use PT date, not UTC date
+    try {
+      // Use Intl.DateTimeFormat for reliable timezone conversion
+      const now = new Date()
+      
+      // Get current time in PT timezone
+      const ptFormatter = new Intl.DateTimeFormat('en-US', { 
+        timeZone: 'America/Los_Angeles',
+        year: 'numeric',
+        month: '2-digit', 
+        day: '2-digit',
+        hour: '2-digit',
+        hour12: false
+      })
+      
+      const ptParts = ptFormatter.formatToParts(now)
+      const ptHour = parseInt(ptParts.find(part => part.type === 'hour').value)
+      const ptYear = ptParts.find(part => part.type === 'year').value
+      const ptMonth = ptParts.find(part => part.type === 'month').value
+      const ptDay = ptParts.find(part => part.type === 'day').value
+      
+      console.log('PT Hour:', ptHour)
+      console.log('Is before 3 AM PT?', ptHour < 3)
+      
+      // Start with today's PT date
+      let targetDate = new Date(`${ptYear}-${ptMonth}-${ptDay}`)
+      
+      // If before 3 AM PT, use yesterday
+      if (ptHour < 3) {
+        console.log('Before 3 AM PT: using yesterday for daily prompt')
+        targetDate.setDate(targetDate.getDate() - 1)
+      } else {
+        console.log('After 3 AM PT: using today for daily prompt')
+      }
+      
+      // Return in YYYY-MM-DD format
+      const result = targetDate.toISOString().split('T')[0]
+      console.log('Final date result:', result)
+      
+      return result
+    } catch (error) {
+      console.error('Error in getCurrentDailyDate:', error)
+      // Fallback to simple date if timezone logic fails
+      return new Date().toISOString().split('T')[0]
     }
-    
-    const result = ptDate.toISOString().split('T')[0]
-    console.log('Final date result:', result)
-    
-    return result
   },
 
   // Get today's prompt - now just a simple lookup!
@@ -113,7 +129,7 @@ export const DailyAPI = {
         throw new Error('User ID, prompt ID, and response text are required')
       }
 
-      // FIXED: Use the assignment date that corresponds to this prompt_id
+      // Use the assignment date that corresponds to this prompt_id
       // instead of calculating "today" at submission time
       const { data: assignment, error: assignmentError } = await supabase
         .from('daily_prompt_assignments')
