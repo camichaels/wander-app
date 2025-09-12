@@ -616,16 +616,23 @@ const WanderHome = ({ navigate, currentUser }) => {
             <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 16px 0' }}>
               This is purely for fun - we're not actually tracking your thinking time or neuron speed (that would be creepy and impossible). We just count completed wanders and do some playful math!
             </p>
-            <button onClick={() => setShowCalculationInfo(false)} style={{
-              background: '#3b82f6',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              padding: '8px 16px',
-              cursor: 'pointer'
-            }}>
-              Got it!
-            </button>
+            <div style={{ textAlign: 'center' }}>
+  <button
+    onClick={() => setShowCalculationInfo(false)}
+    style={{
+      background: 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)',
+      color: 'white',
+      padding: '12px 24px',
+      borderRadius: '16px',
+      border: 'none',
+      fontSize: '16px',
+      cursor: 'pointer',
+      boxShadow: '0 8px 24px rgba(59, 130, 246, 0.3)'
+    }}
+  >
+    Got it
+  </button>
+</div>
           </div>
         </div>
       )}
