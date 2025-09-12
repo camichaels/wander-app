@@ -522,16 +522,16 @@ const WanderHome = ({ navigate, currentUser }) => {
 
 
         {/* ADD BRAIN DISTANCE DISPLAY HERE */}
-       {brainDistance && (
+{brainDistance ? (
   <div style={{
     textAlign: 'center',
-    margin: '0 0 6px 0',
+    margin: '0 0 8px 0',
     padding: '16px',
     border: '1px solid rgba(139, 115, 85, 0.2)',
     borderRadius: '12px',
     background: 'transparent',
     color: '#8B7355',
-    fontSize: '16px',  // Match the quote size
+    fontSize: '16px',
     lineHeight: '1.4',
     fontFamily: 'SF Pro Text, -apple-system, sans-serif'
   }}>
@@ -558,6 +558,11 @@ const WanderHome = ({ navigate, currentUser }) => {
       how we calculate?
     </div>
   </div>
+) : (
+  <div style={{
+    height: '101px',
+    margin: '0 0 8px 0',
+  }}></div>
 )}
 
    
