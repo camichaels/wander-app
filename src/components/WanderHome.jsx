@@ -353,12 +353,7 @@ const WanderHome = ({ navigate, currentUser }) => {
           </div>
         </div>
 
-        {/* Visual separator */}
-        <div style={{
-          height: '1px',
-          background: 'rgba(209, 213, 219, 0.6)',
-          margin: '0 16px 24px 16px'
-        }}></div>
+       
 
         {/* Secondary grid */}
         <div style={{ 
@@ -525,57 +520,47 @@ const WanderHome = ({ navigate, currentUser }) => {
           </div>
         </div>
 
-        {/* Visual separator before brain distance */}
-        <div style={{
-          height: '1px',
-          background: 'rgba(209, 213, 219, 0.6)',
-          margin: '0 16px 24px 16px'
-        }}></div>
 
         {/* ADD BRAIN DISTANCE DISPLAY HERE */}
-        {brainDistance && (
-          <div style={{
-            textAlign: 'center',
-            margin: '0 0px 20px 0px',
-            padding: '16px',
-            background: 'linear-gradient(135deg, #FFFBF5, #FEF3E2)',
-            borderRadius: '12px',
-            color: '#92400E',
-            fontSize: '14px',
-            lineHeight: '1.4',
-            fontFamily: 'SF Pro Text, -apple-system, sans-serif'
-          }}>
-            {brainDistance.period === 'weekly' ? (
-              <>Your brain wandered {brainDistance.distance} miles this week!</>
-            ) : (
-              <>You've wandered {brainDistance.distance} miles total!</>
-            )}
-            <br />
-            {brainDistance.period === 'weekly' && brainDistance.distance > 0 && 
-              getWeeklyComparison(brainDistance.distance)
-            }
-            {brainDistance.period === 'total' && brainDistance.distance > 0 && 
-              getTotalComparison(brainDistance.distance)
-            }
-            <div style={{
-              fontSize: '11px',
-              opacity: 0.7,
-              textDecoration: 'underline',
-              marginTop: '4px',
-              cursor: 'pointer',
-              fontStyle: 'normal'
-            }} onClick={() => setShowCalculationInfo(true)}>
-              how we calculate?
-            </div>
-          </div>
-        )}
+       {brainDistance && (
+  <div style={{
+    textAlign: 'center',
+    margin: '0 0 6px 0',
+    padding: '16px',
+    border: '1px solid rgba(139, 115, 85, 0.2)',
+    borderRadius: '12px',
+    background: 'transparent',
+    color: '#8B7355',
+    fontSize: '16px',  // Match the quote size
+    lineHeight: '1.4',
+    fontFamily: 'SF Pro Text, -apple-system, sans-serif'
+  }}>
+    {brainDistance.period === 'weekly' ? (
+      <>Your brain wandered {brainDistance.distance} miles this week!</>
+    ) : (
+      <>Your brain wandered {brainDistance.distance} miles total!</>
+    )}
+    <br />
+    {brainDistance.period === 'weekly' && brainDistance.distance > 0 && 
+      getWeeklyComparison(brainDistance.distance) + '.'
+    }
+    {brainDistance.period === 'total' && brainDistance.distance > 0 && 
+      getTotalComparison(brainDistance.distance) + '.'
+    }
+    <div style={{
+      fontSize: '11px',
+      opacity: 0.7,
+      textDecoration: 'underline',
+      marginTop: '8px',
+      cursor: 'pointer',
+      fontStyle: 'normal'
+    }} onClick={() => setShowCalculationInfo(true)}>
+      how we calculate?
+    </div>
+  </div>
+)}
 
-        {/* Visual separator before quote */}
-        <div style={{
-          height: '1px',
-          background: 'rgba(209, 213, 219, 0.6)',
-          margin: '0 16px 24px 16px'
-        }}></div>
+   
 
         {/* Random inspirational text */}
         {randomText && (
@@ -586,10 +571,10 @@ const WanderHome = ({ navigate, currentUser }) => {
             fontStyle: 'italic',
             lineHeight: '1.4',
             opacity: 0.75,
-            marginTop: '32px',
+            marginTop: '0',
             fontFamily: 'SF Pro Text, -apple-system, sans-serif',
             maxWidth: '320px',
-            margin: '32px auto 0 auto'
+            margin: '20px auto 0 auto'
           }}>
             {randomText}
           </div>
