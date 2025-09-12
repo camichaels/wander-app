@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react'
+import { BrainDistanceAPI } from '../services/brainDistanceAPI'  // ADD THIS IMPORT
 
 const WanderHome = ({ navigate, currentUser }) => {
   const [showAdminMenu, setShowAdminMenu] = useState(false)
   const [randomText, setRandomText] = useState('')
+  const [brainDistance, setBrainDistance] = useState(null)  // ADD THIS STATE
+  const [showCalculationInfo, setShowCalculationInfo] = useState(false)  // ADD THIS STATE
 
   // Array of random text lines
   const wanderTexts = [
@@ -49,11 +52,44 @@ const WanderHome = ({ navigate, currentUser }) => {
     "Revisit your wanders in Lost & Found. It's like a playlist of your brain."
   ]
 
+  // ADD THESE HELPER FUNCTIONS
+  const getWeeklyComparison = (miles) => {
+    if (miles < 5) return "That's like a neighborhood stroll"
+    if (miles < 15) return "That's like hiking around Angel Island"
+    if (miles < 30) return "That's like a scenic drive around Half Moon Bay"
+    if (miles < 60) return "That's like driving the coastal highway"
+    return "That's like a leisurely drive around Lake Tahoe"
+  }
+
+  const getTotalComparison = (miles) => {
+    if (miles < 20) return "That's like crossing the Golden Gate Bridge a few times"
+    if (miles < 100) return "That's like driving from SF to Sacramento"
+    if (miles < 300) return "That's like crossing the entire state"
+    if (miles < 500) return "That's like a road trip to Portland"
+    return "That's like driving cross-country"
+  }
+
   // Pick a random text on component mount
   useEffect(() => {
     const randomIndex = Math.floor(Math.random() * wanderTexts.length)
     setRandomText(wanderTexts[randomIndex])
   }, [])
+
+  // ADD THIS NEW USEEFFECT FOR BRAIN DISTANCE
+  useEffect(() => {
+    console.log('Current user:', currentUser)
+    console.log('Brain distance state:', brainDistance)
+   const userId = currentUser?.user_id || currentUser?.id
+  if (userId) {
+    BrainDistanceAPI.getBrainDistance(userId)
+      .then(result => {
+        if (result.data) {
+          setBrainDistance(result.data)
+        }
+      })
+      .catch(console.error)
+  }
+}, [currentUser])
 
   const getUserDisplayName = () => {
     if (!currentUser) return "You"
@@ -489,23 +525,57 @@ const WanderHome = ({ navigate, currentUser }) => {
           </div>
         </div>
 
-{/* Secondary grid */}
-<div style={{ 
-  display: 'grid', 
-  gridTemplateColumns: '1fr 1fr 1fr', 
-  gap: '12px',
-  marginBottom: '24px'
-}}>
-  {/* ... your three cards (Solos, Groups, Lost & Found) ... */}
-</div>
+        {/* Visual separator before brain distance */}
+        <div style={{
+          height: '1px',
+          background: 'rgba(209, 213, 219, 0.6)',
+          margin: '0 16px 24px 16px'
+        }}></div>
 
-{/* Visual separator before quote */}
-<div style={{
-  height: '1px',
-  background: 'rgba(209, 213, 219, 0.6)',
-  margin: '0 16px 24px 16px'
-}}></div>
+        {/* ADD BRAIN DISTANCE DISPLAY HERE */}
+        {brainDistance && (
+          <div style={{
+            textAlign: 'center',
+            margin: '0 0px 20px 0px',
+            padding: '16px',
+            background: 'linear-gradient(135deg, #FFFBF5, #FEF3E2)',
+            borderRadius: '12px',
+            color: '#92400E',
+            fontSize: '14px',
+            lineHeight: '1.4',
+            fontFamily: 'SF Pro Text, -apple-system, sans-serif'
+          }}>
+            {brainDistance.period === 'weekly' ? (
+              <>Your brain wandered {brainDistance.distance} miles this week!</>
+            ) : (
+              <>You've wandered {brainDistance.distance} miles total!</>
+            )}
+            <br />
+            {brainDistance.period === 'weekly' && brainDistance.distance > 0 && 
+              getWeeklyComparison(brainDistance.distance)
+            }
+            {brainDistance.period === 'total' && brainDistance.distance > 0 && 
+              getTotalComparison(brainDistance.distance)
+            }
+            <div style={{
+              fontSize: '11px',
+              opacity: 0.7,
+              textDecoration: 'underline',
+              marginTop: '4px',
+              cursor: 'pointer',
+              fontStyle: 'normal'
+            }} onClick={() => setShowCalculationInfo(true)}>
+              how we calculate?
+            </div>
+          </div>
+        )}
 
+        {/* Visual separator before quote */}
+        <div style={{
+          height: '1px',
+          background: 'rgba(209, 213, 219, 0.6)',
+          margin: '0 16px 24px 16px'
+        }}></div>
 
         {/* Random inspirational text */}
         {randomText && (
@@ -526,6 +596,54 @@ const WanderHome = ({ navigate, currentUser }) => {
         )}
 
       </main>
+
+      {/* ADD THE CALCULATION INFO MODAL HERE */}
+      {showCalculationInfo && (
+        <div style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          zIndex: 1000,
+          padding: '20px'
+        }} onClick={() => setShowCalculationInfo(false)}>
+          <div style={{
+            backgroundColor: 'white',
+            borderRadius: '16px',
+            padding: '24px',
+            maxWidth: '350px',
+            fontSize: '14px',
+            lineHeight: '1.5'
+          }} onClick={(e) => e.stopPropagation()}>
+            <h3 style={{ margin: '0 0 16px 0', color: '#1f2937' }}>Our Very Scientific™ Brain Distance Formula</h3>
+            <ul style={{ paddingLeft: '20px', margin: '0 0 16px 0', color: '#4b5563' }}>
+              <li>Each completed wander = ~2-4 minutes of thinking time</li>
+              <li>Daily Wanders: 2 min, Solo: 3 min, Wander Mates: 4 min</li>
+              <li>Neurons travel at roughly 100 mph (we're rounding way down)</li>
+              <li>Distance = thinking time × neuron speed</li>
+              <li>We add silly decimals because precision is fun</li>
+            </ul>
+            <p style={{ fontSize: '12px', color: '#6b7280', margin: '0 0 16px 0' }}>
+              This is purely for fun - we're not actually tracking your thinking time or neuron speed (that would be creepy and impossible). We just count completed wanders and do some playful math!
+            </p>
+            <button onClick={() => setShowCalculationInfo(false)} style={{
+              background: '#3b82f6',
+              color: 'white',
+              border: 'none',
+              borderRadius: '8px',
+              padding: '8px 16px',
+              cursor: 'pointer'
+            }}>
+              Got it!
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   )
