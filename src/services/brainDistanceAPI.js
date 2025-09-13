@@ -12,18 +12,24 @@ export const BrainDistanceAPI = {
       const weekStart = new Date(now.setDate(now.getDate() - now.getDay()))
       weekStart.setHours(0, 0, 0, 0)
 
-      // Count this week's wanders
+      // Count this week's wanders - FIXED: Use prompt_history for all response types
       const weeklyQueries = [
-        supabase.from('user_responses').select('created_at').eq('user_id', userId).gte('created_at', weekStart.toISOString()),
+        // Solo responses are in prompt_history table with prompt_type = 'solo'
+        supabase.from('prompt_history').select('created_at').eq('user_id', userId).eq('prompt_type', 'solo').gte('created_at', weekStart.toISOString()),
+        // Daily responses are in user_daily_responses table
         supabase.from('user_daily_responses').select('created_at').eq('user_id', userId).gte('created_at', weekStart.toISOString()),
-        supabase.from('mate_responses').select('created_at').eq('user_id', userId).gte('created_at', weekStart.toISOString())
+        // Mate responses are ALSO in prompt_history table with prompt_type = 'mate'
+        supabase.from('prompt_history').select('created_at').eq('user_id', userId).eq('prompt_type', 'mate').gte('created_at', weekStart.toISOString())
       ]
 
-      // Count all-time wanders
+      // Count all-time wanders - FIXED: Use prompt_history for all response types
       const allTimeQueries = [
-        supabase.from('user_responses').select('created_at').eq('user_id', userId),
+        // Solo responses are in prompt_history table with prompt_type = 'solo'
+        supabase.from('prompt_history').select('created_at').eq('user_id', userId).eq('prompt_type', 'solo'),
+        // Daily responses are in user_daily_responses table
         supabase.from('user_daily_responses').select('created_at').eq('user_id', userId),
-        supabase.from('mate_responses').select('created_at').eq('user_id', userId)
+        // Mate responses are ALSO in prompt_history table with prompt_type = 'mate'
+        supabase.from('prompt_history').select('created_at').eq('user_id', userId).eq('prompt_type', 'mate')
       ]
 
       const [weeklyResults, allTimeResults] = await Promise.all([
@@ -44,6 +50,10 @@ export const BrainDistanceAPI = {
         mates: allTimeResults[2].data?.length || 0
       }
 
+      // Debug logging to help troubleshoot
+      console.log('Weekly counts:', weeklyCounts)
+      console.log('All-time counts:', allTimeCounts)
+
       // Calculate distances (minutes * 100mph/60min)
       const weeklyMinutes = (weeklyCounts.daily * 2) + (weeklyCounts.solo * 3) + (weeklyCounts.mates * 4)
       const weeklyMiles = (weeklyMinutes * 100) / 60
@@ -55,6 +65,15 @@ export const BrainDistanceAPI = {
       const showWeekly = Math.random() < 0.5
       const distance = showWeekly ? weeklyMiles : allTimeMiles
       const period = showWeekly ? 'weekly' : 'total'
+
+      console.log('Brain distance calculation:', {
+        weeklyMinutes,
+        weeklyMiles,
+        allTimeMinutes,
+        allTimeMiles,
+        showing: period,
+        finalDistance: distance
+      })
 
       return {
         data: {

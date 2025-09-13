@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import { PromptHistoryAPI } from '../services/promptHistoryAPI'
+import { SoloAPI } from '../services/soloAPI'
 
 const WanderSolo = ({ navigate, currentUser }) => {
   const [currentStep, setCurrentStep] = useState('prompt')
   const [currentPrompt, setCurrentPrompt] = useState('')
-  const [promptCategory, setPromptCategory] = useState('')
+  const [currentPromptId, setCurrentPromptId] = useState(null)
   const [userResponse, setUserResponse] = useState('')
   const [showInfo, setShowInfo] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -13,37 +14,8 @@ const WanderSolo = ({ navigate, currentUser }) => {
   const [responseTimer, setResponseTimer] = useState(300)
   const [showPromptTimer, setShowPromptTimer] = useState(true)
   const [showResponseTimer, setShowResponseTimer] = useState(true)
-
-  const soloPrompts = {
-    reflective: [
-      "What's a belief you held as a child that you secretly still find comforting?",
-      "If you could have a conversation with your past self, what would you warn them about?",
-      "What's something you pretend to understand but actually find mysterious?",
-      "Describe a moment when you felt most like yourself.",
-      "What's a question you're afraid to know the answer to?"
-    ],
-    creative: [
-      "Invent a holiday that celebrates something completely ordinary.",
-      "What would happen if gravity worked differently on Tuesdays?",
-      "Design a job that doesn't exist but should.",
-      "What's a color that doesn't exist but you can almost imagine?",
-      "Create a new emotion and describe when you'd feel it."
-    ],
-    absurd: [
-      "What do you think trees gossip about?",
-      "If your socks could talk, what complaints would they have?",
-      "What's the most ridiculous superpower you'd actually want?",
-      "Invent a conspiracy theory about why we have eyebrows.",
-      "What would aliens find weird about human sleeping habits?"
-    ],
-    personal: [
-      "What's your current relationship status with mornings?",
-      "Describe your ideal day using only weather terms.",
-      "What's something you're surprisingly good at that no one knows?",
-      "If your energy had a flavor today, what would it taste like?",
-      "What's a tiny thing that made you feel human recently?"
-    ]
-  }
+  const [availablePrompts, setAvailablePrompts] = useState([])
+  const [isLoadingPrompt, setIsLoadingPrompt] = useState(false)
 
   const affirmations = [
     "Your mind just stretched in a beautiful way",
@@ -55,10 +27,8 @@ const WanderSolo = ({ navigate, currentUser }) => {
     "You just reclaimed a piece of your mind"
   ]
 
-  const categories = ['reflective', 'creative', 'absurd', 'personal']
-
   useEffect(() => {
-    loadRandomPrompt()
+    loadAvailablePrompts()
   }, [])
 
   useEffect(() => {
@@ -81,19 +51,57 @@ const WanderSolo = ({ navigate, currentUser }) => {
     }
   }, [responseTimer, currentStep, showResponseTimer])
 
-  const loadRandomPrompt = () => {
-    const randomCategory = categories[Math.floor(Math.random() * categories.length)]
-    const categoryPrompts = soloPrompts[randomCategory]
-    const randomPrompt = categoryPrompts[Math.floor(Math.random() * categoryPrompts.length)]
-    setCurrentPrompt(randomPrompt)
-    setPromptCategory(randomCategory)
+  const loadAvailablePrompts = async () => {
+    try {
+      const result = await SoloAPI.getAllActivePrompts()
+      const { data: prompts, error } = result
+
+      if (error) {
+        console.error('Error loading prompts:', error)
+        return
+      }
+
+      if (prompts && prompts.length > 0) {
+        setAvailablePrompts(prompts)
+        // Load initial prompt
+        loadRandomPrompt(prompts)
+      } else {
+        console.warn('No active solo prompts found in database')
+        // Fallback to a simple prompt if database is empty
+        setCurrentPrompt("What's on your mind right now?")
+        setCurrentPromptId(null)
+      }
+    } catch (error) {
+      console.error('Error fetching prompts:', error)
+      // Fallback prompt
+      setCurrentPrompt("What's on your mind right now?")
+      setCurrentPromptId(null)
+    }
   }
 
-  const loadRelatedPrompt = () => {
-    const categoryPrompts = soloPrompts[promptCategory]
-    const otherPrompts = categoryPrompts.filter(p => p !== currentPrompt)
-    const relatedPrompt = otherPrompts[Math.floor(Math.random() * otherPrompts.length)]
-    setCurrentPrompt(relatedPrompt)
+  const loadRandomPrompt = (promptsArray = availablePrompts) => {
+    if (!promptsArray || promptsArray.length === 0) {
+      console.warn('No prompts available to load')
+      return
+    }
+
+    const randomPrompt = promptsArray[Math.floor(Math.random() * promptsArray.length)]
+    setCurrentPrompt(randomPrompt.prompt_text)
+    setCurrentPromptId(randomPrompt.prompt_id)
+  }
+
+  const loadNewPrompt = async () => {
+    setIsLoadingPrompt(true)
+    
+    // If we have prompts cached, use them
+    if (availablePrompts.length > 0) {
+      loadRandomPrompt()
+      setIsLoadingPrompt(false)
+    } else {
+      // Otherwise, reload from database
+      await loadAvailablePrompts()
+      setIsLoadingPrompt(false)
+    }
   }
 
   const skipTimer = () => {
@@ -109,14 +117,13 @@ const WanderSolo = ({ navigate, currentUser }) => {
   }
 
   const handleSubmit = async () => {
-     console.log('=== DATE DEBUG - SOLO ===')
-  console.log('Local time:', new Date())
-  console.log('UTC time:', new Date().toISOString())
-  console.log('User timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone)
-  console.log('Timezone offset (minutes):', new Date().getTimezoneOffset())
-  console.log('==================')
-  
-  
+    console.log('=== DATE DEBUG - SOLO ===')
+    console.log('Local time:', new Date())
+    console.log('UTC time:', new Date().toISOString())
+    console.log('User timezone:', Intl.DateTimeFormat().resolvedOptions().timeZone)
+    console.log('Timezone offset (minutes):', new Date().getTimezoneOffset())
+    console.log('==================')
+    
     if (!userResponse.trim()) return
     
     setIsSubmitting(true)
@@ -129,6 +136,11 @@ const WanderSolo = ({ navigate, currentUser }) => {
           prompt_type: 'solo',
           title: currentPrompt.substring(0, 50) + (currentPrompt.length > 50 ? '...' : '')
         })
+
+        // Update usage count for this prompt
+        if (currentPromptId) {
+          await SoloAPI.incrementUsageCount(currentPromptId)
+        }
       }
       
       setTimeout(() => {
@@ -146,17 +158,12 @@ const WanderSolo = ({ navigate, currentUser }) => {
     }
   }
 
-  const startNewWander = (type) => {
+  const startNewWander = async () => {
     setUserResponse('')
     setCurrentStep('prompt')
     setShowCelebration(false)
     resetTimers()
-    
-    if (type === 'related') {
-      loadRelatedPrompt()
-    } else {
-      loadRandomPrompt()
-    }
+    await loadNewPrompt()
   }
 
   const formatTime = (seconds) => {
@@ -308,7 +315,7 @@ const WanderSolo = ({ navigate, currentUser }) => {
               </p>
               
               <p style={{ marginBottom: '16px' }}>
-                Sometimes you'll uncover something personal. Other times, a prompt may spark a completely unexpected idea—something new to follow or carry into the rest of your day. When you finish, you can start another: either drift into a new prompt that loosely follows the last, or leap to one that takes you somewhere entirely different.
+                Sometimes you'll uncover something personal. Other times, a prompt may spark a completely unexpected idea—something new to follow or carry into the rest of your day. When you finish, you can start another with a fresh prompt that takes you somewhere entirely different.
               </p>
               
               <p style={{ margin: 0, fontWeight: '500', color: '#3B82F6' }}>
@@ -358,20 +365,38 @@ const WanderSolo = ({ navigate, currentUser }) => {
                 height: '1px',
                 background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)'
               }}></div>
-              <p style={{ 
-                color: '#374151', 
-                fontSize: '20px', 
-                fontWeight: '500', 
-                lineHeight: '1.4', 
-                margin: 0,
-                fontFamily: 'SF Pro Text, -apple-system, sans-serif',
-                textAlign: 'center'
-              }}>
-                {currentPrompt}
-              </p>
+              
+              {isLoadingPrompt ? (
+                <div style={{ textAlign: 'center', padding: '20px' }}>
+                  <div style={{ 
+                    width: '24px', 
+                    height: '24px', 
+                    border: '2px solid #3B82F6', 
+                    borderTop: '2px solid transparent', 
+                    borderRadius: '50%', 
+                    animation: 'spin 1s linear infinite',
+                    margin: '0 auto'
+                  }}></div>
+                  <p style={{ color: '#3B82F6', marginTop: '16px', fontSize: '16px' }}>
+                    Finding your next prompt...
+                  </p>
+                </div>
+              ) : (
+                <p style={{ 
+                  color: '#374151', 
+                  fontSize: '20px', 
+                  fontWeight: '500', 
+                  lineHeight: '1.4', 
+                  margin: 0,
+                  fontFamily: 'SF Pro Text, -apple-system, sans-serif',
+                  textAlign: 'center'
+                }}>
+                  {currentPrompt}
+                </p>
+              )}
             </div>
 
-            {showPromptTimer && (
+            {showPromptTimer && !isLoadingPrompt && (
               <div style={{ textAlign: 'center', marginBottom: '24px' }}>
                 <div style={{ 
                   display: 'flex',
@@ -410,23 +435,26 @@ const WanderSolo = ({ navigate, currentUser }) => {
               </div>
             )}
             
-            <div style={{ textAlign: 'center' }}>
-              <button 
-                onClick={() => startNewWander('random')}
-                style={{ 
-                  color: '#60A5FA', 
-                  textDecoration: 'underline',
-                  background: 'none',
-                  border: 'none',
-                  cursor: 'pointer',
-                  fontSize: '14px',
-                  fontFamily: 'SF Pro Text, -apple-system, sans-serif',
-                  opacity: 0.8
-                }}
-              >
-                Try a different prompt
-              </button>
-            </div>
+            {!isLoadingPrompt && (
+              <div style={{ textAlign: 'center' }}>
+                <button 
+                  onClick={startNewWander}
+                  disabled={isLoadingPrompt}
+                  style={{ 
+                    color: '#60A5FA', 
+                    textDecoration: 'underline',
+                    background: 'none',
+                    border: 'none',
+                    cursor: isLoadingPrompt ? 'not-allowed' : 'pointer',
+                    fontSize: '14px',
+                    fontFamily: 'SF Pro Text, -apple-system, sans-serif',
+                    opacity: isLoadingPrompt ? 0.5 : 0.8
+                  }}
+                >
+                  Try a different prompt
+                </button>
+              </div>
+            )}
           </div>
         )}
 
@@ -564,14 +592,15 @@ const WanderSolo = ({ navigate, currentUser }) => {
 
               <div style={{ textAlign: 'center' }}>
                 <button
-                  onClick={() => startNewWander('random')}
+                  onClick={startNewWander}
+                  disabled={isLoadingPrompt}
                   style={{
                     color: '#60A5FA',
                     border: 'none',
                     fontSize: '14px',
-                    cursor: 'pointer',
+                    cursor: isLoadingPrompt ? 'not-allowed' : 'pointer',
                     textDecoration: 'underline',
-                    opacity: 0.7,
+                    opacity: isLoadingPrompt ? 0.5 : 0.7,
                     padding: '8px',
                     background: 'none'
                   }}
@@ -663,64 +692,51 @@ const WanderSolo = ({ navigate, currentUser }) => {
                       Keep wandering?
                     </p>
                     
-                    {/* Two-column layout for follow-up actions */}
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
-                      <button
-                        onClick={() => startNewWander('related')}
-                        style={{
-                          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
-                          color: '#3B82F6',
-                          border: '2px solid #3B82F6',
-                          borderRadius: '15px',
-                          padding: '16px',
-                          fontSize: '15px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          boxShadow: '0 4px 16px rgba(59, 130, 246, 0.15), 0 2px 4px rgba(59, 130, 246, 0.1)',
-                          transition: 'all 0.3s ease'
-                        }}
-                        onMouseEnter={(e) => {
+                    <button
+                      onClick={startNewWander}
+                      disabled={isLoadingPrompt}
+                      style={{
+                        width: '100%',
+                        background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
+                        color: '#3B82F6',
+                        border: '2px solid #3B82F6',
+                        borderRadius: '15px',
+                        padding: '16px',
+                        fontSize: '15px',
+                        fontWeight: '600',
+                        cursor: isLoadingPrompt ? 'not-allowed' : 'pointer',
+                        opacity: isLoadingPrompt ? 0.5 : 1,
+                        boxShadow: '0 4px 16px rgba(59, 130, 246, 0.15), 0 2px 4px rgba(59, 130, 246, 0.1)',
+                        transition: 'all 0.3s ease',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px'
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isLoadingPrompt) {
                           e.target.style.background = 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)'
                           e.target.style.color = 'white'
                           e.target.style.transform = 'translateY(-1px)'
-                        }}
-                        onMouseLeave={(e) => {
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isLoadingPrompt) {
                           e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)'
                           e.target.style.color = '#3B82F6'
                           e.target.style.transform = 'translateY(0)'
-                        }}
-                      >
-                        Follow that thought
-                      </button>
-                      
-                      <button
-                        onClick={() => startNewWander('random')}
-                        style={{
-                          background: 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)',
-                          color: '#3B82F6',
-                          border: '2px solid #3B82F6',
-                          borderRadius: '15px',
-                          padding: '16px',
-                          fontSize: '15px',
-                          fontWeight: '600',
-                          cursor: 'pointer',
-                          boxShadow: '0 4px 16px rgba(59, 130, 246, 0.15), 0 2px 4px rgba(59, 130, 246, 0.1)',
-                          transition: 'all 0.3s ease'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.target.style.background = 'linear-gradient(135deg, #3B82F6 0%, #2563EB 100%)'
-                          e.target.style.color = 'white'
-                          e.target.style.transform = 'translateY(-1px)'
-                        }}
-                        onMouseLeave={(e) => {
-                          e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #F8F8F8 100%)'
-                          e.target.style.color = '#3B82F6'
-                          e.target.style.transform = 'translateY(0)'
-                        }}
-                      >
-                        Surprise me
-                      </button>
-                    </div>
+                        }
+                      }}
+                    >
+                      {isLoadingPrompt ? (
+                        <>
+                          <div style={{ width: '16px', height: '16px', border: '2px solid #3B82F6', borderTop: '2px solid transparent', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+                          Loading new prompt...
+                        </>
+                      ) : (
+                        "Start a new wander"
+                      )}
+                    </button>
                   </div>
                 </div>
               </>
