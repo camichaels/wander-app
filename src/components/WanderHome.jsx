@@ -432,7 +432,7 @@ const WanderHome = ({ navigate, currentUser }) => {
 
           {/* Groups - single line subtitle */}
           <div onClick={() => navigate('groups')} style={{
-            background: 'linear-gradient(135deg, #FED7AA, #FDBA74)',
+            background: 'linear-gradient(135deg, #FECACA, #FCA5A5)',
             borderRadius: '16px',
             padding: '16px',
             cursor: 'pointer',
@@ -456,7 +456,7 @@ const WanderHome = ({ navigate, currentUser }) => {
             
             {/* Network icon - bigger */}
             <div style={{ marginBottom: '8px' }}>
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="#DC2626" stroke="#B91C1C" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="#B91C1C" stroke="#991B1B" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="6" r="3"/>
                 <circle cx="6" cy="18" r="3"/>
                 <circle cx="18" cy="18" r="3"/>
@@ -468,7 +468,7 @@ const WanderHome = ({ navigate, currentUser }) => {
             </div>
             
             <h4 style={{ 
-              color: '#B91C1C', 
+              color: '#DC2626', 
               fontSize: '14px', 
               fontWeight: '600',
               margin: '0 0 4px 0',
@@ -477,7 +477,7 @@ const WanderHome = ({ navigate, currentUser }) => {
               Groups
             </h4>
             <p style={{ 
-              color: '#B91C1C', 
+              color: '#DC2626', 
               fontSize: '11px',
               margin: 0,
               fontFamily: 'SF Pro Text, -apple-system, sans-serif'

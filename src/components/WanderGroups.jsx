@@ -61,7 +61,7 @@ const WanderGroups = ({ navigate }) => {
     return (
       <div style={{ 
         minHeight: '100vh', 
-        background: 'linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%)',
+        background: 'linear-gradient(135deg, #FECACA 0%, #FCA5A5 100%)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
@@ -77,7 +77,7 @@ const WanderGroups = ({ navigate }) => {
           pointerEvents: 'none'
         }}></div>
         <div style={{ 
-          color: '#EA580C', 
+          color: '#DC2626', 
           fontSize: '18px',
           position: 'relative',
           zIndex: 1 
@@ -91,7 +91,7 @@ const WanderGroups = ({ navigate }) => {
   return (
     <div style={{ 
       minHeight: '100vh', 
-      background: 'linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%)',
+      background: 'linear-gradient(135deg, #FECACA 0%, #FCA5A5 100%)',
       paddingBottom: '100px',
       position: 'relative'
     }}>
@@ -119,16 +119,16 @@ const WanderGroups = ({ navigate }) => {
             borderRadius: '12px',
             padding: '8px',
             cursor: 'pointer',
-            boxShadow: '0 4px 16px rgba(234, 88, 12, 0.1)',
+            boxShadow: '0 4px 16px rgba(220, 38, 38, 0.1)',
             transition: 'all 0.3s ease'
           }}
           onMouseEnter={(e) => {
             e.target.style.transform = 'translateY(-2px)'
-            e.target.style.boxShadow = '0 6px 20px rgba(234, 88, 12, 0.15)'
+            e.target.style.boxShadow = '0 6px 20px rgba(220, 38, 38, 0.15)'
           }}
           onMouseLeave={(e) => {
             e.target.style.transform = 'translateY(0)'
-            e.target.style.boxShadow = '0 4px 16px rgba(234, 88, 12, 0.1)'
+            e.target.style.boxShadow = '0 4px 16px rgba(220, 38, 38, 0.1)'
           }}
         >
           ←
@@ -148,24 +148,24 @@ const WanderGroups = ({ navigate }) => {
             height: '40px',
             cursor: 'pointer',
             fontSize: '16px',
-            color: '#EA580C',
+            color: '#DC2626',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             fontWeight: 'bold',
-            boxShadow: '0 4px 16px rgba(234, 88, 12, 0.1)',
+            boxShadow: '0 4px 16px rgba(220, 38, 38, 0.1)',
             transition: 'all 0.3s ease'
           }}
           onMouseEnter={(e) => {
             e.target.style.transform = 'translateY(-2px)'
-            e.target.style.boxShadow = '0 6px 20px rgba(234, 88, 12, 0.15)'
+            e.target.style.boxShadow = '0 6px 20px rgba(220, 38, 38, 0.15)'
           }}
           onMouseLeave={(e) => {
             e.target.style.transform = 'translateY(0)'
-            e.target.style.boxShadow = '0 4px 16px rgba(234, 88, 12, 0.1)'
+            e.target.style.boxShadow = '0 4px 16px rgba(220, 38, 38, 0.1)'
           }}
         >
-          ℹ︎
+          ℹ️
         </button>
 
         {/* Logo replacing text title */}
@@ -216,7 +216,7 @@ const WanderGroups = ({ navigate }) => {
             boxShadow: '0 20px 40px rgba(0,0,0,0.15)'
           }}>
             <div style={{ marginBottom: '24px' }}>
-              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#EA580C', margin: '0 0 16px 0' }}>
+              <h2 style={{ fontSize: '24px', fontWeight: '600', color: '#DC2626', margin: '0 0 16px 0' }}>
                 Group Wanders
               </h2>
             </div>
@@ -234,7 +234,7 @@ const WanderGroups = ({ navigate }) => {
                 In Work Mode, prompts lean toward light team-building. They're breezy icebreakers and creative twists that help people connect and think differently: "What's a fake job title that best describes what you really do?" or "Invent an office holiday we should celebrate every year."
               </p>
               
-              <p style={{ margin: 0, fontWeight: '500', color: '#EA580C' }}>
+              <p style={{ margin: 0, fontWeight: '500', color: '#DC2626' }}>
                 Group Wanders aren't about recording responses—they're about shared energy. The kind of quick detour that makes a room feel lighter, more playful, and more connected.
               </p>
             </div>
@@ -243,14 +243,14 @@ const WanderGroups = ({ navigate }) => {
               <button
                 onClick={() => setShowInfo(false)}
                 style={{
-                  background: 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)',
+                  background: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
                   color: 'white',
                   padding: '12px 24px',
                   borderRadius: '16px',
                   border: 'none',
                   fontSize: '16px',
                   cursor: 'pointer',
-                  boxShadow: '0 8px 24px rgba(234, 88, 12, 0.3)'
+                  boxShadow: '0 8px 24px rgba(220, 38, 38, 0.3)'
                 }}
               >
                 Got it
@@ -273,29 +273,29 @@ const WanderGroups = ({ navigate }) => {
             style={{
               flex: 1,
               background: mode === 'party' 
-                ? 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)' 
-                : 'linear-gradient(135deg, #FFFFFF 0%, #FEF3E2 100%)',
-              border: `2px solid ${mode === 'party' ? '#C2410C' : 'rgba(234, 88, 12, 0.3)'}`,
+                ? 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)' 
+                : 'linear-gradient(135deg, #FFFFFF 0%, #FEF2F2 100%)',
+              border: `2px solid ${mode === 'party' ? '#B91C1C' : 'rgba(220, 38, 38, 0.3)'}`,
               borderRadius: '15px',
               padding: '16px',
               fontSize: '14px',
               fontWeight: '600',
               cursor: 'pointer',
-              color: mode === 'party' ? 'white' : '#EA580C',
+              color: mode === 'party' ? 'white' : '#DC2626',
               boxShadow: mode === 'party' 
-                ? '0 8px 24px rgba(234, 88, 12, 0.3)' 
-                : '0 4px 16px rgba(234, 88, 12, 0.1)',
+                ? '0 8px 24px rgba(220, 38, 38, 0.3)' 
+                : '0 4px 16px rgba(220, 38, 38, 0.1)',
               transition: 'all 0.3s ease'
             }}
             onMouseEnter={(e) => {
               if (mode !== 'party') {
-                e.target.style.background = 'linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%)'
+                e.target.style.background = 'linear-gradient(135deg, #FECACA 0%, #FCA5A5 100%)'
                 e.target.style.transform = 'translateY(-1px)'
               }
             }}
             onMouseLeave={(e) => {
               if (mode !== 'party') {
-                e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #FEF3E2 100%)'
+                e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #FEF2F2 100%)'
                 e.target.style.transform = 'translateY(0)'
               }
             }}
@@ -308,29 +308,29 @@ const WanderGroups = ({ navigate }) => {
             style={{
               flex: 1,
               background: mode === 'work' 
-                ? 'linear-gradient(135deg, #EA580C 0%, #C2410C 100%)' 
-                : 'linear-gradient(135deg, #FFFFFF 0%, #FEF3E2 100%)',
-              border: `2px solid ${mode === 'work' ? '#C2410C' : 'rgba(234, 88, 12, 0.3)'}`,
+                ? 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)' 
+                : 'linear-gradient(135deg, #FFFFFF 0%, #FEF2F2 100%)',
+              border: `2px solid ${mode === 'work' ? '#B91C1C' : 'rgba(220, 38, 38, 0.3)'}`,
               borderRadius: '15px',
               padding: '16px',
               fontSize: '14px',
               fontWeight: '600',
               cursor: 'pointer',
-              color: mode === 'work' ? 'white' : '#EA580C',
+              color: mode === 'work' ? 'white' : '#DC2626',
               boxShadow: mode === 'work' 
-                ? '0 8px 24px rgba(234, 88, 12, 0.3)' 
-                : '0 4px 16px rgba(234, 88, 12, 0.1)',
+                ? '0 8px 24px rgba(220, 38, 38, 0.3)' 
+                : '0 4px 16px rgba(220, 38, 38, 0.1)',
               transition: 'all 0.3s ease'
             }}
             onMouseEnter={(e) => {
               if (mode !== 'work') {
-                e.target.style.background = 'linear-gradient(135deg, #FED7AA 0%, #FDBA74 100%)'
+                e.target.style.background = 'linear-gradient(135deg, #FECACA 0%, #FCA5A5 100%)'
                 e.target.style.transform = 'translateY(-1px)'
               }
             }}
             onMouseLeave={(e) => {
               if (mode !== 'work') {
-                e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #FEF3E2 100%)'
+                e.target.style.background = 'linear-gradient(135deg, #FFFFFF 0%, #FEF2F2 100%)'
                 e.target.style.transform = 'translateY(0)'
               }
             }}
@@ -346,7 +346,7 @@ const WanderGroups = ({ navigate }) => {
           marginBottom: '24px'
         }}>
           <p style={{
-            color: '#C2410C',
+            color: '#B91C1C',
             opacity: 0.9,
             fontSize: '16px',
             textAlign: 'center',
@@ -367,7 +367,7 @@ const WanderGroups = ({ navigate }) => {
           padding: '32px',
           border: '1px solid rgba(255,255,255,0.2)',
           marginBottom: '32px',
-          boxShadow: '0 8px 32px rgba(234, 88, 12, 0.15), 0 2px 8px rgba(234, 88, 12, 0.1)',
+          boxShadow: '0 8px 32px rgba(220, 38, 38, 0.15), 0 2px 8px rgba(220, 38, 38, 0.1)',
           position: 'relative'
         }}>
           <div style={{
@@ -399,7 +399,7 @@ const WanderGroups = ({ navigate }) => {
             disabled={isGenerating}
             style={{
               backgroundColor: 'transparent',
-              color: '#C2410C',
+              color: '#B91C1C',
               border: 'none',
               fontSize: '14px',
               textDecoration: 'underline',
@@ -418,13 +418,13 @@ const WanderGroups = ({ navigate }) => {
             onMouseEnter={(e) => {
               if (!isGenerating) {
                 e.target.style.opacity = '1'
-                e.target.style.color = '#EA580C'
+                e.target.style.color = '#DC2626'
               }
             }}
             onMouseLeave={(e) => {
               if (!isGenerating) {
                 e.target.style.opacity = '0.8'
-                e.target.style.color = '#C2410C'
+                e.target.style.color = '#B91C1C'
               }
             }}
           >
@@ -433,7 +433,7 @@ const WanderGroups = ({ navigate }) => {
                 <div style={{ 
                   width: '12px', 
                   height: '12px', 
-                  border: '2px solid #C2410C', 
+                  border: '2px solid #B91C1C', 
                   borderTop: '2px solid transparent', 
                   borderRadius: '50%', 
                   animation: 'spin 1s linear infinite' 
@@ -455,7 +455,7 @@ const WanderGroups = ({ navigate }) => {
           padding: '12px 24px',
           border: '1px solid rgba(255,255,255,0.3)',
           backdropFilter: 'blur(10px)',
-          boxShadow: '0 8px 32px rgba(234, 88, 12, 0.15), 0 4px 16px rgba(234, 88, 12, 0.1)'
+          boxShadow: '0 8px 32px rgba(220, 38, 38, 0.15), 0 4px 16px rgba(220, 38, 38, 0.1)'
         }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '28px' }}>
             
