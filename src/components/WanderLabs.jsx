@@ -1,6 +1,7 @@
 import React, { useState } from 'react'
 
 import WanderDoodlePad from './WanderDoodlePad'
+import WanderScriptO from './WanderScriptO'
 
 const WanderLabs = ({ navigate, currentUser }) => {
   const [currentExperiment, setCurrentExperiment] = useState(null)
@@ -13,6 +14,14 @@ const WanderLabs = ({ navigate, currentUser }) => {
       icon: '🎨',
       color: 'linear-gradient(135deg, #7C3AED 0%, #6D28D9 100%)',
       available: true
+    },
+    {
+      id: 'script',
+      name: 'Script o Wander',
+      description: 'Create movie plots from random elements',
+      icon: '🎬',
+      color: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
+      available: true
     }
     // Future experiments would go here:
     // {
@@ -23,14 +32,6 @@ const WanderLabs = ({ navigate, currentUser }) => {
     //   color: 'linear-gradient(135deg, #F59E0B 0%, #D97706 100%)',
     //   available: true
     // },
-    // {
-    //   id: 'script',
-    //   name: 'Script-o-rama',
-    //   description: 'Create movie plots from random elements',
-    //   icon: '🎬',
-    //   color: 'linear-gradient(135deg, #DC2626 0%, #B91C1C 100%)',
-    //   available: true
-    // }
   ]
 
   const startExperiment = (experimentId) => {
@@ -45,6 +46,9 @@ const WanderLabs = ({ navigate, currentUser }) => {
   if (currentExperiment === 'doodles') {
     return <WanderDoodlePad onCancel={exitExperiment} />
   }
+  if (currentExperiment === 'script') {
+  return <WanderScriptO onCancel={exitExperiment} />
+}
 
   // Main Labs page
   return (
@@ -125,7 +129,7 @@ const WanderLabs = ({ navigate, currentUser }) => {
           border: '1px solid rgba(255,255,255,0.2)',
           marginBottom: '32px',
           boxShadow: '0 8px 32px rgba(14, 165, 233, 0.15), 0 2px 8px rgba(14, 165, 233, 0.1)',
-          textAlign: 'center'
+          textAlign: 'left'
         }}>
           <p style={{ 
             color: '#374151', 
@@ -176,13 +180,30 @@ const WanderLabs = ({ navigate, currentUser }) => {
               
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <div style={{
-                  fontSize: '32px',
+                  width: '48px',
+                  height: '48px', 
+                  borderRadius: '12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  flexShrink: 0
+                  flexShrink: 0,
+                  background: experiment.id === 'doodles' ? 'rgba(124, 58, 237, 0.1)' : 
+                             experiment.id === 'script' ? 'rgba(220, 38, 38, 0.1)' : 'transparent'
                 }}>
-                  🎨
+                  {experiment.id === 'doodles' ? (
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#7C3AED" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m2.7 10.3a2.41 2.41 0 0 0 0 3.41l7.59 7.59a2.41 2.41 0 0 0 3.41 0l7.59-7.59a2.41 2.41 0 0 0 0-3.41L13.7 2.7a2.41 2.41 0 0 0-3.41 0Z"/>
+                      <path d="m8.5 8.5 7 7"/>
+                      <path d="m2 2 20 20"/>
+                    </svg>
+                  ) : experiment.id === 'script' ? (
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#DC2626" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/>
+                      <rect x="2" y="6" width="14" height="12" rx="2"/>
+                    </svg>
+                  ) : (
+                    <span style={{ fontSize: '24px' }}>{experiment.icon}</span>
+                  )}
                 </div>
                 
                 <div style={{ flex: 1 }}>

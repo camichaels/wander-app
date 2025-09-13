@@ -11,6 +11,7 @@ import WanderAbout from './components/WanderAbout'
 import WanderHowTo from './components/WanderHowTo'
 import WanderQuiz from './components/WanderQuiz'
 import WanderLabs from './components/WanderLabs'
+import WanderScriptO from './components/WanderScriptO'
 
 const AuthForm = ({ onUserSelect }) => {
   const [email, setEmail] = useState('')
