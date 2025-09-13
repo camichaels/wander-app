@@ -213,7 +213,24 @@ const WanderHome = ({ navigate, currentUser }) => {
                 onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(0,0,0,0.05)'}
                 onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}>
                 Wander Quiz
-    </button>
+              </button>
+            <button onClick={() => { navigate('labs'); setShowAdminMenu(false) }}
+                style={{ 
+                  display: 'block', 
+                  width: '100%', 
+                  textAlign: 'left', 
+                  padding: '8px 12px', 
+                  background: 'none', 
+                  border: 'none', 
+                  cursor: 'pointer', 
+                  fontSize: '14px', 
+                  color: '#4b5563', 
+                  borderRadius: '6px' 
+                }}
+                onMouseOver={(e) => e.target.style.backgroundColor = 'rgba(0,0,0,0.05)'}
+                onMouseOut={(e) => e.target.style.backgroundColor = 'transparent'}>
+                Wander Labs
+              </button>
             </div>
           )}
         </div>

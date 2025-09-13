@@ -10,6 +10,7 @@ import WanderProfile from './components/WanderProfile'
 import WanderAbout from './components/WanderAbout'
 import WanderHowTo from './components/WanderHowTo'
 import WanderQuiz from './components/WanderQuiz'
+import WanderLabs from './components/WanderLabs'
 
 const AuthForm = ({ onUserSelect }) => {
   const [email, setEmail] = useState('')
@@ -209,6 +210,8 @@ function App() {
         return <WanderHowTo navigate={navigate} currentUser={currentUser} />
       case 'quiz': 
         return <WanderQuiz navigate={navigate} currentUser={currentUser} />
+      case 'labs':
+        return <WanderLabs navigate={navigate} currentUser={currentUser} />
       case 'profile': 
         return (
           <WanderProfile 
