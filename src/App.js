@@ -42,77 +42,144 @@ const AuthForm = ({ onUserSelect }) => {
       minHeight: '100vh', 
       background: 'linear-gradient(135deg, #fef3c7, #fed7aa, #fecaca)',
       display: 'flex',
-      alignItems: 'center',
+      alignItems: 'flex-start',
       justifyContent: 'center',
-      padding: '24px'
+      padding: '40px 24px 24px 24px'
     }}>
       <div style={{
-        backgroundColor: 'rgba(255,255,255,0.7)',
-        borderRadius: '24px',
-        padding: '32px',
         width: '100%',
         maxWidth: '400px',
-        border: '1px solid rgba(255,255,255,0.3)'
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px'
       }}>
-        <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-          <h1 style={{ fontSize: '3rem', fontWeight: '300', color: '#92400e', marginBottom: '8px' }}>Wander</h1>
-          <p style={{ color: '#a16207' }}>Get lost, find focus</p>
+        {/* Logo Section */}
+        <div style={{ textAlign: 'center', marginBottom: '16px' }}>
+          <img 
+            src="/wander-logo.png" 
+            alt="Wander" 
+            style={{ 
+              height: '80px',
+              width: 'auto',
+              maxWidth: '300px',
+              display: 'block',
+              margin: '0 auto',
+              filter: 'brightness(0) saturate(100%) invert(27%) sepia(51%) saturate(2878%) hue-rotate(346deg) brightness(104%) contrast(97%)'
+            }}
+            onError={(e) => {
+              console.log('Logo failed to load from:', e.target.src);
+              e.target.outerHTML = '<h1 style="font-size: 48px; font-weight: 300; color: #7C2D12; margin: 0 auto; font-family: SF Pro Display, -apple-system, sans-serif;">Wander</h1>';
+            }}
+          />
         </div>
 
-        <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '12px',
-              borderRadius: '16px',
-              border: '1px solid #d97706',
-              outline: 'none'
-            }}
-            required
-          />
-          
+        {/* Demo Mode - Top Choice */}
+        <div style={{
+          backgroundColor: 'rgba(255,255,255,0.8)',
+          borderRadius: '24px',
+          padding: '32px',
+          border: '1px solid rgba(255,255,255,0.3)',
+          textAlign: 'center'
+        }}>
+          <h2 style={{ 
+            fontSize: '24px', 
+            fontWeight: '600', 
+            color: '#92400e', 
+            marginBottom: '24px',
+            fontFamily: 'SF Pro Display, -apple-system, sans-serif'
+          }}>
+            Demo Mode
+          </h2>
           <button
-            type="submit"
-            disabled={loading}
+            onClick={() => onUserSelect()}
             style={{
               width: '100%',
               backgroundColor: '#d97706',
               color: 'white',
-              padding: '12px',
-              borderRadius: '16px',
+              padding: '16px 24px',
+              borderRadius: '20px',
               border: 'none',
-              cursor: loading ? 'not-allowed' : 'pointer',
-              opacity: loading ? 0.5 : 1
+              cursor: 'pointer',
+              fontSize: '18px',
+              fontWeight: '600',
+              fontFamily: 'SF Pro Display, -apple-system, sans-serif'
             }}
           >
-            {loading ? 'Sending...' : 'Send Magic Link'}
+            Get Started
           </button>
-        </form>
+        </div>
 
-        <div style={{ margin: '16px 0', textAlign: 'center', color: '#a16207' }}>or</div>
+        {/* Magic Link Section */}
+        <div style={{
+          backgroundColor: 'rgba(255,255,255,0.8)',
+          borderRadius: '24px',
+          padding: '32px',
+          border: '1px solid rgba(255,255,255,0.3)',
+          textAlign: 'center'
+        }}>
+          <p style={{ 
+            color: '#92400e', 
+            margin: '0 0 24px 0', 
+            fontSize: '16px', 
+            fontWeight: '600',
+            fontFamily: 'SF Pro Text, -apple-system, sans-serif'
+          }}>
+            Do not use at this time
+          </p>
 
-        <button
-          onClick={() => onUserSelect()}
-          style={{
-            width: '100%',
-            backgroundColor: 'rgba(255,255,255,0.6)',
-            color: '#92400e',
-            padding: '12px',
-            borderRadius: '16px',
-            border: '1px solid #d97706',
-            cursor: 'pointer'
-          }}
-        >
-          Demo Mode
-        </button>
+          <h2 style={{ 
+            fontSize: '24px', 
+            fontWeight: '600', 
+            color: '#92400e', 
+            marginBottom: '24px',
+            fontFamily: 'SF Pro Display, -apple-system, sans-serif'
+          }}>
+            Sign In with Magic Link
+          </h2>
 
-        {message && (
-          <p style={{ marginTop: '16px', fontSize: '14px', color: '#a16207', textAlign: 'center' }}>{message}</p>
-        )}
+          <form onSubmit={handleAuth} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              style={{
+                width: 'calc(100% - 32px)',
+                padding: '16px',
+                borderRadius: '16px',
+                border: '1px solid #d97706',
+                outline: 'none',
+                fontSize: '16px',
+                fontFamily: 'SF Pro Text, -apple-system, sans-serif'
+              }}
+              required
+            />
+            
+            <button
+              type="submit"
+              disabled={loading}
+              style={{
+                width: '100%',
+                backgroundColor: '#d97706',
+                color: 'white',
+                padding: '16px 24px',
+                borderRadius: '20px',
+                border: 'none',
+                cursor: loading ? 'not-allowed' : 'pointer',
+                opacity: loading ? 0.5 : 1,
+                fontSize: '18px',
+                fontWeight: '600',
+                fontFamily: 'SF Pro Display, -apple-system, sans-serif'
+              }}
+            >
+              {loading ? 'Sending...' : 'Send Magic Link'}
+            </button>
+          </form>
+
+          {message && (
+            <p style={{ marginTop: '16px', fontSize: '14px', color: '#a16207', textAlign: 'center', fontFamily: 'SF Pro Text, -apple-system, sans-serif' }}>{message}</p>
+          )}
+        </div>
       </div>
     </div>
   )
